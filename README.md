@@ -57,3 +57,8 @@ You will see an output similar to:
     * Restarting with stat
     * Debugger is active!
     * Debugger PIN: 855-212-761
+
+
+## Testing
+
+Refer to README.md under _tests_
