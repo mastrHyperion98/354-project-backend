@@ -103,4 +103,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+#VSCode
 .vscode
+
+# macOS file placement data
+.DS_Store
+
+# Windows thumbnail data
+Thumbs.db
