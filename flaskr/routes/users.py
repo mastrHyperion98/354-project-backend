@@ -58,7 +58,7 @@ def registerUser():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
     
-    return {}, 200
+    return new_user.toJSON(), 200
 
 @bp.route('/<string:username>', methods=['GET'])
 def showUserByUsername(username):
