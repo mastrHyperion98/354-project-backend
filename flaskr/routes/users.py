@@ -2,7 +2,7 @@ import functools
 import re
 
 from flask import (
-    Blueprint, g, request, session
+    Blueprint, g, request, session, current_app
 )
 
 from flaskr.db import get_db
@@ -14,6 +14,8 @@ from passlib.hash import argon2
 from flaskr.validation import validate
 
 from sqlalchemy.exc import DBAPIError
+
+from flaskr.email import send
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -58,6 +60,8 @@ def registerUser():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
     
+    send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
+
     return new_user.toJSON(), 200
 
 @bp.route('/<string:username>', methods=['GET'])
