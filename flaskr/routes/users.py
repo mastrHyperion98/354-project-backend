@@ -1,4 +1,5 @@
 import functools
+import re
 
 from flask import (
     Blueprint, g, request, session
@@ -9,6 +10,10 @@ from flaskr.db import get_db
 from flaskr.models.User import User
 
 from passlib.hash import argon2
+
+from flaskr.validation import validate
+
+from sqlalchemy.exc import DBAPIError
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -30,27 +35,29 @@ def listUsers():
         ]
     }, 200
 
-def verifyPropertyExists(properties, json, error_code, error_message):
-    for property in properties:
-        if property["property_key"] not in json:
-            return {
-                "code": error_code,
-                "message": error_message % property["property_name"]
-            }
 
-    return None
 
 @bp.route('', methods=['POST'])
 def registerUser():
-    error = verifyPropertyExists(User.required_properties, request.json, 400, "%s is required")
+    error = validate(User.properties, request.json)
 
     if error:
-        return error, 400
+        return error, error["code"]
 
     new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
     db = get_db()
+
     db.add(new_user)
-    db.commit()
+
+    try:
+        db.commit()
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+    
     return {}, 200
 
 @bp.route('/<string:username>', methods=['GET'])

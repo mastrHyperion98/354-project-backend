@@ -1,31 +1,38 @@
+import datetime
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
 from sqlalchemy.dialects.postgresql import JSONB
-import datetime
+from flaskr.validation import required
 
 Base = declarative_base()
 
 class User(Base):
-    required_properties = [
+    properties = [
         {
-            'property_key': 'firstName', 
-            'property_name': 'First name', 
+            'key': 'firstName', 
+            'name': 'First name',
+            'rules': [required]
         }, 
         {
-            'property_key': 'lastName',
-            'property_name': 'Last name'
+            'key': 'lastName',
+            'name': 'Last name',
+            'rules': [required]
         }, 
         {
-            'property_key': 'email',
-            'property_name': 'Email'
+            'key': 'email',
+            'name': 'Email',
+            'rules': [required]
         },
         {
-            'property_key': 'password',
-            'property_name': 'Password'
+            'key': 'password',
+            'name': 'Password',
+            'rules': [required]
         }, 
         {
-            'property_key': 'username',
-            'property_name': 'Username'
+            'key': 'username',
+            'name': 'Username',
+            'rules': [required]
         }
     ]
 
