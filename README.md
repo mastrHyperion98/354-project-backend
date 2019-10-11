@@ -32,7 +32,7 @@ On Windows:
 #### Install the dependencies
 
 
-    pip install requirements.txt
+    pip install -r requirements.txt
 
 ### Running the application (Development environment only)
 
