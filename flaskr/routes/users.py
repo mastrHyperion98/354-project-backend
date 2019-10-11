@@ -18,25 +18,35 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
-@bp.route('', methods=['GET'])
-@cross_origin(origin='*', methods=['GET'])
+@bp.route('', methods=[ 'GET', 'HEAD' ])
+@cross_origin(origin='*', methods=[ 'GET', 'HEAD' ])
 @login_required
 def listUsers():
-    ## TODO implement this endpoint
-    return {
-        "users": [
-            {
-                'firstName': 'firstName',
-                'lastName': 'lastName',
-                'email': 'email'
-            },
-            {
-                'firstName': 'firstName',
-                'lastName': 'lastName',
-                'email': 'email'
-            }
-        ]
-    }, 200
+    username = request.args.get('username')
+    email = request.args.get('email')
+
+    with session_scope() as db_session:
+        query = db_session.query(User)
+    
+        if 'username' in request.args:
+            query = query.filter(User.username == request.args.get('username'))
+    
+        if 'email' in request.args:
+            query = query.filter(User.email == request.args.get('email'))
+    
+        if request.method == 'HEAD':
+            if query.count() > 0:
+                return '', 200
+            else:
+                return '', 400
+        else:
+            users = []
+            for user in query.all():
+                users.append(user.to_json())
+
+            return {
+                "users": users
+            }, 400
 
 
 
@@ -80,17 +90,6 @@ def registerUser():
     send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
 
     return new_user.toJSON(), 200
-
-@bp.route('/<string:username>', methods=['GET'])
-@cross_origin(origin='*', methods=['GET'])
-@login_required
-def showUserByUsername(username):
-    ## TODO implement this endpoint
-    return {
-        'firstName': 'firstName',
-        'lastName': 'lastName',
-        'email': 'email'
-    }, 200
 
 @bp.route('/self', methods=['GET'])
 @cross_origin(origin='*', methods=['GET'])
