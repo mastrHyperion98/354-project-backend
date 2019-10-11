@@ -11,6 +11,7 @@ from flask import (
 
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.User import User
 from flaskr.email import send
@@ -28,12 +29,19 @@ def listUsers():
     with session_scope() as db_session:
         query = db_session.query(User)
     
-        if 'username' in request.args:
+        # If both username and email are in the query string filter
+        if 'username' in request.args and 'email' in request.args:
+            query = query.filter(or_(User.username == request.args.get('username'), User.email == request.args.get('email')))
+    
+        # If email is in the query string filter by this email
+        if 'email' in request.args and 'username' not in request.args:
+            query = query.filter(User.email == request.args.get('email'))
+
+        # If useranem is in the query string filter by this username
+        if 'username' in request.args and 'email' not in request.args:
             query = query.filter(User.username == request.args.get('username'))
     
-        if 'email' in request.args:
-            query = query.filter(User.email == request.args.get('email'))
-    
+        # If request HEAD send only status of result
         if request.method == 'HEAD':
             if query.count() > 0:
                 return '', 200
