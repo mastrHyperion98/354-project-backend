@@ -23,23 +23,28 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 @cross_origin(origin='*', methods=[ 'GET', 'HEAD' ])
 @login_required
 def listUsers():
-    username = request.args.get('username')
-    email = request.args.get('email')
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'users_filter.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.args, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }
 
     with session_scope() as db_session:
         query = db_session.query(User)
-    
-        # If both username and email are in the query string filter
-        if 'username' in request.args and 'email' in request.args:
-            query = query.filter(or_(User.username == request.args.get('username'), User.email == request.args.get('email')))
-    
-        # If email is in the query string filter by this email
-        if 'email' in request.args and 'username' not in request.args:
-            query = query.filter(User.email == request.args.get('email'))
 
-        # If useranem is in the query string filter by this username
-        if 'username' in request.args and 'email' not in request.args:
+
+        if 'username' in request.args:
             query = query.filter(User.username == request.args.get('username'))
+
+        if 'email' in request.args:
+            query = query.filter(User.email == request.args.get('email'))
     
         # If request HEAD send only status of result
         if request.method == 'HEAD':
