@@ -9,10 +9,6 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    # from . import db
-    # db.init_app(app)
-    # db.init_db()
-
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
 
