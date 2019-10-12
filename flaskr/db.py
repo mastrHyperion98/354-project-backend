@@ -2,22 +2,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import current_app, g
 from flask.cli import with_appcontext
+from contextlib import contextmanager
 
-def get_db():
-    if 'db' not in g:
+def new_session():
+    if 'db_engine' not in g:
         g.db_engine = create_engine(current_app.config['DATABASE_URL'], echo=True)
-        g.db_session = sessionmaker(bind=g.db_engine)
-    return g.db_session
-
-def init_db():
-    db = get_db()
+        g.db_sessionmaker = sessionmaker(bind=g.db_engine)
+    return g.db_sessionmaker()
 
 def close_db():
-    db_session = g.pop('db_session', None)
-
-    if db_session is not None:
-        db_session.close_all_sessions()
-
     db_engine = g.pop('db_engine', None)
 
     if db_engine is not None:
@@ -25,3 +18,17 @@ def close_db():
 
 def init_app(app):
     app.teardown_appcontext(close_db)
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = new_session()
+
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
