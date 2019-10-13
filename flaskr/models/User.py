@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
@@ -16,7 +16,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     email = Column(String)
-    date_joined = Column(Date, default=datetime.datetime.now())
+    date_joined = Column(Date, default=date.today())
     password = Column(String)
     
     def to_json(self):
