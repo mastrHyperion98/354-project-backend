@@ -112,8 +112,8 @@ def registerUser():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-@bp.route('/self', methods=['GET'])
-@cross_origin(origin='*', methods=['GET'])
+@bp.route('/self', methods=['GET', 'OPTIONS'])
+@cross_origin(origin='*', methods=['GET', 'PATCH'])
 @login_required
 def showSelf():
     """Endpoint that returns the information of the authenticated user.
@@ -123,8 +123,8 @@ def showSelf():
     """
     return g.user.to_json(), 200
 
-@bp.route('/self', methods=['PATCH'])
-@cross_origin(origin='*', methods=['PATCH'])
+@bp.route('/self', methods=['PATCH', 'OPTIONS'])
+@cross_origin(origin='*', methods=['GET', 'PATCH'])
 @login_required
 def updateSelf():
     """Endpoints to handle updating an authenticate user.
