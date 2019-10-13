@@ -1,0 +1,19 @@
+stages:
+  - build
+  - deploy 
+
+build on development:
+  stage: build
+  script:
+    - docker build -t 354-backend .
+  only:
+    - master
+
+deploy on development:
+  stage: deploy
+  script:
+    - docker container stop 354-backend && docker container rm 354-backend
+    - docker run --name 354-backend -d -p 8080:8000 354-backend
+  only:
+    - master
+
