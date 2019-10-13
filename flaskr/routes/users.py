@@ -19,8 +19,8 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
-@bp.route('', methods=[ 'GET', 'HEAD' ])
-@cross_origin(origin='*', methods=[ 'GET', 'HEAD' ])
+@bp.route('', methods=[ 'GET', 'HEAD', 'OPTIONS' ])
+@cross_origin(origin='*', methods=[ 'GET', 'POST', 'HEAD' ])
 @login_required
 def listUsers():
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
@@ -63,8 +63,8 @@ def listUsers():
 
 
 
-@bp.route('', methods=['POST'])
-@cross_origin(origin='*', methods=['POST'])
+@bp.route('', methods=['POST', 'OPTIONS'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
 def registerUser():
     """Endpoint use to register a user to the system. Sends a welcoming
     
@@ -112,8 +112,8 @@ def registerUser():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-@bp.route('/self', methods=['GET'])
-@cross_origin(origin='*', methods=['GET'])
+@bp.route('/self', methods=['GET', 'OPTIONS'])
+@cross_origin(origin='*', methods=['GET', 'PATCH'])
 @login_required
 def showSelf():
     """Endpoint that returns the information of the authenticated user.
@@ -123,8 +123,8 @@ def showSelf():
     """
     return g.user.to_json(), 200
 
-@bp.route('/self', methods=['PATCH'])
-@cross_origin(origin='*', methods=['PATCH'])
+@bp.route('/self', methods=['PATCH', 'OPTIONS'])
+@cross_origin(origin='*', methods=['GET', 'PATCH'])
 @login_required
 def updateSelf():
     """Endpoints to handle updating an authenticate user.
