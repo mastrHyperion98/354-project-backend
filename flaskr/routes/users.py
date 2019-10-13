@@ -85,24 +85,27 @@ def registerUser():
             'message': validation_error.message
         }
 
-    new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
+    
 
 
     try:
         with session_scope() as db_session:
+            new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
             db_session.add(new_user)
+            
+            session['user_id'] = new_user.id
+
+            send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
+
+            return new_user.to_json(), 200
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
+        if 'user_id' in session:
+            session.pop('user_id')
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
-
-    session["user_id"] = new_user.id
-
-    send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-
-    return new_user.toJSON(), 200
 
 @bp.route('/self', methods=['GET'])
 @cross_origin(origin='*', methods=['GET'])
