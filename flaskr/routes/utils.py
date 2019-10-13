@@ -1,5 +1,5 @@
 from functools import wraps, update_wrapper
-from flask import g, session, make_response
+from flask import g, session, make_response, request
 from flaskr.models.User import User
 from flaskr.db import session_scope
 
@@ -38,10 +38,14 @@ def login_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
-def cross_origin(origin="*", methods=["GET", "PUT", "POST", "DELETE"], headers=["Origin", "X-Requested-With", "Content-Type", "Accept"]):
+def cross_origin(origin="*", methods=["GET", "PUT", "POST", "DELETE", "OPTIONS"], headers=["Origin", "X-Requested-With", "Content-Type", "Accept"]):
     def _cross_origin_factory(func):
         def _cross_origin(*args, **kwargs):
-            response = make_response(func(*args, **kwargs))
+            if request.method != 'OPTIONS':
+                response = make_response(func(*args, **kwargs))
+            else:
+                response = make_response()
+                
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Headers"] = ", ".join(headers)
             response.headers["Access-Control-Allow-Methods"] = ", ".join(methods)
