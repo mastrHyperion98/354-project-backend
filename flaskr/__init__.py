@@ -1,5 +1,8 @@
-from flask import Flask
+from flask import Flask, session, g
 from .Config import Config
+from flaskr.db import session_scope
+from flaskr.models.User import User
+
 def create_app(test_config=None):
     #create and configure app
     app = Flask(__name__, instance_relative_config=True)
@@ -9,7 +12,21 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
+    @app.before_request
+    def before_request():
+        if 'user_id' in session:
+            with session_scope() as db_session:
+                query = db_session.query(User).filter(User.id==session.get('user_id'))
+                if query.count() == 1:
+                    user = query.one()
+                    g.user = user
+                    db_session.expunge(g.user)
+        
+
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
+
+    from flaskr.routes.carts import bp as carts
+    app.register_blueprint(carts)
 
     return app

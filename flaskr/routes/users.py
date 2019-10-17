@@ -121,7 +121,10 @@ def showSelf():
     Returns:
         str -- Returns a JSON object of the authenticated user.
     """
-    return g.user.to_json(), 200
+    with session_scope() as db_session:
+        user = db_session.merge(g.user)
+
+        return user.to_json(), 200
 
 @bp.route('/self', methods=['PATCH', 'OPTIONS'])
 @cross_origin(origin='*', methods=['GET', 'PATCH'])

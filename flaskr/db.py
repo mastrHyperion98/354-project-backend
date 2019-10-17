@@ -3,6 +3,9 @@ from sqlalchemy.orm import sessionmaker
 from flask import current_app, g
 from flask.cli import with_appcontext
 from contextlib import contextmanager
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 def new_session():
     if 'db_engine' not in g:

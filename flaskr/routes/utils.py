@@ -17,19 +17,7 @@ def not_login(func):
 def login_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
-        if 'user_id' in session:
-            with session_scope() as db_session:
-                # Not the most efficient way if the demand is there we could always include a redis/memcache server.
-                query = db_session.query(User).filter_by(id=session.get('user_id'))
-                if query.count() == 1:
-                    g.user = query.one()
-                else:
-                    session.pop('user_id')
-                    return {
-                        'code': 400,
-                        'message': 'Unauthorized Access'
-                    }, 400
-        else:
+        if 'user' not in g:
             return {
                 'code': 400,
                 'message': 'Unauthorized Access'
@@ -53,3 +41,9 @@ def cross_origin(origin="*", methods=["GET", "PUT", "POST", "DELETE", "OPTIONS"]
             return response
         return update_wrapper(_cross_origin, func)
     return _cross_origin_factory
+
+def is_logged_in():
+    if 'user' in g:
+        return True
+    else:
+        return False
