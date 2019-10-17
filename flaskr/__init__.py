@@ -12,4 +12,7 @@ def create_app(test_config=None):
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
 
+    from flaskr.routes.auth import bp as auth
+    app.register_blueprint(auth)
+    
     return app
