@@ -3,6 +3,9 @@ from flask import (
 )
 
 from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.db import session_scope
+from flaskr.models.user import User
+from passlib.hash import argon2
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
@@ -16,14 +19,36 @@ def login():
     """
     
     # Verify content of the request.json sent by the client
+    if 'user_id' in session:
+        return {
+            'code': 400,
+            'message': 'Already logged in'
+        }, 400
 
-    # If email and password not in query return 400 with {'code':400, 'message': 'Email and password do not match'}
+    if 'email' in request.json and 'password' in request.json:
+        email = request.json['email']
+        password = request.json['password']
+    try:
+        with session_scope() as db_session:
+            query = db_session.query(User).filter(User.email==email).filter(User.password==argon2(password))
 
-    # If email and password matches add user_id to session
-
-    # Send user.to_json() back to the client with 200
-
-    return '', 200
+            if query.count() == 1:
+                user = query.one()
+                session['user_id'] = user.id 
+                return user.to_json(), 200
+            else:
+                # error return 400 
+                return {
+                    'code': 400,
+                    'message': 'User not found'
+                }
+    except DBAPIError as db_error:
+        
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400 
 
 @bp.route('/logout', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
