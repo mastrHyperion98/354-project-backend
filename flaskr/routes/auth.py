@@ -11,6 +11,7 @@ from sqlalchemy.exc import DBAPIError
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
+import os
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
