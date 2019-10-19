@@ -27,9 +27,9 @@ def login():
     # Verify content of the request.json sent by the client
     if 'user_id' in session:
         return {
-            'code': 400,
+            'code': 401,
             'message': 'Already logged in'
-        }, 400
+        }, 401
 
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
