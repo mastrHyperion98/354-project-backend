@@ -51,7 +51,7 @@ def listUsers():
             if query.count() > 0:
                 return '', 200
             else:
-                return '', 400
+                return '', 404
         else:
             users = []
             for user in query.all():
@@ -59,7 +59,7 @@ def listUsers():
 
             return {
                 "users": users
-            }, 400
+            }, 200
 
 
 
