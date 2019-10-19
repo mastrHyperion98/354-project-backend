@@ -1,11 +1,16 @@
+import re
 from flask import (
-    Blueprint, g, session
+    Blueprint, g, session, request, current_app
 )
 
 from flaskr.routes.utils import login_required, not_login, cross_origin
 from flaskr.db import session_scope
-from flaskr.models.user import User
+from flaskr.models.User import User
 from passlib.hash import argon2
+from sqlalchemy.exc import DBAPIError
+from jsonschema import validate, draft7_format_checker
+import jsonschema.exceptions
+import json
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
@@ -25,23 +30,38 @@ def login():
             'message': 'Already logged in'
         }, 400
 
-    if 'email' in request.json and 'password' in request.json:
-        email = request.json['email']
-        password = request.json['password']
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'users_filter.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.args, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }
+
     try:
         with session_scope() as db_session:
-            query = db_session.query(User).filter(User.email==email).filter(User.password==argon2(password))
+            query = db_session.query(User).filter(User.email==request.json['email'])
 
             if query.count() == 1:
                 user = query.one()
-                session['user_id'] = user.id 
-                return user.to_json(), 200
+                if argon2.verify(request.json['password'], user.password):
+                    session['user_id'] = user.id
+                    return user.to_json(), 200
+                else:
+                    return {
+                        'code': 400,
+                        'message': 'Wrong login information'
+                    }, 400    
             else:
-                # error return 400 
                 return {
                     'code': 400,
-                    'message': 'User not found'
-                }
+                    'message': 'Wrong login information'
+                }, 400
     except DBAPIError as db_error:
         
         # Returns an error in case of a integrity constraint not being followed.
