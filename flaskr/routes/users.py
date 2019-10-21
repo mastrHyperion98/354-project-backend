@@ -21,7 +21,6 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 
 @bp.route('', methods=[ 'GET', 'HEAD', 'OPTIONS' ])
 @cross_origin(origin='*', methods=[ 'GET', 'POST', 'HEAD' ])
-@login_required
 def listUsers():
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
