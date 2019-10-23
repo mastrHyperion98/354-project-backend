@@ -14,8 +14,8 @@ class Product(Base):
     id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
     name = Column(String)
     description = Column(String)
-    quantitiy = Column(Integer)
-    aggragated_review = Column(Numeric(precision=1), default=None)
+    quantity = Column(Integer)
+    aggragated_review = Column(Numeric(precision=1), default=0)
     number_of_review = Column(Integer, default=0)
     category_id = Column(Integer)
     user_id = Column(Integer)
@@ -37,7 +37,7 @@ class Product(Base):
         return {
             'name': self.name,
             'description': self.description,
-            'quantitiy': self.quantitiy,
+            'quantity': self.quantity,
             'aggragatedReview': self.aggragated_review,
             'numberOfReviews': self.number_of_review,
             'categoryId': self.category_id,
