@@ -44,7 +44,7 @@ def listUsers():
 
         if 'email' in request.args:
             query = query.filter(User.email == request.args.get('email'))
-    
+
         # If request HEAD send only status of result
         if request.method == 'HEAD':
             if query.count() > 0:
@@ -66,7 +66,7 @@ def listUsers():
 @cross_origin(methods=['GET', 'POST', 'HEAD'])
 def registerUser():
     """Endpoint use to register a user to the system. Sends a welcoming
-    
+
     Returns:
         (str, int) -- Returns a tuple of the JSON object of the newly register user and a http status code.
     """
@@ -91,16 +91,16 @@ def registerUser():
 
             # Commit new user to database making sure of the integrity of the relations.
             db_session.commit()
-            
+
             # Automatically login the user upon succesful registration
             session['user_id'] = new_user.id
-            
+
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-            
+
             return new_user.to_json(), 200
     except DBAPIError as db_error:
-        
+
         # In case that the unvalid user was login remove it from session
         if 'user_id' in session:
             session.pop('user_id')
@@ -116,7 +116,7 @@ def registerUser():
 @login_required
 def showSelf():
     """Endpoint that returns the information of the authenticated user.
-    
+
     Returns:
         str -- Returns a JSON object of the authenticated user.
     """
@@ -127,7 +127,7 @@ def showSelf():
 @login_required
 def updateSelf():
     """Endpoints to handle updating an authenticate user.
-    
+
     Returns:
         str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
     """
@@ -144,7 +144,7 @@ def updateSelf():
             'code': 400,
             'message': validation_error.message
         }
-    
+
     try:
         with session_scope() as db_session:
             user = db_session.merge(g.user)

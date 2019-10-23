@@ -23,7 +23,7 @@ def login():
     Returns:
         (dict, int) -- User JSON representation with 200 if login was successful, Error otherwise
     """
-    
+
     # Verify content of the request.json sent by the client
     if 'user_id' in session:
         return {
@@ -33,16 +33,16 @@ def login():
 
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'users_filter.schema.json')
+    schema_filepath = os.path.join(schemas_directory, 'login.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
-            validate(instance=request.args, schema=schema, format_checker=draft7_format_checker)
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
         with session_scope() as db_session:
@@ -56,27 +56,27 @@ def login():
                 else:
                     return {
                         'code': 400,
-                        'message': 'Wrong login information'
-                    }, 400    
+                        'message': 'Password is invalid.'
+                    }, 400
             else:
                 return {
                     'code': 400,
-                    'message': 'Wrong login information'
+                    'message': 'Email is invalid.'
                 }, 400
     except DBAPIError as db_error:
-        
+
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400 
+        }, 400
 
 @bp.route('/logout', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def logout():
     """Endpoint use to logout a login user.
-    
+
     Returns:
         (str, int) -- Empty string with 200 if logout was successful, Error otherwise
     """
