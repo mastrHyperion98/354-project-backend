@@ -16,7 +16,7 @@ import os
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
 @bp.route('/login', methods=[ 'POST', 'OPTIONS' ])
-@cross_origin(methods=[ 'POST' ])
+@cross_origin(origin='*', methods=[ 'POST' ])
 def login():
     """Endpoint used to login a user.
 
