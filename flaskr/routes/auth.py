@@ -32,7 +32,7 @@ def login():
         }, 401
 
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_directory, 'login.schema.json')
     try:
         with open(schema_filepath) as schema_file:
