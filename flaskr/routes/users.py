@@ -33,7 +33,7 @@ def listUsers():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     with session_scope() as db_session:
         query = db_session.query(User)
@@ -82,7 +82,7 @@ def registerUser():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
         with session_scope() as db_session:
@@ -143,7 +143,7 @@ def updateSelf():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
         with session_scope() as db_session:
@@ -160,5 +160,5 @@ def updateSelf():
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }
+        }, 400
     return g.user.to_json(), 200
