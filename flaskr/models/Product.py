@@ -15,8 +15,6 @@ class Product(Base):
     name = Column(String)
     description = Column(String)
     quantity = Column(Integer)
-    aggragated_review = Column(Numeric(precision=1), default=0)
-    number_of_review = Column(Integer, default=0)
     category_id = Column(Integer)
     user_id = Column(Integer)
     tax_id = Column(Integer)
@@ -38,8 +36,6 @@ class Product(Base):
             'name': self.name,
             'description': self.description,
             'quantity': self.quantity,
-            'aggragatedReview': self.aggragated_review,
-            'numberOfReviews': self.number_of_review,
             'categoryId': self.category_id,
             'userId': self.user_id,
             'taxId': self.tax_id,
