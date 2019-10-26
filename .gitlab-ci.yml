@@ -13,7 +13,7 @@ deploy on development:
   stage: deploy
   script:
     - docker container stop 354-backend && docker container rm 354-backend
-    - docker run --name 354-backend -d -p 8080:8000 354-backend
+    - docker run --name 354-backend -d -e FLASK_ORIGIN="$FLASK_ORIGIN" -p 8080:8000 354-backend
   only:
     - master
 
