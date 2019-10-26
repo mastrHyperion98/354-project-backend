@@ -39,7 +39,7 @@ def login_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
-def cross_origin(origin=os.environ.get('ORIGIN') or '*', methods=["GET", "PUT", "POST", "DELETE", "OPTIONS"], headers=["Origin", "X-Requested-With", "Content-Type", "Accept"]):
+def cross_origin(origin=os.environ.get('FLASK_ORIGIN') or '*', methods=["GET", "PUT", "POST", "DELETE", "OPTIONS"], headers=["Origin", "X-Requested-With", "Content-Type", "Accept"]):
     def _cross_origin_factory(func):
         def _cross_origin(*args, **kwargs):
             if request.method != 'OPTIONS':
