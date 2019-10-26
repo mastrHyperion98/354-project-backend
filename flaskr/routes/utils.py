@@ -46,10 +46,15 @@ def cross_origin(origin=os.environ.get('FLASK_ORIGIN') or '*', methods=["GET", "
                 response = make_response(func(*args, **kwargs))
             else:
                 response = make_response()
-                
+
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Headers"] = ", ".join(headers)
             response.headers["Access-Control-Allow-Methods"] = ", ".join(methods)
+            # Tells the browser to expose the response to frontend when cross-origin cookies are transferred.
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            # Explicitly allows cross-site cookies. The 'Secure' directive doesn't actually work since we're
+            # not on https.
+            resp.headers.add('Set-Cookie','SameSite=None; Secure')
 
             return response
         return update_wrapper(_cross_origin, func)
