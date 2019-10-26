@@ -54,7 +54,7 @@ def cross_origin(origin=os.environ.get('FLASK_ORIGIN') or '*', methods=["GET", "
             response.headers["Access-Control-Allow-Credentials"] = "true"
             # Explicitly allows cross-site cookies. The 'Secure' directive doesn't actually work since we're
             # not on https.
-            resp.headers.add('Set-Cookie','SameSite=None; Secure')
+            response.headers.add('Set-Cookie','SameSite=None; Secure')
 
             return response
         return update_wrapper(_cross_origin, func)
