@@ -16,7 +16,6 @@ from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
-from flaskr.models.Transaction import Transaction
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
