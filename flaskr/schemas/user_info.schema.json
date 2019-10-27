@@ -10,7 +10,7 @@
             "type": "date",
             "description": "date fulfilled"
         },
-        "statusID": {
+        "status_id": {
             "type": "number",
             "description": "statusID"
         },
