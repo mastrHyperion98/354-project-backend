@@ -49,9 +49,9 @@ def checkOut():
     # Check if cart id exists with cart items
 	    with session_scope() as db_session:
 	        queryCart = db_session.query(Cart)
-	        queryCart = queryCart.filter(Cart.id == request.json.get('id'))
+	        queryCart = queryCart.filter(Cart.id == request.json.get('cart_id'))
 	        queryItem = db_session.query(CartLine)
-	        queryItem = queryItem.filter(CartLine.cart_id == request.json.get('id'))
+	        queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
 
 	        if queryCart.count() > 0 and queryItem.count() > 0:
 	        	queryCart = queryCart.one()
@@ -138,15 +138,6 @@ def checkOut():
 
 	        	# SEND EMAIL to the buyer
 	        	send(current_app.config['SMTP_USERNAME'], emailBuyer, "Welcome to 354TheStars!", "<html><body><p>Check out!</p>"+stringList+"</body></html>" ,"Welcome to 354TheStars!")
-
-	        	# Add cart id to transaction
-	        	transaction=Transaction(cart_id=request.json.get('id'))
-	        	# Add to database
-	        	db_session.add(transaction)
-	        	# Database commit
-	        	db_session.commit()
-
-	        	return transaction.to_json()
 
 	except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
