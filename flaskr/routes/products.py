@@ -45,7 +45,7 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-            new_product = Product(name = request.json['productName'],
+            new_product = Product(product_name = request.json['productName'],
                                   description = request.json['productDescription'],
                                   quantity = request.json['quantity'],
                                   category_id = request.json['categoryId'],
