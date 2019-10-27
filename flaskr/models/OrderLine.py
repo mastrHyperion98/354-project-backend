@@ -33,5 +33,5 @@ class OrderLine(Base):
             'order_id': self.order_id,
             'product_id': self.product_id,
             'quantity': self.quantity,
-            'price': self.price,
+            'price': self.price
         }
