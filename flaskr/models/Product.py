@@ -24,8 +24,7 @@ class Product(Base):
     photos = Column(JSON)
     brand_id = Column(Integer)
 
-    
-    
+     
     def to_json(self):
         """Returns the instance of product as a JSON
         
@@ -33,8 +32,8 @@ class Product(Base):
             dict -- JSON representation of the product
         """
         return {
-            'product_id': self.id,
-            'product_name': self.name,
+            'productId': self.product_id,
+            'productName': self.product_name,
             'description': self.description,
             'quantity': self.quantity,
             'categoryId': self.category_id,
