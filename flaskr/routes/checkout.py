@@ -21,7 +21,7 @@ from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
 
-bp = Blueprint('carts', __name__, url_prefix='/carts')
+bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 
 bp.route("/checkout")
 @login_required
