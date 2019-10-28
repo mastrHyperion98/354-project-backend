@@ -118,7 +118,8 @@ def getOrder():
             # CLEAR CART
             db_session.delete(queryCart)
             db_session.delete(queryItem)
-
+            
+        return '', 200
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
