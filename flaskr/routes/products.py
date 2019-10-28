@@ -20,8 +20,7 @@ bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['GET', 'POST', 'HEAD'])
-#TODO: reenable login required
-#@login_required
+@login_required
 def createProduct():
     """Endpoint to add a new product to the system
     
@@ -47,7 +46,7 @@ def createProduct():
         with session_scope() as db_session:
             new_product = Product(product_name = request.json['productName'],
                                   description = request.json['productDescription'],
-                                  quantity = request.json['quantity'],
+                                  stock_quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
                                   user_id = request.json['userId'],
                                   tax_id = request.json['taxId'],

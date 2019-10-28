@@ -15,7 +15,7 @@
              "type": "string",
              "description": "description of the product"
          },
-         "quantity": {
+         "stockQuantity": {
              "type": "integer",
              "description": "quantity of product in stock"
          },
