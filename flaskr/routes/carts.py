@@ -109,7 +109,7 @@ def add_item_to_mine():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     if 'cart_id' in session:
         try:
