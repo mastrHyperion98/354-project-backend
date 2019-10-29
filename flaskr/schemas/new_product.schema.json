@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "NewProduct",
     "type": "object",
-    "required": [ "productName", "productDescription", "quantity", "categoryId", "userId",
+    "required": [ "productName", "productDescription", "stockQuantity", "categoryId", "userId",
                   "taxId", "brandId"],
     "additionalProperties": false,
     "properties": {
