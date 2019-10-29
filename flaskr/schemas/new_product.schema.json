@@ -1,0 +1,39 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "NewProduct",
+    "type": "object",
+    "required": [ "productName", "productDescription", "stockQuantity", "categoryId", "userId",
+                  "taxId", "brandId"],
+    "additionalProperties": false,
+    "properties": {
+        "productName": {
+            "type": "string",
+            "description": "product name"
+        }, 
+        "productDescription": {
+             "type": "string",
+             "description": "description of the product"
+         },
+         "stockQuantity": {
+             "type": "integer",
+             "description": "quantity of product in stock"
+         },
+         "categoryId": {
+             "type": "integer",
+             "description": "catory product falls under"
+         },
+         "userId": {
+             "type": "integer",
+             "description": "User ID of product creator"
+         },
+         "taxId": {
+             "type": "integer",
+             "description": "Tax ID of the item"
+         },
+         "brandId": {
+             "type": "integer",
+             "description": "ID number of the product brand"
+         }
+    }
+}

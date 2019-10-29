@@ -1,0 +1,18 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "LoginRequest",
+    "type": "object",
+    "required": [ "email", "password" ],
+    "additionalProperties": false,
+    "properties": {
+        "password": {
+            "type": "string",
+            "description": "User's password"
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        }
+    }
+}

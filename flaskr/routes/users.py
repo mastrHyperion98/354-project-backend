@@ -20,8 +20,7 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 bp = Blueprint('users', __name__, url_prefix='/users')
 
 @bp.route('', methods=[ 'GET', 'HEAD', 'OPTIONS' ])
-@cross_origin(origin='*', methods=[ 'GET', 'POST', 'HEAD' ])
-@login_required
+@cross_origin(methods=[ 'GET', 'POST', 'HEAD' ])
 def listUsers():
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -34,7 +33,7 @@ def listUsers():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     with session_scope() as db_session:
         query = db_session.query(User)
@@ -45,13 +44,13 @@ def listUsers():
 
         if 'email' in request.args:
             query = query.filter(User.email == request.args.get('email'))
-    
+
         # If request HEAD send only status of result
         if request.method == 'HEAD':
             if query.count() > 0:
                 return '', 200
             else:
-                return '', 400
+                return '', 404
         else:
             users = []
             for user in query.all():
@@ -59,7 +58,7 @@ def listUsers():
 
             return {
                 "users": users
-            }, 400
+            }, 200
 
 
 
@@ -67,7 +66,7 @@ def listUsers():
 @cross_origin(methods=['GET', 'POST', 'HEAD'])
 def registerUser():
     """Endpoint use to register a user to the system. Sends a welcoming
-    
+
     Returns:
         (str, int) -- Returns a tuple of the JSON object of the newly register user and a http status code.
     """
@@ -83,7 +82,7 @@ def registerUser():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
         with session_scope() as db_session:
@@ -92,16 +91,16 @@ def registerUser():
 
             # Commit new user to database making sure of the integrity of the relations.
             db_session.commit()
-            
+
             # Automatically login the user upon succesful registration
             session['user_id'] = new_user.id
-            
+
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-            
+
             return new_user.to_json(), 200
     except DBAPIError as db_error:
-        
+
         # In case that the unvalid user was login remove it from session
         if 'user_id' in session:
             session.pop('user_id')
@@ -113,11 +112,11 @@ def registerUser():
         }, 400
 
 @bp.route('/self', methods=['GET', 'OPTIONS'])
-@cross_origin(origin='*', methods=['GET', 'PATCH'])
+@cross_origin(methods=['GET', 'PATCH'])
 @login_required
 def showSelf():
     """Endpoint that returns the information of the authenticated user.
-    
+
     Returns:
         str -- Returns a JSON object of the authenticated user.
     """
@@ -127,11 +126,11 @@ def showSelf():
         return user.to_json(), 200
 
 @bp.route('/self', methods=['PATCH', 'OPTIONS'])
-@cross_origin(origin='*', methods=['GET', 'PATCH'])
+@cross_origin(methods=['GET', 'PATCH'])
 @login_required
 def updateSelf():
     """Endpoints to handle updating an authenticate user.
-    
+
     Returns:
         str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
     """
@@ -147,8 +146,8 @@ def updateSelf():
         return {
             'code': 400,
             'message': validation_error.message
-        }
-    
+        }, 400
+
     try:
         with session_scope() as db_session:
             user = db_session.merge(g.user)
@@ -164,5 +163,5 @@ def updateSelf():
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }
+        }, 400
     return g.user.to_json(), 200
