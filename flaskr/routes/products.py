@@ -40,7 +40,7 @@ def createProduct():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
         with session_scope() as db_session:
