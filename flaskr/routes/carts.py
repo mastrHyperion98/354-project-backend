@@ -99,8 +99,8 @@ def get_mine():
 @cross_origin(methods=[ 'POST' ])
 def add_item_to_mine():
     # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'cart_line.schema.json')
+    schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_directory, 'cart_line.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
