@@ -128,7 +128,7 @@ def add_item_to_mine():
         return {
             'code': 400,
             'message': 'User has no cart'
-        }
+        }, 400
             
 @bp.route('/mine/items/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])
