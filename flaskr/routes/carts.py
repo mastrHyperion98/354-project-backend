@@ -23,6 +23,7 @@ from datetime import date
 bp = Blueprint('carts', __name__, url_prefix='/carts')
 
 @bp.route('', methods=[ 'POST', 'OPTIONS' ])
+@cross_origin(methods=[ 'POST' ])
 def create_cart():
     try:
         with session_scope() as db_session:
