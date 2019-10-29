@@ -2,15 +2,15 @@ from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
+from sqlalchemy.orm import relationship
+from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 from sqlalchemy.dialects.postgresql import JSON, JSONB
-
-Base = declarative_base()
 
 class Product(Base):
 
     __tablename__ = 'product'
-
+    
     product_id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
     product_name = Column(String)
     description = Column(String)

@@ -2,10 +2,11 @@ from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
 from sqlalchemy.dialects.postgresql import JSONB
-
-Base = declarative_base()
+from flaskr.db import Base
+from flaskr.models.Product import Product
 
 class User(Base):
 
@@ -18,11 +19,12 @@ class User(Base):
     email = Column(String)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
-    
+    cart = relationship('Cart')
+
     def to_json(self):
         """Returns the instance of user as a JSON
         
-        Returns:
+        Returns:    
             dict -- JSON representation of the user
         """
         return {
@@ -32,3 +34,5 @@ class User(Base):
             'email': self.email,
             'dateJoined': self.date_joined
         }
+
+    
