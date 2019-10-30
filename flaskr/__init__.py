@@ -35,4 +35,10 @@ def create_app(test_config=None):
     from flaskr.routes.auth import bp as auth
     app.register_blueprint(auth)
 
+    from flaskr.routes.sections import bp as sections
+    app.register_blueprint(sections)
+
+    from flaskr.routes.categories import bp as categories
+    app.register_blueprint(categories)
+    
     return app

@@ -11,11 +11,11 @@ class Product(Base):
 
     __tablename__ = 'product'
     
-    product_id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
-    product_name = Column(String)
+    id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
+    name = Column(String)
     description = Column(String)
     quantity = Column(Integer)
-    category_id = Column(Integer)
+    category_id = Column(Integer, ForeignKey('category.id'))
     user_id = Column(Integer)
     tax_id = Column(Integer)
     date_added = Column(Date, default=date.today())
@@ -32,8 +32,8 @@ class Product(Base):
             dict -- JSON representation of the product
         """
         return {
-            'productId': self.product_id,
-            'productName': self.product_name,
+            'productId': self.id,
+            'productName': self.name,
             'description': self.description,
             'quantity': self.quantity,
             'categoryId': self.category_id,
