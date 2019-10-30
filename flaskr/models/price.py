@@ -13,8 +13,8 @@ class price(Base):
 
     __tablename__ = 'price'
 
-    id = Column(Integer, Sequence('seq_user_id'), primary_key=True)
-    product_id = Column(Integer, ForeignKey(product.id))
+    id = Column(Integer, Sequence('seq_price_id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('product.id'))
     start_date = Column(Date)
     end_date = Column(Date)
     amount = Column(Float)

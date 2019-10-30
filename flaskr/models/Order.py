@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Float
 from sqlalchemy.dialects.postgresql import JSONB
 from flaskr.db import Base
 from flaskr.models.User import User
@@ -14,8 +14,8 @@ class Order(Base):
 
     __tablename__ = 'order'
 
-    id = Column(Integer, Sequence('seq_user_id'), primary_key=True)
-    user_id = Column(String, ForeignKey(user.id))
+    id = Column(Integer, Sequence('seq_order_id'), primary_key=True)
+    user_id = Column(String, ForeignKey('user.id'))
     date = Column(Date, default=date.today())
     date_fulfilled = Column(Date)
     status_id = Column(Integer, ForeignKey(order_status.id))
@@ -25,6 +25,7 @@ class Order(Base):
     city = Column(String)
     country = Column(String)
     phone = Column(String)
+    total_cost = Column(Float)
     user = relationship('User')
     order_status = relationship('order_status')
 

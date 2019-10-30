@@ -14,9 +14,9 @@ class OrderLine(Base):
 
     __tablename__ = 'order_line'
 
-    id = Column(Integer, Sequence('seq_user_id'), primary_key=True)
-    order_id = Column(Integer, ForeignKey(order.id))
-    product_id = Column(Integer, ForeignKey(product.id))
+    id = Column(Integer, Sequence('seq_order_line_id'), primary_key=True)
+    order_id = Column(Integer, ForeignKey('order.id'))
+    product_id = Column(Integer, ForeignKey('product.id'))
     quantity = Column(Integer)
     price = Column(Float)
     order = relationship('Order')

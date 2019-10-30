@@ -22,12 +22,17 @@ class Product(Base):
     tax_id = Column(Integer, ForeignKey('tax.id'))
     date_added = Column(Date, default=date.today())
     permalink = Column(String)
-    brand_id = Column(Integer, ForeignKey('brand'))
+    brand_id = Column(Integer, ForeignKey('brand.id'))
 
     def to_json(self):
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'quantity': self.quantity
+            'quantity': self.quantity,
+            'category_id': self.category_id,
+            'user_id': self.user_id,
+            'tax_id': self.tax_id,
+            'permalink': self.permalink,
+            'brand_id': self.brand_id
         }

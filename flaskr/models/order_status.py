@@ -13,7 +13,7 @@ class order_status(Base):
 
     __tablename__ = 'order_status'
 
-    id = Column(Integer, Sequence('seq_user_id'), primary_key=True)
+    id = Column(Integer, Sequence('seq_order_status_id'), primary_key=True)
     status = Column(String)
   
 
