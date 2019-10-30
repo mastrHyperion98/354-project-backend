@@ -111,24 +111,24 @@ def add_item_to_mine():
             'message': validation_error.message
         }
 
-    if 'cart_id' in session:
-        try:
-            with session_scope() as db_session:
-                cart_line = CartLine(cart_id=session.get('cart_id'), product_id=request.json['porductId'], quantity=request.json['quantity'])
-                db_session.add(cart_line)
+    #if 'cart_id' in session:
+    try:
+        with session_scope() as db_session:
+            cart_line = CartLine(cart_id=1, product_id=request.json['productId'], quantity=request.json['quantity'])
+            db_session.add(cart_line)
 
-            return '', 200
-        except DBAPIError as db_error:
+        return '', 200
+    except DBAPIError as db_error:
             # Returns an error in case of a integrity constraint not being followed.
-            return {
-                'code': 400,
-                'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-            }, 400              
-    else:
         return {
             'code': 400,
-            'message': 'User has no cart'
-        }
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400              
+    #else:
+    #    return {
+    #        'code': 400,
+    #        'message': 'User has no cart'
+    #    }
             
 @bp.route('/mine/items/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])

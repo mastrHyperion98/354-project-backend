@@ -25,13 +25,11 @@ from flaskr.routes.utils import login_required, not_login, cross_origin, is_logg
 from datetime import date
 
 bp = Blueprint('checkout', __name__, url_prefix='/checkout')
-
-bp.route("/getorder")
-@login_required
+@bp.route("/getorder")
 def getOrder():
 
     # Load json data from json schema to variable checkout.json 'SCHEMA_FOLDER'
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['flaskr/schemas'])
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'checkout.schema.json')
     try:
         with open(schema_filepath) as schema_file:
@@ -110,16 +108,15 @@ def getOrder():
             db_session.add(my_order)
 
             # Prepare to clear cart
-            queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == request.json.get('cart_id')).one()
+            # queryCart = db_session.query(Cart)
+            # queryCart = queryCart.filter(Cart.id == request.json.get('cart_id')).one()
             queryItem = db_session.query(CartLine)
             queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
 
             # CLEAR CART
-            db_session.delete(queryCart)
+            # db_session.delete(queryCart)
             db_session.delete(queryItem)
-            
-        return '', 200
+
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
@@ -128,17 +125,17 @@ def getOrder():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-bp.route("/checkout")
-@login_required
+@bp.route("/checkout", methods=['POST'])
 def checkOut():
 
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['flaskr/schemas'])
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'checkout.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
             validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+            
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
@@ -149,14 +146,17 @@ def checkOut():
     item_tmp=[]
     stringList=""
 
+
+
     try:    
 
     # Check if cart id exists with cart items
         with session_scope() as db_session:
             queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == request.json.get('cart_id'))
+            queryCart = queryCart.filter(Cart.id == request.json.get('cartID'))
             queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
+            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cartID'))
+
 
             if queryCart.count() > 0 and queryItem.count() > 0:
                 queryCart = queryCart.one()
@@ -195,7 +195,7 @@ def checkOut():
                     productsold=str(queryProduct.one().data['name'])
 
                     # If quantity left is bigger than 0
-                    if left > 0:
+                    if left >= 0:
 
                         # SEND EMAIL to seller
                         send(current_app.config['SMTP_USERNAME'], emailSeller, "Welcome to 354TheStars!", "<html><body><p>"+productsold+":"+str(purchased_quantity)+" SOLD </p></body></html>" ,"Welcome to 354TheStars!")
@@ -216,24 +216,24 @@ def checkOut():
                         db_session.commit()
 
                     # If quantity left is 0
-                    elif left == 0:
+                    #elif left == 0:
 
                         # SEND EMAIL to seller
-                        send(current_app.config['SMTP_USERNAME'], emailSeller, "Welcome to 354TheStars!", "<html><body><p>"+productsold+":"+str(purchased_quantity)+" SOLD </p></body></html>" ,"Welcome to 354TheStars!")
+                    #    send(current_app.config['SMTP_USERNAME'], emailSeller, "Welcome to 354TheStars!", "<html><body><p>"+productsold+":"+str(purchased_quantity)+" SOLD </p></body></html>" ,"Welcome to 354TheStars!")
 
                         # Update list of products sold with quantity
-                        item_tmp=[]
-                        item_tmp.append(productsold)
-                        item_tmp.append(purchased_quantity)
-                        productList.append(item_tmp)
-                        stringList=stringList+"<p>"+ productsold + " has been purchased with quantity " + str(purchased_quantity) + "</p>"
+                    #    item_tmp=[]
+                    #    item_tmp.append(productsold)
+                    #    item_tmp.append(purchased_quantity)
+                    #    productList.append(item_tmp)
+                    #    stringList=stringList+"<p>"+ productsold + " has been purchased with quantity " + str(purchased_quantity) + "</p>"
 
 
                         # REMOVE PRODUCT from product table
-                        queryProduct=queryProduct.one() 
-                        db_session.delete(queryProduct)
-                        db_session.flush()
-                        db_session.commit()
+                        #queryProduct=queryProduct.one() 
+                        #db_session.delete(queryProduct)
+                        #db_session.flush()
+                        #db_session.commit()
 
                     # If quantity left is less than 0 
                     elif left < 0:
@@ -247,7 +247,11 @@ def checkOut():
 
                 return {
                     'cartID': request.json.get('cart_id')
-                }, 200 
+                }, 200
+            else:
+                return {
+                    'error': 'Cart or Cartline not existed'
+                }, 200
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
