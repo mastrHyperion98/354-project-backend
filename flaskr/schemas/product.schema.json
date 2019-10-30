@@ -1,0 +1,44 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "product",
+    "type": "object",
+    "required": [ "name","description","quantity","category_id","user_id","tax_id","permalink","brand_id" ],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "product name"
+        },
+        "description": {
+            "type": "string",
+            "description": "product description"
+        },
+        "quantity": {
+            "type": "int",
+            "description": "product quantity"
+        },
+        "category_id": {
+            "type": "int",
+            "description": "product category"
+        },
+        "user_id": {
+            "type": "int",
+            "description": "user id"
+        },
+        "tax_id": {
+            "type": "int",
+            "description": "tax id"
+        },
+        "permalink": {
+            "type": "string",
+            "description": "permanent link"
+        },
+        "brand_id": {
+            "type": "int",
+            "description": "brand_id"
+        },
+    }
+}
+
+
