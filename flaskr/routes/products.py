@@ -6,6 +6,7 @@ import jsonschema.exceptions
 import json
 import hashlib
 import time
+import uuid 
 
 from flask import (
     Blueprint, g, request, session, current_app, session
