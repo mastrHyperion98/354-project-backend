@@ -142,11 +142,7 @@ def checkOut():
             'message': validation_error.message
         }
 
-    productList=[]
-    item_tmp=[]
     stringList=""
-
-
 
     try:    
 
@@ -160,40 +156,40 @@ def checkOut():
 
             if queryCart.count() > 0 and queryItem.count() > 0:
                 queryCart = queryCart.one()
-
-                # Get buyer's ID from Cart
-                userID = queryCart.data['user_ID']
-
-                # Find buyer with user ID
-                queryUser = db_session.query(User).filter(User.id == userID)
-                queryUser = queryUser.one()
-
-                # Get buyer's email
-                emailBuyer = queryUser.data['email']
                 
+                # Get buyer's ID from Cart
+                userID = queryCart.user_id
+            
+                # Find buyer with user ID
+                queryUser = db_session.query(User).filter(User.id == userID).one()
+                
+                # Get buyer's email
+                emailBuyer = queryUser.email
+
                 # iterate through list of items
                 for item in queryItem:
 
                     # Get product by product ID
-                    queryProduct = db_session.query(Product).filter(Product.id == item.data['product_ID'])
+                    queryProduct = db_session.query(Product).filter(Product.id == item.product_id)
 
                     # Get Seller id
-                    sellerID = queryProduct.one().data['user_ID']
+                    sellerID = queryProduct.one().user_id
+                    
                     # Get seller ID by user ID
                     sellerQuery = db_session.query(User).filter(User.id == sellerID).one()
                     # Get seller email
-                    emailSeller = sellerQuery.data['email']
+                    emailSeller = sellerQuery.email
                     
                     # Get total quantity
-                    total_quantity = int(queryProduct.one().data['quantity'])
+                    total_quantity = int(queryProduct.one().quantity)
                     # Get quantity purchased
-                    purchased_quantity = int(item.data['quantity'])
+                    purchased_quantity = int(item.quantity)
                     # Get quantity left
                     left = total_quantity - purchased_quantity
 
                     # Get name of the product sold
-                    productsold=str(queryProduct.one().data['name'])
-
+                    productsold=str(queryProduct.one().name)
+                    
                     # If quantity left is bigger than 0
                     if left >= 0:
 
@@ -201,41 +197,15 @@ def checkOut():
                         send(current_app.config['SMTP_USERNAME'], emailSeller, "Welcome to 354TheStars!", "<html><body><p>"+productsold+":"+str(purchased_quantity)+" SOLD </p></body></html>" ,"Welcome to 354TheStars!")
 
                         # Update list of products sold with quantity
-                        item_tmp=[]
-                        item_tmp.append(productsold)
-                        item_tmp.append(purchased_quantity)
-                        productList.append(item_tmp)
                         stringList=stringList+"<p>"+ productsold + " has been purchased with quantity " + str(purchased_quantity) + "</p>"
 
                         # UPDATE QUANTITY in product table
-                        data = queryProduct.data
-                        data['quantity'] = left
-                        queryProduct.data = data
+                        queryProduct = queryProduct.one()
+                        queryProduct.quantity = left
                         db_session.merge(queryProduct)
                         db_session.flush()
                         db_session.commit()
-
-                    # If quantity left is 0
-                    #elif left == 0:
-
-                        # SEND EMAIL to seller
-                    #    send(current_app.config['SMTP_USERNAME'], emailSeller, "Welcome to 354TheStars!", "<html><body><p>"+productsold+":"+str(purchased_quantity)+" SOLD </p></body></html>" ,"Welcome to 354TheStars!")
-
-                        # Update list of products sold with quantity
-                    #    item_tmp=[]
-                    #    item_tmp.append(productsold)
-                    #    item_tmp.append(purchased_quantity)
-                    #    productList.append(item_tmp)
-                    #    stringList=stringList+"<p>"+ productsold + " has been purchased with quantity " + str(purchased_quantity) + "</p>"
-
-
-                        # REMOVE PRODUCT from product table
-                        #queryProduct=queryProduct.one() 
-                        #db_session.delete(queryProduct)
-                        #db_session.flush()
-                        #db_session.commit()
-
-                    # If quantity left is less than 0 
+                        
                     elif left < 0:
                         return {
                             'code': 400,
@@ -245,13 +215,15 @@ def checkOut():
                 # SEND EMAIL to the buyer
                 send(current_app.config['SMTP_USERNAME'], emailBuyer, "Welcome to 354TheStars!", "<html><body><p>Check out!</p>"+stringList+"</body></html>" ,"Welcome to 354TheStars!")
 
-                return {
-                    'cartID': request.json.get('cart_id')
-                }, 200
+                
             else:
                 return {
                     'error': 'Cart or Cartline not existed'
                 }, 200
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.

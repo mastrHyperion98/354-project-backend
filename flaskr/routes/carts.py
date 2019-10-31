@@ -35,6 +35,7 @@ def create_cart():
                 # Carts a valid for a set period of time
                 # they are delete afterwards.
                 cart.date_created = date.today()
+                cart.user_id = 1
 
             db_session.add(cart)
             db_session.commit()
@@ -114,7 +115,7 @@ def add_item_to_mine():
     #if 'cart_id' in session:
     try:
         with session_scope() as db_session:
-            cart_line = CartLine(cart_id=1, product_id=request.json['productId'], quantity=request.json['quantity'])
+            cart_line = CartLine(cart_id=15, product_id=request.json['productId'], quantity=request.json['quantity'])
             db_session.add(cart_line)
 
         return '', 200
