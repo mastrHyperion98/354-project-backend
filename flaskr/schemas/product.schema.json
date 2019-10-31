@@ -15,19 +15,19 @@
             "description": "product description"
         },
         "quantity": {
-            "type": "int",
+            "type": "number",
             "description": "product quantity"
         },
         "category_id": {
-            "type": "int",
+            "type": "number",
             "description": "product category"
         },
         "user_id": {
-            "type": "int",
+            "type": "number",
             "description": "user id"
         },
         "tax_id": {
-            "type": "int",
+            "type": "number",
             "description": "tax id"
         },
         "permalink": {
@@ -35,9 +35,9 @@
             "description": "permanent link"
         },
         "brand_id": {
-            "type": "int",
+            "type": "number",
             "description": "brand_id"
-        },
+        }
     }
 }
 

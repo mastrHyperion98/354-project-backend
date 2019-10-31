@@ -7,7 +7,7 @@
     "additionalProperties": false,
     "properties": {
         "productId": {
-            "type": "string",
+            "type": "number",
             "description": "Product ID of the cart line"
         },
         "quantity": {
