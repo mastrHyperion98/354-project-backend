@@ -21,7 +21,7 @@ class Product(Base):
     date_added = Column(Date, default=date.today())
     permalink = Column(String)
     specifications = Column(JSONB)
-    photos = Column(JSON)
+    photo_url = Column(String)
     brand_id = Column(Integer)
 
      
@@ -42,6 +42,6 @@ class Product(Base):
             'dateAdded': self.date_added,
             'permalink': self.permalink,
             'specifications': self.specifications,
-            'photos': self.photos,
+            'photoUrl': self.photo_url,
             'brandId': self.brand_id
         }
