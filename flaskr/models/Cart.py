@@ -21,7 +21,8 @@ class Cart(Base):
     def to_json(self):
         return {
             'id': self.id,
-            'date_crated': self.date_created,
+            'date_created': self.date_created,
+            'user_id': self.user_id,
             'lines': [line.to_json() for line in self.cart_lines] 
         }
 

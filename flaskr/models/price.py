@@ -19,6 +19,8 @@ class price(Base):
     end_date = Column(Date)
     amount = Column(Float)
 
+    product = relationship('Product')
+
     def to_json(self):
         """Returns the instance of price as a JSON
         

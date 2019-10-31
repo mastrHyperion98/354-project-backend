@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Float
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
@@ -24,6 +24,11 @@ class Product(Base):
     permalink = Column(String)
     brand_id = Column(Integer, ForeignKey('brand.id'))
 
+    brand = relationship('Brand')
+    user = relationship('User')
+    tax = relationship('Tax')
+    category = relationship('Category')
+
     def to_json(self):
         return {
             'id': self.id,
@@ -35,4 +40,77 @@ class Product(Base):
             'tax_id': self.tax_id,
             'permalink': self.permalink,
             'brand_id': self.brand_id
+        }
+
+class Brand(Base):
+
+    __tablename__ = 'brand'
+
+    id = Column(Integer, Sequence('seq_brand_id'), primary_key=True)
+    name = Column(String)
+    description = Column(String)
+    logo = Column(Integer)
+    
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'logo': self.logo
+        }
+
+class Tax(Base):
+
+    __tablename__ = 'tax'
+
+    id = Column(Integer, Sequence('seq_tax_id'), primary_key=True)
+    rate = Column(Float)
+    
+    
+    def to_json(self):
+        return {
+            'id': self.id,
+            'rate': self.rate
+            
+        }
+
+class Category(Base):
+
+    __tablename__ = 'category'
+
+    id = Column(Integer, Sequence('seq_category_id'), primary_key=True)
+    section_id = Column(Integer, ForeignKey('section.id'))
+    name = Column(String)
+    description = Column(String)
+    permalink = Column(String)
+
+    section = relationship('Section')
+    
+    def to_json(self):
+        return {
+            'id': self.id,
+            'section_id': self.section_id,
+            'name': self.name,
+            'description': self.description,
+            'permalink': self.permalink
+        }
+
+class Section(Base):
+
+    __tablename__ = 'section'
+
+    id = Column(Integer, Sequence('seq_section_id'), primary_key=True)
+    name = Column(String)
+    description = Column(String)
+    permalink = Column(String)
+    icon = Column(String)
+
+    
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'permalink': self.permalink,
+            'icon': self.icon
         }
