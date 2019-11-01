@@ -12,15 +12,15 @@ class Section(Base):
     description = Column(String)
     permalink = Column(String)
     icon = Column(String)
-    categories = relationship('Category')
+    categories = relationship('Category', order_by='asc(Category.name)', lazy='dynamic')
 
     def to_json(self):
         return {
             'id': self.id,
-            'name': self.name,
+            'label': self.name,
             'description': self.description,
             'permalink': self.permalink,
-            'icon': self.icon,
-            'categories': [ category.to_json() for category in self.categories ]
+            'imageUrl': self.icon,
+            'subCategories': [ category.to_json() for category in self.categories ]
         }
 

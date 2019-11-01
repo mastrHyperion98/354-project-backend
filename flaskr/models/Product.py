@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 from sqlalchemy.dialects.postgresql import JSON, JSONB
+import flaskr.models.Brand
+import flaskr.models.Price
+import flaskr.models.Tax
 
 class Product(Base):
 
@@ -16,14 +19,18 @@ class Product(Base):
     description = Column(String)
     quantity = Column(Integer)
     category_id = Column(Integer, ForeignKey('category.id'))
-    user_id = Column(Integer)
-    tax_id = Column(Integer)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    tax_id = Column(Integer, ForeignKey('tax.id'))
     date_added = Column(Date, default=date.today())
     permalink = Column(String)
     specifications = Column(JSONB)
     photos = Column(JSON)
-    brand_id = Column(Integer)
-
+    brand = relationship('Brand')
+    category = relationship('Category')
+    brand_id = Column(Integer, ForeignKey('brand.id'))
+    user = relationship('User')
+    price = relationship('Price', order_by='desc(Price.end_date)', lazy='dynamic')
+    tax = relationship('Tax')
      
     def to_json(self):
         """Returns the instance of product as a JSON
@@ -36,12 +43,16 @@ class Product(Base):
             'productName': self.name,
             'description': self.description,
             'quantity': self.quantity,
-            'categoryId': self.category_id,
-            'userId': self.user_id,
-            'taxId': self.tax_id,
+            'category': self.category.to_json(),
+            'price': self.price.limit(1).one().to_json(),
+            'sellerInfo': {
+                'username': self.user.username,
+                'email': self.user.email
+            },
+            'tax': self.tax.to_json(),
             'dateAdded': self.date_added,
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
-            'brandId': self.brand_id
+            'brand': self.brand.to_json()
         }
