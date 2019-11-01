@@ -29,4 +29,10 @@ def create_app(test_config=None):
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
 
+    from flaskr.routes.checkout import bp as checkout
+    app.register_blueprint(checkout)  
+
+    from flaskr.routes.products import bp as products
+    app.register_blueprint(products)  
+
     return app
