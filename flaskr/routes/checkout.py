@@ -13,40 +13,26 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
-from flaskr.models.Product import Product
+from flaskr.models.Product import Product, Price, Order, OrderLine
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
-from flaskr.models.Order import Order
-from flaskr.models.OrderLine import OrderLine
-from flaskr.models.price import price
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
 
 bp = Blueprint('checkout', __name__, url_prefix='/checkout')
-@bp.route("/getorder")
+
+@bp.route("/getorder", methods =["POST"])
 def getOrder():
 
-    # Load json data from json schema to variable checkout.json 'SCHEMA_FOLDER'
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'checkout.schema.json')
-    try:
-        with open(schema_filepath) as schema_file:
-            schema = json.loads(schema_file.read())
-            validate(instance=checkout.json, schema=schema, format_checker=draft7_format_checker)
-    except jsonschema.exceptions.ValidationError as validation_error:
-        return {
-            'code': 400,
-            'message': validation_error.message
-        }
-
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'user_info.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
-            validate(instance=user_info.json, schema=schema, format_checker=draft7_format_checker)
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
@@ -57,55 +43,76 @@ def getOrder():
         # Check if cart id exists with cart items
         with session_scope() as db_session:
             queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == checkout.json.get('cart_id'))
+            queryCart = queryCart.filter(Cart.id == request.json.get('cart_id'))
             queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == checkout.json.get('cart_id'))
-
+            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
+            
             total_price = 0
+            
             for item in queryItem:
-                cartID = item.data['cart_id']
-                productID = item.data['product_id']
-                quantity = item.data['quantity']
+                cartID = item.cart_id
+                productID = item.product_id
+                quantity = item.quantity
 
                 # Get product price
-                queryPrice = db_session.query(price).filter(price.product_id == productID).one()
-                productPrice = float(queryPrice.data['amount'])
+                queryPrice = db_session.query(Price).filter(Price.product_id == productID).one()
+                productPrice = float(queryPrice.amount)
 
                 # Create order line object
-                order_line = OrderLine(order_id = cartID, product_id = productID, 
-                                        quantity = quantity, price = productPrice)
+                #order_line = OrderLine(order_id = my_order.id, product_id = productID, 
+                #                        quantity = quantity, price = productPrice)
                 # Add to database
-                db_session.add(order_line)
+                #db_session.add(order_line)
 
                 # Calculate total price
-                total_price = total_price + productPrice
+                total_price = total_price + productPrice*quantity
+
 
             # Get json data from json object
-            user_id = queryCart.one().data['user_id']
-            date_fulfilled = user_info.json.get('date_fulfilled')
-            status_id = user_info.json.get('status_id')
-            fullname = user_info.json.get('fullname')
-            line1 = user_info.json.get('line1')
-            line2 = user_info.json.get('line2')
-            city = user_info.json.get('city')
-            country = user_info.json.get('country')
-            phone = user_info.json.get('phone')
-            
+            user_id = queryCart.one().user_id
+            #date_fulfilled = user_info.json.get('date_fulfilled')
+            status_id = request.json.get('status_id')
+            fullname = request.json.get('full_name')
+            line1 = request.json.get('line1')
+            line2 = request.json.get('line2')
+            city = request.json.get('city')
+            country = request.json.get('country')
+            phone = request.json.get('phone')
+
             # Create order object
             my_order = Order(
                             user_id = user_id,
-                            date_fulfilled = date_fulfilled,
+                            date_fulfilled = date.today(),
                             status_id = status_id,
-                            fullname = fullname,
+                            full_name = fullname,
                             line1 = line1,
                             line2 = line2,
                             city = city,
                             country = country,
                             phone = phone,
-                            total_cost = total_price
+                            total_cost = total_price,
+                            promotion_code_id = 9
                             )
             # Add to database
             db_session.add(my_order)
+            db_session.commit()
+
+            for item in queryItem:
+                cartID = item.cart_id
+                productID = item.product_id
+                quantity = item.quantity
+
+                # Get product price
+                queryPrice = db_session.query(Price).filter(Price.product_id == productID).one()
+                productPrice = float(queryPrice.amount)
+
+                # Create order line object
+                order_line = OrderLine(order_id = my_order.id, product_id = productID, 
+                                        quantity = quantity, cost = productPrice)
+                # Add to database
+                db_session.add(order_line)
+                db_session.commit()
+
 
             # Prepare to clear cart
             # queryCart = db_session.query(Cart)
@@ -122,7 +129,7 @@ def getOrder():
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
-            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+            'message': 'error: ' + db_error.args[0]
         }, 400
 
 @bp.route("/checkout", methods=['POST'])
