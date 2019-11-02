@@ -13,7 +13,14 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
-from flaskr.models.Product import Product, Tax, Brand, Price, order_status, promotion_code, Order, OrderLine
+from flaskr.models.Product import Product
+from flaskr.models.Price import Price
+from flaskr.models.Tax import Tax
+from flaskr.models.Brand import Brand
+from flaskr.models.Order_Status import Order_Status
+from flaskr.models.Promotion_Code import Promotion_Code
+from flaskr.models.Order import Order
+from flaskr.models.OrderLine import OrderLine
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
 
