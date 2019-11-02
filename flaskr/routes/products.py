@@ -23,9 +23,9 @@ bp = Blueprint('products', __name__, url_prefix='/products')
 @login_required
 def createProduct():
     """Endpoint to add a new product to the system
-    
+
     Returns:
-        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status 
+        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status
                       code.
     """
 
@@ -50,7 +50,8 @@ def createProduct():
                                   category_id = request.json['categoryId'],
                                   user_id = request.json['userId'],
                                   tax_id = request.json['taxId'],
-                                  brand_id = request.json['brandId'])
+                                  brand_id = request.json['brandId'],
+                                  condition = request.json['condition'])
             db_session.add(new_product)
 
             # Commit new product to database making sure of the integrity of the relations.
@@ -58,7 +59,7 @@ def createProduct():
 
             return new_product.to_json(), 200
     except DBAPIError as db_error:
-        
+
         # In case that the unvalid user was login remove it from session
         if 'user_id' in session:
             session.pop('user_id')

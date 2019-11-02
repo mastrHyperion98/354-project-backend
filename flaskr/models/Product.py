@@ -13,7 +13,7 @@ import flaskr.models.Tax
 class Product(Base):
 
     __tablename__ = 'product'
-    
+
     id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
     name = Column(String)
     description = Column(String)
@@ -31,10 +31,11 @@ class Product(Base):
     user = relationship('User')
     price = relationship('Price', order_by='desc(Price.end_date)', lazy='dynamic')
     tax = relationship('Tax')
-     
+    condition = Column(String)
+
     def to_json(self):
         """Returns the instance of product as a JSON
-        
+
         Returns:
             dict -- JSON representation of the product
         """
@@ -54,5 +55,6 @@ class Product(Base):
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
-            'brand': self.brand.to_json()
+            'brand': self.brand.to_json(),
+            'condition': self.condition
         }
