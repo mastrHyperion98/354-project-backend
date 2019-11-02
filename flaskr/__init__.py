@@ -38,4 +38,7 @@ def create_app(test_config=None):
     from flaskr.routes.price import bp as price
     app.register_blueprint(price)
 
+    from flaskr.routes.brand import bp as brand
+    app.register_blueprint(brand)
+
     return app
