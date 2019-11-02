@@ -33,6 +33,9 @@ def create_app(test_config=None):
     app.register_blueprint(checkout)  
 
     from flaskr.routes.products import bp as products
-    app.register_blueprint(products)  
+    app.register_blueprint(products)
+
+    from flaskr.routes.price import bp as price
+    app.register_blueprint(price)
 
     return app
