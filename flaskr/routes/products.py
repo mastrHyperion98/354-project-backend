@@ -44,8 +44,8 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-            new_product = Product(name = request.json['productName'],
-                                  description = request.json['productDescription'],
+            new_product = Product(name = request.json['name'],
+                                  description = request.json['description'],
                                   quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
                                   user_id = request.json['userId'],
@@ -56,6 +56,9 @@ def createProduct():
 
             # Commit new product to database making sure of the integrity of the relations.
             db_session.commit()
+
+            # Add the ID to the end of the permalink.
+            new_product.permalink = request.json['permalink'] + '-' + new_product.id
 
             return new_product.to_json(), 200
     except DBAPIError as db_error:

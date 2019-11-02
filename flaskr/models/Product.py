@@ -40,8 +40,8 @@ class Product(Base):
             dict -- JSON representation of the product
         """
         return {
-            'productId': self.id,
-            'productName': self.name,
+            'id': self.id,
+            'name': self.name,
             'description': self.description,
             'quantity': self.quantity,
             'category': self.category.to_json(),
