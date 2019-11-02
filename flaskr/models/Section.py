@@ -8,7 +8,6 @@ from sqlalchemy.orm import relationship
 from flaskr.db import Base
 
 class Section(Base):
-
     __tablename__ = 'section'
 
     id = Column(Integer, Sequence('seq_section_id'), primary_key=True)
@@ -17,7 +16,6 @@ class Section(Base):
     permalink = Column(String)
     icon = Column(String)
 
-    
     def to_json(self):
         return {
             'id': self.id,
