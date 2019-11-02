@@ -91,11 +91,24 @@ def getOrder():
                             country = country,
                             phone = phone,
                             total_cost = total_price,
-                            promotion_code_id = 9
+                            promotion_code_id = request.json.get('promotion_code_id')
                             )
+            order_json = {
+                "user_id": user_id,
+                "status_id": status_id,
+                "full_name": fullname,
+                "line1": line1,
+                "line2": line2,
+                "city": city,
+                "country": country,
+                "phone": phone,
+                "total_cost": total_price,
+                "promotion_code_id": request.json.get('promotion_code_id')
+            }
             # Add to database
             db_session.add(my_order)
-            db_session.commit()
+
+            order_array=[]
 
             for item in queryItem:
                 cartID = item.cart_id
@@ -109,21 +122,32 @@ def getOrder():
                 # Create order line object
                 order_line = OrderLine(order_id = my_order.id, product_id = productID, 
                                         quantity = quantity, cost = productPrice)
+
+                order_line_json = {
+                    "product_id": productID,
+                    "quantity": quantity,
+                    "cost": productPrice
+                }
+
+                order_array.append(order_line_json)
+
                 # Add to database
                 db_session.add(order_line)
-                db_session.commit()
 
-
+            db_session.commit()
             # Prepare to clear cart
             # queryCart = db_session.query(Cart)
             # queryCart = queryCart.filter(Cart.id == request.json.get('cart_id')).one()
-            queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
+            # queryItem = db_session.query(CartLine)
+            # queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
 
             # CLEAR CART
             # db_session.delete(queryCart)
-            db_session.delete(queryItem)
-
+            # db_session.delete(queryItem)
+        return {
+            "ORDER": order_json,
+            "ITEMS": order_array
+        }
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
