@@ -10,9 +10,8 @@ from flaskr.db import Base
 class OrderLine(Base):
     __tablename__ = 'order_line'
 
-    id = Column(Integer, Sequence('seq_order_id'), primary_key=True)
-    order_id = Column(Integer, ForeignKey('order.id'))
-    product_id = Column(Integer, ForeignKey('product.id'))
+    order_id = Column(Integer, ForeignKey('order.id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('product.id, primary_key=True)
     quantity = Column(Integer)
     cost = Column(Float)
     order = relationship('Order')
