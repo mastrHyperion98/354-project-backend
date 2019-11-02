@@ -11,7 +11,7 @@ class OrderLine(Base):
     __tablename__ = 'order_line'
 
     order_id = Column(Integer, ForeignKey('order.id'), primary_key=True)
-    product_id = Column(Integer, ForeignKey('product.id, primary_key=True)
+    product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
     quantity = Column(Integer)
     cost = Column(Float)
     order = relationship('Order')
