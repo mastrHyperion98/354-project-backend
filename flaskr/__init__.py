@@ -44,5 +44,10 @@ def create_app(test_config=None):
     from flaskr.routes.order import bp as order
     app.register_blueprint(order)
 
+    from flaskr.routes.tax import bp as tax
+    app.register_blueprint(tax)
+
+    from flaskr.routes.promotion import bp as promotion
+    app.register_blueprint(promotion)
 
     return app
