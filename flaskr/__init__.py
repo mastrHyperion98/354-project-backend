@@ -41,4 +41,8 @@ def create_app(test_config=None):
     from flaskr.routes.brand import bp as brand
     app.register_blueprint(brand)
 
+    from flaskr.routes.order import bp as order
+    app.register_blueprint(order)
+
+
     return app
