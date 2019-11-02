@@ -40,7 +40,7 @@ def get_category_by_permalink(permalink):
 @cross_origin(methods=[ 'GET' ])
 def get_products_category_by_permalink(permalink):
     with session_scope() as db_session:
-        category = db_session.query(Category).filter(Category.permalink == permalink).one()
+        category = db_session.query(Category).filter(Category.permalink == permalink).first()
 
         if category is not None:
             return {
