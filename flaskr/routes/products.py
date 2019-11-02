@@ -58,7 +58,7 @@ def createProduct():
             db_session.commit()
 
             # Add the ID to the end of the permalink.
-            new_product.permalink = request.json['permalink'] + '-' + new_product.id
+            new_product.permalink = request.json['permalink'].lower() + '-' + new_product.id
 
             return new_product.to_json(), 200
     except DBAPIError as db_error:
