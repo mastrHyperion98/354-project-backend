@@ -25,7 +25,7 @@ def send(sender_email, receiver_email, subject, html_message, plain_text_message
         server.ehlo()
 
         # Login
-        server.login(current_app.config["SMTP_USERNAME"], current_app.config["SMTP_PASSWORD"])
+        server.login(current_app.config["SMTP_LOGIN"], current_app.config["SMTP_PASSWORD"])
         
         # Construct messsage
         message = MIMEMultipart("alternative")
