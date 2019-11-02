@@ -37,6 +37,10 @@
         "phone": {
             "type": "string",
             "description": "phone"
+        },
+        "promotion_code_id": {
+            "type": "number",
+            "description": "promotion_code_id"
         }
     }
 }
