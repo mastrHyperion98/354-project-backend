@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "NewProduct",
     "type": "object",
-    "required": [ "productName", "productDescription", "stockQuantity", "categoryId", "userId",
+    "required": [ "productName", "productDescription", "stockQuantity", "categoryId", "condition",
                   "taxId", "brandId"],
     "additionalProperties": false,
     "properties": {
@@ -19,13 +19,17 @@
              "type": "integer",
              "description": "quantity of product in stock"
          },
+         "price": {
+            "type": "number",
+            "description": "Price of the product"
+         },
+         "condition": {
+            "type": "string",
+            "description": "Condition of the product"
+         },
          "categoryId": {
              "type": "integer",
              "description": "catory product falls under"
-         },
-         "userId": {
-             "type": "integer",
-             "description": "User ID of product creator"
          },
          "taxId": {
              "type": "integer",

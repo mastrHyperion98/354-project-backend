@@ -29,8 +29,11 @@ class Product(Base):
     category = relationship('Category')
     brand_id = Column(Integer, ForeignKey('brand.id'))
     user = relationship('User')
-    price = relationship('Price', order_by='desc(Price.end_date)', lazy='dynamic')
+    price = relationship('Price', order_by='desc(Price.id)', lazy='dynamic')
     tax = relationship('Tax')
+    condition = Column(String)
+
+    permalink_translation_tab = str.maketrans(' ()/_.~', '-------')
      
     def to_json(self):
         """Returns the instance of product as a JSON
@@ -44,7 +47,8 @@ class Product(Base):
             'description': self.description,
             'quantity': self.quantity,
             'category': self.category.to_json(),
-            'price': self.price.limit(1).one().to_json(),
+            'price': self.price.first().to_json(),
+            'condition': self.condition,
             'sellerInfo': {
                 'username': self.user.username,
                 'email': self.user.email
