@@ -3,15 +3,15 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "NewProduct",
     "type": "object",
-    "required": [ "productName", "productDescription", "stockQuantity", "categoryId", "condition",
-                  "taxId", "brandId"],
+    "required": [ "name", "description", "stockQuantity", "categoryId",
+                  "taxId", "brandId", "condition"],
     "additionalProperties": false,
     "properties": {
-        "productName": {
+        "name": {
             "type": "string",
             "description": "product name"
-        }, 
-        "productDescription": {
+        },
+        "description": {
              "type": "string",
              "description": "description of the product"
          },
@@ -29,7 +29,7 @@
          },
          "categoryId": {
              "type": "integer",
-             "description": "catory product falls under"
+             "description": "category the product falls under"
          },
          "taxId": {
              "type": "integer",
@@ -38,6 +38,10 @@
          "brandId": {
              "type": "integer",
              "description": "ID number of the product brand"
+         },
+         "condition": {
+             "type": "string",
+             "description": "Current state of the product"
          }
     }
 }

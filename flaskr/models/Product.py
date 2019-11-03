@@ -13,7 +13,7 @@ import flaskr.models.Tax
 class Product(Base):
 
     __tablename__ = 'product'
-    
+
     id = Column(Integer, Sequence('seq_product_id'), primary_key=True)
     name = Column(String)
     description = Column(String)
@@ -34,16 +34,16 @@ class Product(Base):
     condition = Column(String)
 
     permalink_translation_tab = str.maketrans(' ()/_.~', '-------')
-     
+    
     def to_json(self):
         """Returns the instance of product as a JSON
-        
+
         Returns:
             dict -- JSON representation of the product
         """
         return {
-            'productId': self.id,
-            'productName': self.name,
+            'id': self.id,
+            'name': self.name,
             'description': self.description,
             'quantity': self.quantity,
             'category': self.category.to_json(),
@@ -58,5 +58,6 @@ class Product(Base):
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
-            'brand': self.brand.to_json()
+            'brand': self.brand.to_json(),
+            'condition': self.condition
         }

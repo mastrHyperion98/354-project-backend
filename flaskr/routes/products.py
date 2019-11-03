@@ -26,9 +26,9 @@ bp = Blueprint('products', __name__, url_prefix='/products')
 @login_required
 def createProduct():
     """Endpoint to add a new product to the system
-    
+
     Returns:
-        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status 
+        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status
                       code.
     """
 
@@ -47,28 +47,24 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-
             # Create a md5 of the time of insertion to be appended to the permalink
             md5 = hashlib.md5()
             md5.update(str(time.time()).encode('utf-8'))
-            new_product = Product(name = request.json['productName'],
-                                  description = request.json['productDescription'],
+            new_product = Product(name = request.json['name'],
+                                  description = request.json['description'],
                                   quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
                                   user_id = session.get('user_id'),
                                   tax_id = request.json['taxId'],
                                   brand_id = request.json['brandId'],
                                   condition = request.json['condition'],
-                                  permalink = request.json['productName'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+
+            new_product.price.append(Price(amount=request.json['price']))
+            
             db_session.add(new_product)
 
             # Commit new product to database making sure of the integrity of the relations.
-            db_session.commit()
-
-            price = Price(product_id = new_product.id, amount=request.json['price'])
-
-            db_session.add(price)
-
             db_session.commit()
 
             return new_product.to_json(), 200
