@@ -14,10 +14,14 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Brand import Brand
+from flaskr.models.Cart import Cart, CartLine
+from flaskr.models.User import User
+
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
-bp = Blueprint('brand', __name__, url_prefix='/brand')
+
+bp = Blueprint('brands', __name__, url_prefix='/brands')
 
 @bp.route("/getBrand", methods=['POST'])
 def getBrand():

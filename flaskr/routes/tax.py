@@ -14,12 +14,14 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Tax import Tax
+from flaskr.models.Cart import Cart, CartLine
+from flaskr.models.User import User
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
 
-bp = Blueprint('tax', __name__, url_prefix='/tax')
+bp = Blueprint('taxes', __name__, url_prefix='/taxes')
 @bp.route("/getTax", methods=['POST'])
 def getTax():
 
@@ -60,3 +62,4 @@ def getTax():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+

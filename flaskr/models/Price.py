@@ -8,7 +8,6 @@ from sqlalchemy.orm import relationship
 from flaskr.db import Base
 
 class Price(Base):
-
     __tablename__ = 'price'
 
     id = Column(Integer, Sequence('seq_price_id'), primary_key=True)

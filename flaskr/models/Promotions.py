@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
 
-class Promotion_Code(Base):
+class promotion_code(Base):
     __tablename__ = 'promotion_code'
 
     id = Column(Integer, Sequence('seq_user_id'), primary_key=True)

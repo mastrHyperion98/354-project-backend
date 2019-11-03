@@ -13,29 +13,36 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
-from flaskr.models.Promotion_Code import Promotion_Code
-
+from flaskr.models.Order_Status import order_status
+from flaskr.models.Order import Order
+from flaskr.models.Cart import Cart, CartLine
+from flaskr.models.User import User
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
-bp = Blueprint('promotion', __name__, url_prefix='/promotion')
-@bp.route("/viewPromotion", methods=['GET'])
-def viewPromotion():
+
+bp = Blueprint('orders', __name__, url_prefix='/orders')
+@bp.route("/viewOrder", methods=['GET'])
+def viewOrder():
 
     try:
         with session_scope() as db_session:
 
-            queryPromotion = db_session.query(Promotion_Code)
+            queryOrder = db_session.query(Order)
 
             totalitem =[]
 
-            for item in queryPromotion:
+            for item in queryOrder:
                 myitem = {
                     "id": item.id,
-                    "code": item.code,
-                    "start_date": item.start_date,
-                    "end_date": item.end_date
+                    "user_id": item.user_id,
+                    "full_name": item.full_name,
+                    "line1": item.line1,
+                    "line2": item.line2,
+                    "city": item.city,
+                    "country": item.country,
+                    "total_cost": item.total_cost
                 }
                 totalitem.append(myitem)
             totalitem = {
@@ -55,12 +62,12 @@ def viewPromotion():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-@bp.route("/getPromotion", methods=['POST'])
-def getPromotion():
+@bp.route("/getStatus", methods=['POST'])
+def getStatus():
 
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'promotion.schema.json')
+    schema_filepath = os.path.join(schemas_direcotry, 'getstatus.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
@@ -75,14 +82,14 @@ def getPromotion():
     try:
         with session_scope() as db_session:
 
-            code = request.json.get('code')
+            status = request.json.get('status')
 
             # Create order status object
-            promotion = Promotion_Code(
-                code = code
+            od = order_status(
+                status = status
             )
             # Add to database
-            db_session.add(promotion)
+            db_session.add(od)
 
         return {
             'code': 200,
@@ -93,5 +100,5 @@ def getPromotion():
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
-            'message': 'error: ' + db_error.args[0]
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400

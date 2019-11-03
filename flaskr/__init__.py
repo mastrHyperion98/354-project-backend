@@ -35,19 +35,19 @@ def create_app(test_config=None):
     from flaskr.routes.products import bp as products
     app.register_blueprint(products)
 
-    from flaskr.routes.price import bp as price
-    app.register_blueprint(price)
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
+
+    from flaskr.routes.promotions import bp as promotions
+    app.register_blueprint(promotions)
+
+    from flaskr.routes.prices import bp as prices
+    app.register_blueprint(prices)
 
     from flaskr.routes.brand import bp as brand
     app.register_blueprint(brand)
 
-    from flaskr.routes.order import bp as order
-    app.register_blueprint(order)
-
     from flaskr.routes.tax import bp as tax
     app.register_blueprint(tax)
-
-    from flaskr.routes.promotion import bp as promotion
-    app.register_blueprint(promotion)
 
     return app

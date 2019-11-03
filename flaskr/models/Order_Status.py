@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
 
-class Order_Status(Base):
+class order_status(Base):
     __tablename__ = 'order_status'
 
     id = Column(Integer, Sequence('seq_order_status_id'), primary_key=True)

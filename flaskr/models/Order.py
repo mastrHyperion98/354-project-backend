@@ -47,4 +47,3 @@ class Order(Base):
             'phone': self.phone,
             'promotion_code_id': self.promotion_code_id
         }
-

@@ -14,20 +14,15 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
-from flaskr.models.Price import Price
-from flaskr.models.Tax import Tax
-from flaskr.models.Brand import Brand
-from flaskr.models.Order_Status import Order_Status
-from flaskr.models.Promotion_Code import Promotion_Code
-from flaskr.models.Order import Order
-from flaskr.models.OrderLine import OrderLine
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
+
 bp = Blueprint('products', __name__, url_prefix='/products')
+
 @bp.route("/viewProduct", methods=['GET'])
 def viewProduct():
 
@@ -117,8 +112,3 @@ def getProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
-
-
-    
-
-
