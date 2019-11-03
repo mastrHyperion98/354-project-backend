@@ -60,6 +60,7 @@ def createProduct():
                                   condition = request.json['condition'],
                                   permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
 
+            # Adds the price to the product
             new_product.price.append(Price(amount=request.json['price']))
             
             db_session.add(new_product)

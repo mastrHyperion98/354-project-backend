@@ -10,7 +10,7 @@ class Price(Base):
     id = Column(Integer, Sequence('seq_price_id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
     start_date = Column(Date, default=date.today())
-    end_date = Column(Date)
+    end_date = Column(Date, default=date.max)
     amount = Column(Numeric)
 
     def to_json(self):
