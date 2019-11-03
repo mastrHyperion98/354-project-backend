@@ -4,6 +4,8 @@ import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
+import hashlib
+import time
 
 from flask import (
     Blueprint, g, request, session, current_app, session
@@ -14,6 +16,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
+from flaskr.models.Price import Price
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -23,9 +26,9 @@ bp = Blueprint('products', __name__, url_prefix='/products')
 @login_required
 def createProduct():
     """Endpoint to add a new product to the system
-    
+
     Returns:
-        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status 
+        (str, int) -- Returns a tuple of the JSON object of the newly created product and a http status
                       code.
     """
 
@@ -44,13 +47,22 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-            new_product = Product(product_name = request.json['productName'],
-                                  description = request.json['productDescription'],
-                                  stock_quantity = request.json['stockQuantity'],
+            # Create a md5 of the time of insertion to be appended to the permalink
+            md5 = hashlib.md5()
+            md5.update(str(time.time()).encode('utf-8'))
+            new_product = Product(name = request.json['name'],
+                                  description = request.json['description'],
+                                  quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
-                                  user_id = request.json['userId'],
+                                  user_id = session.get('user_id'),
                                   tax_id = request.json['taxId'],
-                                  brand_id = request.json['brandId'])
+                                  brand_id = request.json['brandId'],
+                                  condition = request.json['condition'],
+                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+
+            # Adds the price to the product
+            new_product.price.append(Price(amount=request.json['price']))
+            
             db_session.add(new_product)
 
             # Commit new product to database making sure of the integrity of the relations.
@@ -58,11 +70,6 @@ def createProduct():
 
             return new_product.to_json(), 200
     except DBAPIError as db_error:
-        
-        # In case that the unvalid user was login remove it from session
-        if 'user_id' in session:
-            session.pop('user_id')
-
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
