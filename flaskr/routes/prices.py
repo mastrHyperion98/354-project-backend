@@ -129,3 +129,36 @@ def delPrice():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+@bp.route("updatePrice",methods=['POST'])
+def updatePrice():
+    # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'updateprice.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }
+    try:
+        with session_scope() as db_session:
+
+            queryProduct = db_session.query(Price).filter(Price.id == request.json.get('id')).one()
+            queryProduct.amount = request.json.get('amount')
+
+        return {
+                   'code': 200,
+                   'message': 'success'
+               }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
