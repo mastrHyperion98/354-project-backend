@@ -80,11 +80,10 @@ def get_mine():
                     user = db_session.merge(g.user)
 
                     if user.cart:
-                        if session['cart_id'] is not user.cart.id:
-                            #TODO merge carts
-                            session['cart_id'] = user.cart.id
+                        #TODO merge carts
+                        session['cart_id'] = user.cart.id
                         return user.cart.to_json(), 200
-                
+
                 return {
                     'code': 400,
                     'message': 'User have no cart'
@@ -94,7 +93,7 @@ def get_mine():
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400    
+        }, 400
 
 @bp.route('/mine/items', methods=[ 'POST', 'OPTIONS' ])
 @cross_origin(methods=[ 'POST' ])
@@ -124,13 +123,13 @@ def add_item_to_mine():
             return {
                 'code': 400,
                 'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-            }, 400              
+            }, 400
     else:
         return {
             'code': 400,
             'message': 'User has no cart'
         }, 400
-            
+
 @bp.route('/mine/items/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])
 def delete_item_from_mine(product_id):
