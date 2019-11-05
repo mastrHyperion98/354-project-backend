@@ -132,3 +132,48 @@ def delBrand():
                    'code': 400,
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
+
+@bp.route("/updateBrand", methods=["POST"])
+def updateBrand():
+    # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'updatebrand.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }
+    try:
+        with session_scope() as db_session:
+
+          my_id = request.json.get("id")
+          my_name = request.json.get("name")
+          my_descriptipn = request.json.get("description")
+          my_logo = request.json.get("logo")
+          queryProduct = db_session.query(Brand).filter(Brand.id == my_id).one()
+
+          if my_name is not None:
+              queryProduct.name = my_name
+
+          if my_descriptipn is not None:
+              queryProduct.description = my_descriptipn
+
+          if my_logo is not None:
+              queryProduct.logo = my_logo
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
