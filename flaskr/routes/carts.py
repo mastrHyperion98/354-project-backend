@@ -79,14 +79,14 @@ def get_mine():
                 if is_logged_in():
                     user = db_session.merge(g.user)
 
-                    if user.cart:
+                    if user.cart is not None:
                         #TODO merge carts
                         session['cart_id'] = user.cart.id
                         return user.cart.to_json(), 200
 
                 return {
                     'code': 400,
-                    'message': 'User have no cart'
+                    'message': 'User has no cart'
                 }, 400
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.

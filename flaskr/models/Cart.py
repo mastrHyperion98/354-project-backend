@@ -23,7 +23,7 @@ class Cart(Base):
         return {
             'id': self.id,
             'date_crated': self.date_created,
-            'lines': [line.to_json() for line in self.cart_lines] 
+            'lines': [line.to_json() for line in self.cart_lines]
         }
 
 class CartLine(Base):
