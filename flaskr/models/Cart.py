@@ -38,6 +38,9 @@ class CartLine(Base):
         return {
             'name': self.product.name,
             'quantity': self.quantity,
-            'id': seld.product_id,
+            'product': {
+                'id': self.product.id,
+                'price': self.product.price.to_json()
+            }
             'currentPrice': seld.product.price.first().to_json()
         }
