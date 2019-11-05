@@ -37,5 +37,7 @@ class CartLine(Base):
     def to_json(self):
         return {
             'name': self.product.name,
-            'quantity': self.quantity
+            'quantity': self.quantity,
+            'id': seld.product_id,
+            'currentPrice': seld.product.price.first().to_json()
         }
