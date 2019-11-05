@@ -151,20 +151,20 @@ def updateBrand():
     try:
         with session_scope() as db_session:
 
-          my_id = request.json.get("id")
-          my_name = request.json.get("name")
-          my_descriptipn = request.json.get("description")
-          my_logo = request.json.get("logo")
-          queryProduct = db_session.query(Brand).filter(Brand.id == my_id).one()
+          brand_id = request.json.get("id")
+          brand_name = request.json.get("name")
+          brand_descriptipn = request.json.get("description")
+          brand_logo = request.json.get("logo")
+          queryProduct = db_session.query(Brand).filter(Brand.id == brand_id).one()
 
-          if my_name is not None:
-              queryProduct.name = my_name
+          if brand_name is not None:
+              queryProduct.name = brand_name
 
-          if my_descriptipn is not None:
-              queryProduct.description = my_descriptipn
+          if brand_descriptipn is not None:
+              queryProduct.description = brand_descriptipn
 
-          if my_logo is not None:
-              queryProduct.logo = my_logo
+          if brand_logo is not None:
+              queryProduct.logo = brand_logo
 
         return {
             'code': 200,
