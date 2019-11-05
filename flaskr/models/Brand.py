@@ -16,6 +16,11 @@ class Brand(Base):
     logo = Column(Integer)
 
     def to_json(self):
+        """Returns the instance of price as a JSON
+
+        Returns:
+            dict -- JSON representation of the order
+        """
         return {
             'id': self.id,
             'name': self.name,
