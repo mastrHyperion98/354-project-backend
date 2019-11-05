@@ -61,3 +61,37 @@ def getBrand():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+@bp.route("/viewBrand", methods=['GET'])
+def viewBrand():
+
+    try:
+        with session_scope() as db_session:
+
+            queryProduct = db_session.query(Brand)
+
+            totalbrand =[]
+
+            for item in queryProduct:
+                myitem = {
+                    "name": item.name,
+                    "description": item.description,
+                    "logo": item.logo
+                }
+                totalbrand.append(myitem)
+            totalbrand = {
+                "allbrands": totalbrand
+            }
+            return totalbrand
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
