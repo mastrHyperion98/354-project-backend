@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
+from sqlalchemy.types import Numeric
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Float
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -13,8 +14,8 @@ class OrderLine(Base):
     order_id = Column(Integer, ForeignKey('order.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
     quantity = Column(Integer)
-    cost = Column(Float)
-    order = relationship('Order')
+    cost = Column(Numeric)
+
     product = relationship('Product')
 
     def to_json(self):
@@ -27,5 +28,5 @@ class OrderLine(Base):
             'order_id': self.order_id,
             'product_id': self.product_id,
             'quantity': self.quantity,
-            'price': self.price
+            'price': self.product.first().to_json()
         }
