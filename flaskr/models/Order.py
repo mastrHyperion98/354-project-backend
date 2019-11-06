@@ -24,6 +24,8 @@ class Order(Base):
     total_cost = Column(Float)
     promotion_code_id = Column(Integer, ForeignKey('promotion_code.id'))
     user = relationship('User')
+
+    order_line = relationship('OrderLine')
     order_status = relationship('order_status')
     promotion_code = relationship('promotion_code')
 
