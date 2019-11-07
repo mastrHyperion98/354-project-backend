@@ -28,6 +28,7 @@ bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 
 @bp.route("/getorder", methods =["POST"])
 @login_required
+@cross_origin()
 def getOrder():
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
@@ -170,6 +171,7 @@ def getOrder():
 
 @bp.route("/checkout", methods=['POST'])
 @login_required
+@cross_origin()
 def checkOut():
 
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
