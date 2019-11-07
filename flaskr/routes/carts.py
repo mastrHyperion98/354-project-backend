@@ -193,8 +193,16 @@ def update_cart_line():
 
     try:
         with session_scope() as db_session:
-            query = db_session.query(CartLine).filter(CartLine.cart_id==session.get('cart_id')).filter(CartLine.product_id==request.json['productId'])
+            product = db_session.query(Product).filter(Product.id==request.json['productId']).first()
 
+            if product.quantity < request.json['quantity']:
+                return {
+                    'code': 400,
+                    'message': "Quantity requested exceeds actual quantity of product"
+                }, 400
+
+
+            query = db_session.query(CartLine).filter(CartLine.cart_id==session.get('cart_id')).filter(CartLine.product_id==request.json['productId'])
             if query.count() == 1:
                 cart_line = query.one()
                 cart_line.quantity = request.json['quantity']
