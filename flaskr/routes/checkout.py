@@ -46,10 +46,17 @@ def getOrder():
     try:
         # Check if cart id exists with cart items
         with session_scope() as db_session:
-            queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == session['cart_id'])
-            queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
+            if 'cart_id' in session:
+                queryCart = db_session.query(Cart)
+                queryCart = queryCart.filter(Cart.id == session['cart_id'])
+                queryItem = db_session.query(CartLine)
+                queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
+            else:
+                return{
+                    'code': 400,
+                    'message': 'no cart id existed'
+                }
+                    
             
             total_price = 0
             
@@ -177,10 +184,16 @@ def checkOut():
 
     # Check if cart id exists with cart items
         with session_scope() as db_session:
-            queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == session['cart_id'])
-            queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
+            if 'cart_id' in session:
+                queryCart = db_session.query(Cart)
+                queryCart = queryCart.filter(Cart.id == session['cart_id'])
+                queryItem = db_session.query(CartLine)
+                queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
+            else:
+                return{
+                    'code': 400,
+                    'message': 'no cart id existed'
+                }
 
 
             if queryCart.count() > 0 and queryItem.count() > 0:
