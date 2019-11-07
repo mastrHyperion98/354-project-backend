@@ -96,7 +96,7 @@ def get_mine():
         }, 400
 
 @bp.route('/mine/items', methods=[ 'POST', 'OPTIONS' ])
-@cross_origin(methods=[ 'POST' ])
+@cross_origin(methods=[ 'POST', 'PUT' ])
 def add_item_to_mine():
     # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
     schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -183,7 +183,7 @@ def delete_item_from_mine(product_id):
     return '', 200
 
 @bp.route('/mine/items', methods=[ 'PUT', 'OPTIONS' ])
-@cross_origin(methods=[ 'PUT' ])
+@cross_origin(methods=[ 'PUT', 'POST' ])
 def update_cart_line():
     if 'cart_id' not in session:
         return {
