@@ -30,10 +30,11 @@ def viewOrder():
         with session_scope() as db_session:
 
             queryOrder = db_session.query(Order)
-
+            queryOrderLine = db_session.query(OrderLine)
             totalitem =[]
 
             for item in queryOrder:
+                queryOrderLine.filter(OrderLine.order_id == item.id)
                 myitem = {
                     "id": item.id,
                     "user_id": item.user_id,
@@ -44,7 +45,21 @@ def viewOrder():
                     "country": item.country,
                     "total_cost": item.total_cost
                 }
-                totalitem.append(myitem)
+
+                line=[]
+                for itemline in queryOrderLine:
+                    myline = {
+                        "product_id": itemline.product_id,
+                        "quantity": itemline.quantity,
+                        "price": float(itemline.cost)
+                    }
+                    line.append(myline)
+                
+                itemelement={
+                    "order": myitem,
+                    "order_line": line
+                }
+                totalitem.append(itemelement)
             totalitem = {
                 "allitems": totalitem
             }
