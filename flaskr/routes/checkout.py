@@ -69,8 +69,16 @@ def getOrder():
                 queryPrice = db_session.query(Price).filter(Price.product_id == productID).one()
                 productPrice = float(queryPrice.amount)
 
+                # Get product tax id
+                queryProduct = db_session.query(Product).filter(Product.id == productID).one()
+                taxID = queryProduct.tax_id
+
+                # Get tax
+                queryTax = db_session.queryTax(Tax).filter(Tax.id == taxID).one()
+                tax = queryTax.rate
+
                 # Calculate total price
-                total_price = total_price + productPrice*quantity
+                total_price = total_price + productPrice*quantity*tax
 
             # Get json data from json object
             user_id = queryCart.one().user_id
