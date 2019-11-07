@@ -27,6 +27,7 @@ from datetime import date
 bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 
 @bp.route("/getorder", methods =["POST"])
+@login_required
 def getOrder():
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
@@ -46,9 +47,9 @@ def getOrder():
         # Check if cart id exists with cart items
         with session_scope() as db_session:
             queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == request.json.get('cart_id'))
+            queryCart = queryCart.filter(Cart.id == session['cart_id'])
             queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cart_id'))
+            queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
             
             total_price = 0
             
@@ -153,6 +154,7 @@ def getOrder():
         }, 400
 
 @bp.route("/checkout", methods=['POST'])
+@login_required
 def checkOut():
 
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
@@ -176,9 +178,9 @@ def checkOut():
     # Check if cart id exists with cart items
         with session_scope() as db_session:
             queryCart = db_session.query(Cart)
-            queryCart = queryCart.filter(Cart.id == request.json.get('cartID'))
+            queryCart = queryCart.filter(Cart.id == session['cart_id'])
             queryItem = db_session.query(CartLine)
-            queryItem = queryItem.filter(CartLine.cart_id == request.json.get('cartID'))
+            queryItem = queryItem.filter(CartLine.cart_id == session['cart_id'])
 
 
             if queryCart.count() > 0 and queryItem.count() > 0:
