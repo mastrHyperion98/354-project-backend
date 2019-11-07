@@ -4,6 +4,7 @@ import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
+from flaskr.models.Tax import Tax
 
 from flask import (
     Blueprint, g, request, session, current_app, session
