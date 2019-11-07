@@ -40,6 +40,8 @@ class CartLine(Base):
             'product': {
                 'name': self.product.name,
                 'id': self.product.id,
-                'price': self.product.price.to_json()
+                'price': self.product.price.first().to_json(),
+                'permalink': self.product.permalink,
+                'categoryPermalink': self.product.category.permalink
             }
         }

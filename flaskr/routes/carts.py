@@ -114,7 +114,28 @@ def add_item_to_mine():
     if 'cart_id' in session:
         try:
             with session_scope() as db_session:
-                cart_line = CartLine(cart_id=session.get('cart_id'), product_id=request.json['porductId'], quantity=request.json['quantity'])
+                product = db_session.query(Product).filter(Product.id==request.json['productId']).first()
+
+                if product is None:
+                    return {
+                        'code': 404,
+                        'message': "Product not found"
+                    }, 404
+
+                if product.quantity < request.json['quantity']:
+                    return {
+                        'code': 400,
+                        'message': "Quantity requested exceeds actual quantity of product"
+                    }, 400
+
+                pre_existing_line = db_session.query(CartLine).filter(CartLine.product_id==request.json['productId']).filter(CartLine.cart_id==session.get('cart_id')).first()
+                if pre_existing_line is not None:
+                    return {
+                        'code': 400,
+                        'message': "Product is already in cart"
+                    }, 400
+
+                cart_line = CartLine(cart_id=session.get('cart_id'), product_id=request.json['productId'], quantity=request.json['quantity'])
                 db_session.add(cart_line)
 
             return '', 200
