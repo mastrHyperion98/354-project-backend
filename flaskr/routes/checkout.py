@@ -76,7 +76,7 @@ def getOrder():
 
                 # Get tax
                 queryTax = db_session.queryTax(Tax).filter(Tax.id == taxID).one()
-                tax = queryTax.rate
+                tax = float(queryTax.rate)
 
                 # Calculate total price
                 total_price = total_price + productPrice*quantity*tax
