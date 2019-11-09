@@ -221,9 +221,11 @@ def checkOut():
 
                 # iterate through list of items
                 for item in queryItem:
-
+                    db_session.begin_nested()
+                    #Lock TABLE
+                    db_session.execute('LOCK TABLE product IN ROW EXCLUSIVE MODE')
                     # Get product by product ID
-                    queryProduct = db_session.query(Product).filter(Product.id == item.product_id)
+                    queryProduct = db_session.query(Product).filter(Product.id == item.product_id).with_for_update()
 
                     # Get Seller id
                     sellerID = queryProduct.one().user_id
@@ -256,10 +258,10 @@ def checkOut():
                         queryProduct = queryProduct.one()
                         queryProduct.quantity = left
                         db_session.merge(queryProduct)
-                        db_session.flush()
                         db_session.commit()
                         
                     elif left < 0:
+                        db_session.rollbadck()
                         return {
                             'code': 400,
                             'message': 'Quantity for product '+productsold+' is not sufficient to sell'
