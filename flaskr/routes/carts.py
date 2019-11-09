@@ -23,6 +23,7 @@ from datetime import date
 bp = Blueprint('carts', __name__, url_prefix='/carts')
 
 @bp.route('', methods=[ 'POST', 'OPTIONS' ])
+@cross_origin(methods=[ 'POST' ])
 def create_cart():
     try:
         with session_scope() as db_session:
@@ -100,8 +101,8 @@ def get_mine():
 @cross_origin(methods=[ 'POST' ])
 def add_item_to_mine():
     # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'cart_line.schema.json')
+    schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_directory, 'cart_line.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
@@ -110,7 +111,7 @@ def add_item_to_mine():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     #if 'cart_id' in session:
     try:
@@ -124,12 +125,7 @@ def add_item_to_mine():
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400              
-    #else:
-    #    return {
-    #        'code': 400,
-    #        'message': 'User has no cart'
-    #    }
+        }, 400
             
 @bp.route('/mine/items/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])

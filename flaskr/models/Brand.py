@@ -1,29 +1,15 @@
-from datetime import date
-
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import update
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Float
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
+from sqlalchemy import Column, Integer, String, ForeignKey, Sequence
 
 class Brand(Base):
     __tablename__ = 'brand'
 
     id = Column(Integer, Sequence('seq_brand_id'), primary_key=True)
     name = Column(String)
-    description = Column(String)
-    logo = Column(Integer)
 
     def to_json(self):
-        """Returns the instance of price as a JSON
-
-        Returns:
-            dict -- JSON representation of the order
-        """
         return {
             'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'logo': self.logo
+            'name': self.name
         }

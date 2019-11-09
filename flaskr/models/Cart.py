@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
 from sqlalchemy.dialects.postgresql import JSONB
 from flaskr.models.User import User
+from flaskr.models.Product import Product
 from flaskr.db import Base
 
 

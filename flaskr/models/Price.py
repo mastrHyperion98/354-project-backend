@@ -1,11 +1,8 @@
 from datetime import date
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import update
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Float
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 
 class Price(Base):
     __tablename__ = 'price'
@@ -13,20 +10,13 @@ class Price(Base):
     id = Column(Integer, Sequence('seq_price_id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
     start_date = Column(Date, default=date.today())
-    end_date = Column(Date, default=date.today())
-    amount = Column(Float)
-
-    product = relationship('Product')
+    end_date = Column(Date, default=date.max)
+    amount = Column(Numeric)
 
     def to_json(self):
-        """Returns the instance of price as a JSON
-
-        Returns:
-            dict -- JSON representation of the order
-        """
         return {
-            'product_id': self.product_id,
+            'id': self.id,
             'start_date': self.start_date,
             'end_date': self.end_date,
-            'amount': self.amount
+            'amount': str(self.amount)
         }

@@ -36,6 +36,16 @@ On Windows:
 
 ### Running the application (Development environment only)
 
+Note if you need to specify the origin for a CORS (Cross-Origin Resource Sharing). Note that the default origin is set to be a wildcard (*).
+
+Then for Linux and Mac:
+
+    $ export FLASK_ORIGIN=<origin>
+
+For Windows:
+
+    > set FLASK_ORIGIN=<origin>
+
 For Linux and Mac:
 
     $ export FLASK_APP=flaskr

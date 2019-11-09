@@ -1,11 +1,7 @@
-from datetime import date
-
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import update
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 from flaskr.db import Base
+from flaskr.models.Category import Category
 
 class Section(Base):
     __tablename__ = 'section'
@@ -15,12 +11,14 @@ class Section(Base):
     description = Column(String)
     permalink = Column(String)
     icon = Column(String)
+    categories = relationship('Category', order_by='asc(Category.name)', lazy='dynamic')
 
     def to_json(self):
         return {
             'id': self.id,
-            'name': self.name,
+            'label': self.name,
             'description': self.description,
             'permalink': self.permalink,
-            'icon': self.icon
+            'imageUrl': self.icon,
+            'subCategories': [ category.to_json() for category in self.categories ]
         }

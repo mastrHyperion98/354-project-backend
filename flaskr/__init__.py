@@ -30,24 +30,24 @@ def create_app(test_config=None):
     app.register_blueprint(carts)
 
     from flaskr.routes.checkout import bp as checkout
-    app.register_blueprint(checkout)  
-
-    from flaskr.routes.products import bp as products
-    app.register_blueprint(products)
+    app.register_blueprint(checkout)
 
     from flaskr.routes.orders import bp as orders
     app.register_blueprint(orders)
 
-    from flaskr.routes.promotions import bp as promotions
-    app.register_blueprint(promotions)
+    from flaskr.routes.products import bp as products
+    app.register_blueprint(products) 
 
-    from flaskr.routes.prices import bp as prices
-    app.register_blueprint(prices)
+    from flaskr.routes.auth import bp as auth
+    app.register_blueprint(auth)
 
-    from flaskr.routes.brand import bp as brand
-    app.register_blueprint(brand)
+    from flaskr.routes.sections import bp as sections
+    app.register_blueprint(sections)
 
-    from flaskr.routes.tax import bp as tax
-    app.register_blueprint(tax)
+    from flaskr.routes.categories import bp as categories
+    app.register_blueprint(categories)
 
+    from flaskr.routes.brands import bp as brands
+    app.register_blueprint(brands)
+    
     return app
