@@ -79,25 +79,24 @@ def get_mine():
                 if is_logged_in():
                     user = db_session.merge(g.user)
 
-                    if user.cart:
-                        if session['cart_id'] is not user.cart.id:
-                            #TODO merge carts
-                            session['cart_id'] = user.cart.id
+                    if user.cart is not None:
+                        #TODO merge carts
+                        session['cart_id'] = user.cart.id
                         return user.cart.to_json(), 200
-                
+
                 return {
                     'code': 400,
-                    'message': 'User have no cart'
+                    'message': 'User has no cart'
                 }, 400
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400    
+        }, 400
 
 @bp.route('/mine/items', methods=[ 'POST', 'OPTIONS' ])
-@cross_origin(methods=[ 'POST' ])
+@cross_origin(methods=[ 'POST', 'PUT' ])
 def add_item_to_mine():
     # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
     schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -115,7 +114,21 @@ def add_item_to_mine():
     if 'cart_id' in session:
         try:
             with session_scope() as db_session:
-                cart_line = CartLine(cart_id=session.get('cart_id'), product_id=request.json['porductId'], quantity=request.json['quantity'])
+                product = db_session.query(Product).filter(Product.id==request.json['productId']).first()
+
+                if product is None:
+                    return {
+                        'code': 404,
+                        'message': "Product not found"
+                    }, 404
+
+                if product.quantity < request.json['quantity']:
+                    return {
+                        'code': 400,
+                        'message': "Quantity requested exceeds actual quantity of product"
+                    }, 400
+
+                cart_line = CartLine(cart_id=session.get('cart_id'), product_id=request.json['productId'], quantity=request.json['quantity'])
                 db_session.add(cart_line)
 
             return '', 200
@@ -124,13 +137,13 @@ def add_item_to_mine():
             return {
                 'code': 400,
                 'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-            }, 400              
+            }, 400
     else:
         return {
             'code': 400,
             'message': 'User has no cart'
         }, 400
-            
+
 @bp.route('/mine/items/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])
 def delete_item_from_mine(product_id):
@@ -163,7 +176,7 @@ def delete_item_from_mine(product_id):
     return '', 200
 
 @bp.route('/mine/items', methods=[ 'PUT', 'OPTIONS' ])
-@cross_origin(methods=[ 'PUT' ])
+@cross_origin(methods=[ 'PUT', 'POST' ])
 def update_cart_line():
     if 'cart_id' not in session:
         return {
@@ -173,8 +186,16 @@ def update_cart_line():
 
     try:
         with session_scope() as db_session:
-            query = db_session.query(CartLine).filter(CartLine.cart_id==session.get('cart_id')).filter(CartLine.product_id==request.json['productId'])
+            product = db_session.query(Product).filter(Product.id==request.json['productId']).first()
 
+            if product.quantity < request.json['quantity']:
+                return {
+                    'code': 400,
+                    'message': "Quantity requested exceeds actual quantity of product"
+                }, 400
+
+
+            query = db_session.query(CartLine).filter(CartLine.cart_id==session.get('cart_id')).filter(CartLine.product_id==request.json['productId'])
             if query.count() == 1:
                 cart_line = query.one()
                 cart_line.quantity = request.json['quantity']

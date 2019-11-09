@@ -23,7 +23,7 @@ class Cart(Base):
         return {
             'id': self.id,
             'date_crated': self.date_created,
-            'lines': [line.to_json() for line in self.cart_lines] 
+            'lines': [line.to_json() for line in self.cart_lines]
         }
 
 class CartLine(Base):
@@ -36,6 +36,12 @@ class CartLine(Base):
 
     def to_json(self):
         return {
-            'name': self.product.name,
-            'quantity': self.quantity
+            'quantity': self.quantity,
+            'product': {
+                'name': self.product.name,
+                'id': self.product.id,
+                'price': self.product.price.first().to_json(),
+                'permalink': self.product.permalink,
+                'categoryPermalink': self.product.category.permalink
+            }
         }

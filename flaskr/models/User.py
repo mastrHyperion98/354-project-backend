@@ -19,12 +19,12 @@ class User(Base):
     email = Column(String)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
-    cart = relationship('Cart')
+    cart = relationship('Cart', uselist=False)
 
     def to_json(self):
         """Returns the instance of user as a JSON
-        
-        Returns:    
+
+        Returns:
             dict -- JSON representation of the user
         """
         return {
@@ -35,4 +35,3 @@ class User(Base):
             'dateJoined': self.date_joined
         }
 
-    
