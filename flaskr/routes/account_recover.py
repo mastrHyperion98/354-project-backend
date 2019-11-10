@@ -41,14 +41,19 @@ def recoverAccount():
     try:
         with session_scope() as db_session:
             #create tmp password with 16 random characters and 16 random letters
-            tmp_password = ''.join(random.choice(string.ascii_letters) for i in range(4))
-            tmp_password = tmp_password.join(random.choice(string.digits) for i in range(6))
+            tmp_password = ''
+            for x in range(32):
+                if random.randint(0,11) <= 5:
+                    tmp_password = tmp_password + random.choice(string.ascii_letters)
+                else:
+                    tmp_password= tmp_password + random.choice(string.digits)
+
             email = request.json.get("email")
             query_user = db_session.query(User).filter(User.email == email).one()
             query_user.password = tmp_password
             db_session.commit()
-            send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
-                 + tmp_password + "</body></html>", "Please login to change your password")
+            # send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
+            #   + tmp_password + "</body></html>", "Please login to change your password")
         return{
             "tmp_password": tmp_password,
             "message": "success"
