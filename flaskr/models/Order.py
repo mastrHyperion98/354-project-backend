@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Floa
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
+from flaskr.models.Promotions import promotion_code
 
 class Order(Base):
     __tablename__ = 'order'
