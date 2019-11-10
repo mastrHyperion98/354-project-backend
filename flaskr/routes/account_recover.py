@@ -5,12 +5,12 @@ import re
 import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
+
 import json
 
 from flask import (
     Blueprint, g, request, session, current_app, session
 )
-
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.exc import NoResultFound
@@ -50,7 +50,7 @@ def recoverAccount():
 
             email = request.json.get("email")
             query_user = db_session.query(User).filter(User.email == email).one()
-            query_user.password = tmp_password
+            query_user.password = argon2.hash(tmp_password)
             db_session.commit()
             # send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
             #   + tmp_password + "</body></html>", "Please login to change your password")
