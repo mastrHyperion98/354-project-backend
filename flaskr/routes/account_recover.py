@@ -40,7 +40,6 @@ def recoverAccount():
 
     try:
         with session_scope() as db_session:
-            #create tmp password with 16 random characters and 16 random letters
             tmp_password = ''
             # create a random sequence of length 32. A mix of letters and digits.
             for x in range(32):
@@ -56,11 +55,12 @@ def recoverAccount():
             query_user.password = argon2.hash(tmp_password)
             #Apply changes to the database
             db_session.commit()
-            # Send email to the user with the temporary password. FOR some reason postman seems to stuck in an infinite
-            # loop when this is uncommented.
-            # send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
-            #   + tmp_password + "</body></html>", "Please login to change your password")
+            # For some reason the email still wont send // postman just loops forever. 
+            #send(current_app.config['SMTP_USERNAME'], email, "354TheStarts Account Password Recovery"
+              #   , "<html><body><p> You have been provided a temporary password: "+tmp_password+"</p></body></html>",
+              #   "Thank you for using our platform and remember to login and change your password!")
         return{
+            'code':200,
             "message": "success"
         }, 200
 
