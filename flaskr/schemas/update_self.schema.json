@@ -5,11 +5,11 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-        "firstName": {
+        "first_name": {
             "type": "string",
             "description": "User's first name"
         },
-        "lastName": {
+        "last_name": {
             "type": "string",
             "description": "User's last name"
         },
