@@ -55,7 +55,6 @@ def listUsers():
             users = []
             for user in query.all():
                 users.append(user.to_json())
-                users.append(user.id)
 
             return {
                 "users": users
