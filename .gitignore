@@ -110,7 +110,4 @@ venv.bak/
 .DS_Store
 
 # Windows thumbnail data
-Thumbs.db
-requirements.txt
-
 run.sh
