@@ -42,16 +42,22 @@ def recoverAccount():
         with session_scope() as db_session:
             #create tmp password with 16 random characters and 16 random letters
             tmp_password = ''
+            # create a random sequence of length 32. A mix of letters and digits.
             for x in range(32):
                 if random.randint(0,11) <= 5:
                     tmp_password = tmp_password + random.choice(string.ascii_letters)
                 else:
                     tmp_password= tmp_password + random.choice(string.digits)
-
+            #Fetch the provided email address
             email = request.json.get("email")
+            # fetch the user account to whom the email belongs
             query_user = db_session.query(User).filter(User.email == email).one()
+            #update the password of the user with the hashed password
             query_user.password = argon2.hash(tmp_password)
+            #Apply changes to the database
             db_session.commit()
+            # Send email to the user with the temporary password. FOR some reason postman seems to stuck in an infinite
+            # loop when this is uncommented.
             # send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
             #   + tmp_password + "</body></html>", "Please login to change your password")
         return{
@@ -65,7 +71,8 @@ def recoverAccount():
                    'code': 400,
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                 }, 400
-    except NoResultFound as query_error:
+    # return an error if the email does not match anything in the database
+    except NoResultFound:
         # Returns an error in case of a integrity constraint not being followed.
         return {
                    'code': 400,
