@@ -61,7 +61,6 @@ def recoverAccount():
             # send(current_app.config['SMTP_USERNAME'], email, "Welcome to 354TheStars!", "<html><body><p>Temporary Reset Password: !</p>"
             #   + tmp_password + "</body></html>", "Please login to change your password")
         return{
-            "tmp_password": tmp_password,
             "message": "success"
         }, 200
 
