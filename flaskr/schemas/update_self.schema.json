@@ -3,8 +3,13 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "UpdateSelf",
     "type": "object",
+    "required": ["current_password"],
     "additionalProperties": false,
     "properties": {
+        "current_password": {
+            "type": "string",
+            "description": "current user password"
+        },
         "first_name": {
             "type": "string",
             "description": "User's first name"
