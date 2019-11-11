@@ -50,4 +50,7 @@ def create_app(test_config=None):
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
     
+    from flaskr.routes.change_shipping_status import bp as change_shipping_status
+    app.register_blueprint(change_shipping_status)
+    
     return app
