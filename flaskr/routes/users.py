@@ -164,6 +164,7 @@ def updateSelf():
                 # if k == password hash password
                 if k == "password":
                     user.__dict__[k] = argon2.hash(v)
+                    user.reset_password = False
                 else:
                     user.__dict__[k] = v
 
