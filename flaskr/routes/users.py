@@ -13,8 +13,8 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
-from flaskr.models.User import User
 from flaskr.email import send
+from flaskr.models.User import User
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -129,8 +129,7 @@ def showSelf():
 @cross_origin(methods=['GET', 'PATCH'])
 @login_required
 def updateSelf():
-    """Endpoints to handle updating an authenticate user.
-
+    """"Endpoints to handle updating an authenticate user.
     Returns:
         str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
     """
@@ -151,17 +150,32 @@ def updateSelf():
     try:
         with session_scope() as db_session:
             user = db_session.merge(g.user)
+            current_password = request.json.get("current_password")
+
+            # Current User Password is required before applying any changes
+            if argon2.verify(current_password, user.password) is False:
+                return{
+                    'code': 400,
+                    'message': "Current password is incorrect"
+                }, 400
 
             # Update the values to the current User
             for k, v in request.json.items():
-                user.__dict__[k] = v
+                # if k == password hash password
+                if k == "password":
+                    user.__dict__[k] = argon2.hash(v)
+                else:
+                    user.__dict__[k] = v
 
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
+            db_session.merge(g.user)
+
     except DBAPIError as db_error:
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
     return g.user.to_json(), 200
