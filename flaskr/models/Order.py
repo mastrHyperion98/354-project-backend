@@ -19,6 +19,7 @@ class Order(Base):
     full_name = Column(String)
     line1 = Column(String)
     line2 = Column(String)
+    is_express_shipping = Column(Boolean)
     city = Column(String)
     country = Column(String)
     phone = Column(String)
