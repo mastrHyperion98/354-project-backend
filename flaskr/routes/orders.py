@@ -43,18 +43,22 @@ def viewOrder():
                     "line1": item.line1,
                     "line2": item.line2,
                     "city": item.city,
+                    "is_express_shipping": item.is_express_shipping,
                     "country": item.country,
                     "total_cost": item.total_cost
                 }
 
                 line=[]
                 for itemline in queryOrderLine:
-                    myline = {
-                        "product_id": itemline.product_id,
-                        "quantity": itemline.quantity,
-                        "price": float(itemline.cost)
-                    }
-                    line.append(myline)
+                    if itemline.order_id == item.id:
+                        myline = {
+                            "id": itemline.order_id,
+                            "product_id": itemline.product_id,
+                            "quantity": itemline.quantity,
+                            "fulfilled": itemline.date_fulfilled,
+                            "price": float(itemline.cost)
+                        }
+                        line.append(myline)
                 
                 itemelement={
                     "order": myitem,
