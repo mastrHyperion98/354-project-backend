@@ -36,9 +36,21 @@ def recoverAccount():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
 
     try:
+        # Check if the user is logged in, if so log the user out.
+        if 'user_id' in session:
+            session.pop('user_id')
+            # If the session is empty
+            # make sure to remove any
+            # data.
+        if len(session) <= 0:
+            session.clear()
+            # If a user is in the global
+            # variable remove it
+        if 'user' in g:
+            g.pop('user')
         with session_scope() as db_session:
             tmp_password = ''
             # create a random sequence of length 32. A mix of letters and digits.
@@ -51,14 +63,14 @@ def recoverAccount():
             email = request.json.get("email")
             # fetch the user account to whom the email belongs
             query_user = db_session.query(User).filter(User.email == email).one()
-            #update the password of the user with the hashed password
             query_user.password = argon2.hash(tmp_password)
+            query_user.reset_password = True
             #Apply changes to the database
             db_session.commit()
-            # For some reason the email still wont send // postman just loops forever. 
             #send(current_app.config['SMTP_USERNAME'], email, "354TheStarts Account Password Recovery"
               #   , "<html><body><p> You have been provided a temporary password: "+tmp_password+"</p></body></html>",
               #   "Thank you for using our platform and remember to login and change your password!")
+            
         return{
             'code':200,
             "message": "success"
