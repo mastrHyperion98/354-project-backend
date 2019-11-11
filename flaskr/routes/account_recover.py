@@ -39,19 +39,20 @@ def recoverAccount():
         }, 400
 
     try:
-        # Check if the user is logged in, if so log the user out.
-        if 'user_id' in session:
-            session.pop('user_id')
-            # If the session is empty
-            # make sure to remove any
-            # data.
-        if len(session) <= 0:
-            session.clear()
-            # If a user is in the global
-            # variable remove it
-        if 'user' in g:
-            g.pop('user')
         with session_scope() as db_session:
+            # Check if the user is logged in, if so log the user out.
+            if 'user_id' in session:
+                session.pop('user_id')
+                # If the session is empty
+                # make sure to remove any
+                # data.
+            if len(session) <= 0:
+                session.clear()
+                # If a user is in the global
+                # variable remove it
+            if 'user' in g:
+                g.pop('user')
+                
             tmp_password = ''
             # create a random sequence of length 32. A mix of letters and digits.
             for x in range(32):
@@ -70,7 +71,7 @@ def recoverAccount():
             #send(current_app.config['SMTP_USERNAME'], email, "354TheStarts Account Password Recovery"
               #   , "<html><body><p> You have been provided a temporary password: "+tmp_password+"</p></body></html>",
               #   "Thank you for using our platform and remember to login and change your password!")
-            
+
         return{
             'code':200,
             "message": "success"
