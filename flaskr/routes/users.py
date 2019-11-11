@@ -87,6 +87,7 @@ def registerUser():
     try:
         with session_scope() as db_session:
             new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
+            new_user.reset_password = False
             db_session.add(new_user)
 
             # Commit new user to database making sure of the integrity of the relations.
