@@ -13,6 +13,7 @@ class OrderLine(Base):
 
     order_id = Column(Integer, ForeignKey('order.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
+    date_fulfilled = Column(Date)
     quantity = Column(Integer)
     cost = Column(Numeric)
 
