@@ -28,7 +28,7 @@ from datetime import date
 bp = Blueprint('change_shipping_status', __name__, url_prefix='/change_shipping_status')
 
 @bp.route("", methods =["POST"])
-#@login_required
+@login_required
 def change_shipping_status():
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
@@ -62,9 +62,9 @@ def change_shipping_status():
             for itemquery in queryOrderLine:
                 queryProduct = db_session.query(Product).filter(Product.id == itemquery.product_id).one()
 
-                f=""
-                #if queryProduct.user_id == session["user_id"]:
-                if f=="":
+                #f=""
+                if queryProduct.user_id == session["user_id"]:
+                #if f=="":
                     if itemquery.date_fulfilled is None:
 
                         # email content of shipped items
