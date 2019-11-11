@@ -39,7 +39,7 @@ def getProducts():
         }, 400
 
     with session_scope() as db_session:
-        products = None
+        products = db_session.query(Product)
         count = 0
         if 'category' in request.args:
             category = db_session.query(Category).filter(Category.permalink == request.args['category']).first()
@@ -51,7 +51,7 @@ def getProducts():
 
             count = category.products.count()
 
-            products = category.products.limit(request.args['limit']).offset(int(request.args['limit'])*int(request.args['page']))
+            products = category.products
 
         if 'q' in request.args:
             tokens = request.args['q'].strip().split()
@@ -62,6 +62,18 @@ def getProducts():
                 or_instruction.append(Product.description.match(token))
 
             products = db_session.query(Product).filter(or_(*or_instruction))
+
+            count = products.count()
+
+        if 'priceOrderFilter' in request.args:
+            priceOrder = request.args['priceOrderFilter']
+
+            if priceOrder == 'lowToHigh':
+                products.order_by(Product.price.first().asc())
+            elif priceOrder == 'highToLow':
+                products.order_by(Product.price.first().desc())
+
+        products = products.limit(request.args['limit']).offset(int(request.args['limit'])*int(request.args['page']))
 
         return {'products':[ product.to_json() for product in products.all()], 'count': count}
 
