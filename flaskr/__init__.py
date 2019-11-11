@@ -53,4 +53,7 @@ def create_app(test_config=None):
     from flaskr.routes.change_shipping_status import bp as change_shipping_status
     app.register_blueprint(change_shipping_status)
     
+    from flaskr.routes.set_express_shipping import bp as set_express_shipping
+    app.register_blueprint(set_express_shipping)
+    
     return app
