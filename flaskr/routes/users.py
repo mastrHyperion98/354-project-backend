@@ -150,6 +150,14 @@ def updateSelf():
     try:
         with session_scope() as db_session:
             user = db_session.merge(g.user)
+            current_password = request.json.get("current_password")
+
+            # Current User Password is required before applying any changes
+            if argon2.verify(current_password, user.password) is False:
+                return{
+                    'code': 400,
+                    'message': "Current password is incorrect"
+                }, 400
 
             # Update the values to the current User
             for k, v in request.json.items():
