@@ -52,7 +52,7 @@ def recoverAccount():
                 # variable remove it
             if 'user' in g:
                 g.pop('user')
-                
+
             tmp_password = ''
             # create a random sequence of length 32. A mix of letters and digits.
             for x in range(32):
