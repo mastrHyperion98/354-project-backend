@@ -197,3 +197,92 @@ def view(product_id):
             'code': 400,
             'message': 'error: ' + db_error.args[0]
         }, 400
+
+    @bp.route("/search", methods=['GET'])
+def searchProduct():
+
+    # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'search.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }
+    
+    try:
+        with session_scope() as db_session:
+            search = request.json.get("search")
+            queryProduct = db_session.query(Product)
+            array=[]
+            for item in queryProduct:
+                flag = 0 
+                if search in item.name or search in item.description or search in item.permalink:
+                    array.append(item.to_json())
+                    flag = 1
+                if flag == 0:
+                    queryBrand = db_session.query(Brand).filter(Brand.id == item.brand_id).one()
+                    if search in queryBrand.description or search in queryBrand.logo or search in queryBrand.name:
+                        array.append(item.to_json())
+                        flag = 1
+                    #if flag == 0:
+                    #    queryCategory = db_session.query(Category).filter(Category.id == item.category_id).one()
+                    #    if search in queryCategory.name or search in queryCategory.description or search in queryCategory.permalink:
+                    #        array.append(item.to_json())
+                    #        flag = 1
+                        #if flag == 0:
+                        #    querySection = db_session.query(Section).filter(Section.id == item.section_id).one()
+                        #    if search in querySection.name or search in querySection.description or search in querySection.permalink:
+                        #        array.append(item.to_json())
+
+            if len(array) > 0:
+                return {
+                    "code": 200,
+                    "result": array
+                }, 200
+            else:
+                return {
+                    "code": 400,
+                    "message": "not found"
+                }, 400
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+@bp.route("/view", methods=['GET'])
+def viewProduct():
+
+    try:
+        with session_scope() as db_session:
+
+            queryProduct = db_session.query(Product)
+
+            totalitem =[]
+
+            for item in queryProduct:
+                totalitem.append(item.to_json())
+            totalitem = {
+                "allitems": totalitem
+            }    
+            return totalitem
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
