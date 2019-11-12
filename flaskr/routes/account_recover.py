@@ -13,7 +13,7 @@ from flask import (
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.exc import NoResultFound
-from passlib.hash import pbkdf2_sha512
+import bcrypt
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.User import User
@@ -25,6 +25,7 @@ bp = Blueprint('account_recovery', __name__, url_prefix='/recover')
 @bp.route("",methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['PATCH'])
 def recoverAccount():
+    bcrypt_salt = "$2a$10$ssTHsnejHc6RrlyVbiNQ/O".encode('utf8')
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'account_recover.schema.json')
@@ -61,13 +62,15 @@ def recoverAccount():
                     tmp_password = tmp_password + random.choice(string.ascii_letters)
                 else:
                     tmp_password= tmp_password + random.choice(string.digits)
+            # hash password using frontend hashing
+            password = bcrypt.hashpw(tmp_password.encode('utf8'), salt=bcrypt_salt).decode('utf8')
             #Fetch the provided email address
             email = request.json.get("email")
             # fetch the user account to whom the email belongs
             query_user = db_session.query(User).filter(User.email == email).one()
-            query_user.password = argon2.hash(tmp_password)
+            #Re-hash password for backend
+            query_user.password = argon2.hash(password)
             query_user.reset_password = True
-            #yolo = pbkdf2_sha512.using(rounds=1000, salt_size=32).hash("yolo")
             #Apply changes to the database
             db_session.merge(query_user)
             db_session.commit()
