@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
 from flaskr.db import Base
 from flaskr.models.Product import Product
@@ -17,6 +17,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     email = Column(String)
+    reset_password = Column(Boolean, default=False)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
     cart = relationship('Cart', uselist=False)
@@ -32,6 +33,7 @@ class User(Base):
             'firstName': self.first_name,
             'lastName': self.last_name,
             'email': self.email,
-            'dateJoined': self.date_joined
+            'dateJoined': self.date_joined,
+            'reset_password': self.reset_password
         }
 
