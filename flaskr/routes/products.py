@@ -17,6 +17,8 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
+from flaskr.models.Brand import Brand
+from flaskr.models.Review import review
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('products', __name__, url_prefix='/products')
