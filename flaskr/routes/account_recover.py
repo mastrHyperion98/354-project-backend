@@ -68,10 +68,12 @@ def recoverAccount():
             query_user.reset_password = True
             #Apply changes to the database
             db_session.commit()
-            #send(current_app.config['SMTP_USERNAME'], email, "354TheStarts Account Password Recovery"
-              #   , "<html><body><p> You have been provided a temporary password: "+tmp_password+"</p></body></html>",
-              #   "Thank you for using our platform and remember to login and change your password!")
-
+            send(current_app.config['SMTP_USERNAME'], email, "354TheStars Account Recovery", "<html><body><p>"+"Temporary Password:<br>"+str(tmp_password)+
+                 "<br><br><b>Remember to login to change your password</b><br>"+
+                 "<br><a href='http://354thestars.com/login'>Login</a><br></p>"+
+                 "<p><br>Reminder: Never disclose your password to anyone! "+
+                 "It is important to store your password somewhere safe.<br></p></body></html>",
+                 "Welcome to 354TheStars!")
         return{
             'code':200,
             "message": "success"
