@@ -108,12 +108,23 @@ def save(product_id):
             # check if user has bought this product id
             queryOrder = db_session.query(Order).filter(Order.user_id == user_id)
             count = 0
+            flag=0
             for item in queryOrder:
+                mydate=item.date
+                now=date.today()
+                diff = int((now - mydate).days)
+                if diff >= 15:
+                    flag = 1
                 queryOrderLine = db_session.query(OrderLine).filter(OrderLine.order_id == item.id)
                 for lineitem in queryOrderLine:
                     if lineitem.product_id == product_id:
                         count = count + 1
-
+            if flag==0:
+                return {
+                        "code": 400,
+                        "message": "You have to use the product for 15 days before you can post review"
+                    }, 400
+            
             if count > 0:
                 if score <= 5 and score >= 0:
                     myreview = review(
