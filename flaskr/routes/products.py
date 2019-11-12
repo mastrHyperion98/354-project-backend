@@ -200,7 +200,7 @@ def view(product_id):
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-    @bp.route("/search", methods=['GET'])
+@bp.route("/search", methods=['GET'])
 def searchProduct():
 
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
