@@ -34,6 +34,6 @@ class User(Base):
             'lastName': self.last_name,
             'email': self.email,
             'dateJoined': self.date_joined,
-            'reset_password':self.reset_password
+            'resetPassword':self.reset_password
         }
 
