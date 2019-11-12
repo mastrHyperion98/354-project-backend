@@ -110,6 +110,7 @@ def save(product_id):
             count = 0
             flag=0
             for item in queryOrder:
+                
                 mydate=item.date
                 now=date.today()
                 diff = int((now - mydate).days)
