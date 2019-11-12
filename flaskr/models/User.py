@@ -16,7 +16,7 @@ class User(Base):
     username = Column(String)
     first_name = Column(String)
     last_name = Column(String)
-    reset_password = Column(Boolean)
+    reset_password = Column(Boolean, default=False)
     email = Column(String)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
@@ -34,6 +34,7 @@ class User(Base):
             'firstName': self.first_name,
             'lastName': self.last_name,
             'email': self.email,
-            'dateJoined': self.date_joined
+            'dateJoined': self.date_joined,
+            'reset_password': self.reset_password
         }
 
