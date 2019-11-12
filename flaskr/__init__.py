@@ -44,4 +44,7 @@ def create_app(test_config=None):
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
     
+    from flaskr.routes.review import bp as review
+    app.register_blueprint(review)
+    
     return app
