@@ -5,7 +5,6 @@ import re
 import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
-
 import json
 
 from flask import (
@@ -14,6 +13,7 @@ from flask import (
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.exc import NoResultFound
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.User import User
@@ -67,13 +67,14 @@ def recoverAccount():
             query_user = db_session.query(User).filter(User.email == email).one()
             query_user.password = argon2.hash(tmp_password)
             query_user.reset_password = True
+            #yolo = pbkdf2_sha512.using(rounds=1000, salt_size=32).hash("yolo")
             #Apply changes to the database
             db_session.merge(query_user)
             db_session.commit()
 
             send(current_app.config['SMTP_USERNAME'], email, "354TheStars Account Recovery", "<html><body><p>"+"Temporary Password:<br>"+str(tmp_password)+
                  "<br><br><b>Remember to login to change your password</b><br>"+
-                 "<br><a href='"+os.environ.get('FLASK_ORIGIN')+"'>Login!</a><br></p>"+
+                 "<br><a href=\"" + (str(os.environ.get('FLASK_ORIGIN')) + "/login") + "\">Login!</a><br></p>" +
                  "<p><br>Reminder: Never disclose your password to anyone! "+
                  "It is important to store your password somewhere safe.<br></p></body></html>",
                  "Welcome to 354TheStars!")
@@ -95,3 +96,4 @@ def recoverAccount():
                    'code': 400,
                    'message':"There exists no users with the email: " + email
                }, 400
+
