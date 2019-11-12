@@ -22,7 +22,8 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('account_recovery', __name__, url_prefix='/recover')
 
-@bp.route("",methods=['POST'])
+@bp.route("",methods=['PATCH'])
+@cross_origin(methods=['PATCH'])
 def recoverAccount():
     # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
