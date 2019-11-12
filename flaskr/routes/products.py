@@ -18,6 +18,8 @@ from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
 from flaskr.models.Brand import Brand
+from flaskr.models.Category import Category
+from flaskr.models.Section import Section
 from flaskr.models.Review import review
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
@@ -230,15 +232,15 @@ def searchProduct():
                     if search in queryBrand.description or search in queryBrand.logo or search in queryBrand.name:
                         array.append(item.to_json())
                         flag = 1
-                    #if flag == 0:
-                    #    queryCategory = db_session.query(Category).filter(Category.id == item.category_id).one()
-                    #    if search in queryCategory.name or search in queryCategory.description or search in queryCategory.permalink:
-                    #        array.append(item.to_json())
-                    #        flag = 1
-                        #if flag == 0:
-                        #    querySection = db_session.query(Section).filter(Section.id == item.section_id).one()
-                        #    if search in querySection.name or search in querySection.description or search in querySection.permalink:
-                        #        array.append(item.to_json())
+                    if flag == 0:
+                        queryCategory = db_session.query(Category).filter(Category.id == item.category_id).one()
+                        if search in queryCategory.name or search in queryCategory.description or search in queryCategory.permalink:
+                            array.append(item.to_json())
+                            flag = 1
+                        if flag == 0:
+                            querySection = db_session.query(Section).filter(Section.id == queryCategory.section_id).one()
+                            if search in querySection.name or search in querySection.description or search in querySection.permalink:
+                                array.append(item.to_json())
 
             if len(array) > 0:
                 return {
