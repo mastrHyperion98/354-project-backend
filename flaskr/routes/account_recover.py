@@ -67,6 +67,7 @@ def recoverAccount():
             query_user.password = argon2.hash(tmp_password)
             query_user.reset_password = True
             #Apply changes to the database
+            db_session.merge(query_user)
             db_session.commit()
             send(current_app.config['SMTP_USERNAME'], email, "354TheStars Account Recovery", "<html><body><p>"+"Temporary Password:<br>"+str(tmp_password)+
                  "<br><br><b>Remember to login to change your password</b><br>"+
