@@ -128,6 +128,13 @@ def save(product_id):
                         "message": "You have to use the product for 15 days before you can post review"
                     }, 400
             
+            word = comment.split(" ")
+            if len(word) > 400:
+                return {
+                        "code": 400,
+                        "message": "Comment has to be less than 400 words"
+                    }, 400
+            
             if count > 0:
                 if score <= 5 and score >= 0:
                     myreview = review(
