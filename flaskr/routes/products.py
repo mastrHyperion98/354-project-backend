@@ -40,7 +40,7 @@ def getProducts():
 
     with session_scope() as db_session:
         products = db_session.query(Product)
-        count = 0
+        count = None
         if 'category' in request.args:
             category = db_session.query(Category).filter(Category.permalink == request.args['category']).first()
             if category is None:
@@ -72,6 +72,9 @@ def getProducts():
                 products.order_by(Product.price.first().asc())
             elif priceOrder == 'highToLow':
                 products.order_by(Product.price.first().desc())
+        
+        if count is None:
+            count = products.count()
 
         products = products.limit(request.args['limit']).offset(int(request.args['limit'])*int(request.args['page']))
 
