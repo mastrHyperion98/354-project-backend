@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "review",
     "type": "object",
-    "required": [ "product_id", "comment", "score" ],
+    "required": [ "comment", "score" ],
     "additionalProperties": false,
     "properties": {
         "user_id": {
