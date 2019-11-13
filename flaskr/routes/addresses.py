@@ -43,18 +43,19 @@ def addAddress():
             user = db_session.merge(g.user)
             addresses = request.json
             #Check for conflict
-            user_address = user.addresses+ addresses
+            new_address = user.addresses + addresses
             #validate new object according to schema
             # MAX 3 Addresses
             # NO duplicates
             try:
-                validate(instance=user_address, schema=schema, format_checker=draft7_format_checker)
+                validate(instance=new_address, schema=schema, format_checker=draft7_format_checker)
             except jsonschema.exceptions.ValidationError as validation_error:
                 return {
                            'code': 400,
                            'message': validation_error.message
                        }, 400
-            user.addresses = user_address
+
+            user.addresses = new_address
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
