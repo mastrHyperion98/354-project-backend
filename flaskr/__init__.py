@@ -43,5 +43,8 @@ def create_app(test_config=None):
 
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
-    
+
+    from flaskr.routes.addresses import bp as addresses
+    app.register_blueprint(addresses)
+
     return app
