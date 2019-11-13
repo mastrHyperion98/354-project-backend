@@ -90,7 +90,7 @@ def get_order(order_id):
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-@bp.route("/<int:order_id>/products/<int:product_id>", methods=[ 'PATCH', 'OPTIONS' ])
+@bp.route("/<int:order_id>/items/<int:product_id>", methods=[ 'PATCH', 'OPTIONS' ])
 @cross_origin(methods=['PATCH'])
 @login_required
 def update_order_line(order_id, product_id):
