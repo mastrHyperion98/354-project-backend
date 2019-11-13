@@ -130,7 +130,7 @@ def update_order_line(order_id, product_id):
 
 
 @bp.route("", methods=[ 'POST', 'OPTIONS' ])
-@cross_origin(methods=['OPTIONS'])
+@cross_origin(methods=['POST'])
 @login_required
 def create_order():
     # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
@@ -150,7 +150,7 @@ def create_order():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             cart = user.cart
-            
+
             if cart is None:
                 return {
                     'code': 400,
@@ -161,7 +161,7 @@ def create_order():
                 return {
                     'code': 400,
                     'message': 'User cannot checkout an empty cart'
-                }, 400             
+                }, 400
 
             order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'], phone=request.json['phone'])
 
@@ -178,7 +178,7 @@ def create_order():
 
             for line in cart.cart_lines:
                 product = db_session.query(Product).filter(Product.id == line.product_id).with_for_update().one()
-                
+
                 order.order_lines.append(OrderLine(product_id=product.id, quantity=min(product.quantity, line.quantity), cost=line.cost))
                 total_cost += order.order_lines[-1].cost
 
@@ -205,7 +205,7 @@ def create_order():
 
             send(current_app.config['SMTP_USERNAME'], g.user.email, "Purchase Notification", "<html><body><p>Here is an overview of your purchase:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_bought) ,'Here is an overview of your purchase:\n%s'% '\n'.join(items_bought))
             return order.to_json(), 200
-             
+
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
