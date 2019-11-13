@@ -42,8 +42,19 @@ def addAddress():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             addresses = request.json
-            user.addresses = addresses
-
+            #Check for conflict
+            user_address = user.addresses+ addresses
+            #validate new object according to schema
+            # MAX 3 Addresses
+            # NO duplicates
+            try:
+                validate(instance=user_address, schema=schema, format_checker=draft7_format_checker)
+            except jsonschema.exceptions.ValidationError as validation_error:
+                return {
+                           'code': 400,
+                           'message': validation_error.message
+                       }, 400
+            user.addresses = user_address
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
@@ -67,9 +78,5 @@ def delAddress():
          (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
      """
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
-
-
-    
-
+    #schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    #schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
