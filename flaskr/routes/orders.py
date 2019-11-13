@@ -163,7 +163,10 @@ def create_order():
                     'message': 'User cannot checkout an empty cart'
                 }, 400             
 
-            order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], line2=request.json['line2'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'], phone=request.json['phone'])
+            order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'], phone=request.json['phone'])
+
+            if 'line2' in request.json:
+                order.line2 = request.json['line2']
 
             total_cost = 0
 
