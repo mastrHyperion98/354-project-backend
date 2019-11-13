@@ -55,7 +55,7 @@ def get_my_orders():
         }, 400
 
 @bp.route("/<int:order_id>", methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
+@cross_origin(methods=['GET', 'PATCH'])
 @login_required
 def get_order(order_id):
 

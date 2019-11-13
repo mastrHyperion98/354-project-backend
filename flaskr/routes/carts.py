@@ -36,7 +36,6 @@ def create_cart():
                 # Carts a valid for a set period of time
                 # they are delete afterwards.
                 cart.date_created = date.today()
-                cart.user_id = 1
 
             db_session.add(cart)
             db_session.commit()
