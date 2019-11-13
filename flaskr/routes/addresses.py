@@ -24,7 +24,7 @@ def addAddress():
     """Endpoint use to add a address to the user. Sends a welcoming
 
      Returns:
-         (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
+         (str, int) -- Returns a tuple of the JSON object of the newly added addresses and a http status code.
      """
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -69,6 +69,28 @@ def addAddress():
 
     return g.user.to_json(), 200
 
+@bp.route('/update', methods=['PATCH', 'OPTIONS'])
+@login_required
+@cross_origin(methods=['PATCH'])
+def updateAddresses():
+    """Endpoint use to update one or more address
+
+      Returns:
+          (str, int) -- Returns a tuple of the JSON object of the updated addresses and a http status code.
+      """
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'update_addresses.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+                   'code': 400,
+                   'message': validation_error.message
+               }, 400
+
 @bp.route('', methods=['DELETE', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['DELETE'])
@@ -79,5 +101,5 @@ def delAddress():
          (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
      """
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    #schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    #schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
