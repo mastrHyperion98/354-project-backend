@@ -56,3 +56,22 @@ def addAddress():
         }, 400
 
     return g.user.to_json(), 200
+
+
+bp = Blueprint('addresses', __name__, url_prefix='/addresses')
+@bp.route('', methods=['DELETE', 'OPTIONS'])
+@login_required
+@cross_origin(methods=['DELETE'])
+def delAddress():
+        """Endpoint use to add a address to the user. Sends a welcoming
+
+     Returns:
+         (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
+     """
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
+
+
+    
+
