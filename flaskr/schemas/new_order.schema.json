@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "order",
     "type": "object",
-    "required": [ "fullName", "line1", "city", "country", "phone", "isExpressShipping" ],
+    "required": [ "fullName", "line1", "city", "province", "country", "postalCode", "phone", "isExpressShipping" ],
     "additionalProperties": false,
     "properties": {
         "fullName": {
@@ -26,13 +26,21 @@
             "type": "string",
             "description": "City of destination"
         },
+        "province": {
+            "type": "string",
+            "description": "Province/state of destination"
+        },
         "country": {
             "type": "string",
             "description": "Country of destination"
         },
+        "postalCode": {
+            "type": "string",
+            "description": "Postal code of destination"
+        },
         "isExpressShipping": {
             "type": "boolean",
-            "description": "Shipping method for ordre"
+            "description": "Shipping method for order"
         }
     }
 }
