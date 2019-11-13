@@ -17,9 +17,9 @@ from flaskr.models.User import User
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('addresses', __name__, url_prefix='/addresses')
-@bp.route('', methods=['POST', 'OPTIONS'])
+@bp.route('', methods=['PUT', 'OPTIONS'])
 @login_required
-@cross_origin(methods=['POST'])
+@cross_origin(methods=['PUT'])
 def addAddress():
     """Endpoint use to add a address to the user. Sends a welcoming
 
@@ -48,7 +48,7 @@ def addAddress():
             g.user = user
             db_session.expunge(g.user)
             db_session.merge(g.user)
-            
+
     except DBAPIError as db_error:
         return {
             'code': 400,
