@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from flaskr.models.User import User
 from flaskr.models.Product import Product
 from flaskr.db import Base
@@ -34,6 +34,10 @@ class CartLine(Base):
     product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
     quantity = Column(Integer)
     product = relationship('Product')
+
+    @hybrid_property
+    def cost(self):
+        return self.product.price.first().amount * self.quantity * (self.product.tax.rate + 1)
 
     def to_json(self):
         return {

@@ -5,7 +5,6 @@ from sqlalchemy import update
 from sqlalchemy.orm import relationship
 from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.dialects.postgresql import JSON, JSONB
 import flaskr.models.Brand
 import flaskr.models.Price

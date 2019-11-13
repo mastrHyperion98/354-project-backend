@@ -1,14 +1,15 @@
 {
     "$id": "http://json-schema.org/draft-07/schema#",
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "order_status",
+    "title": "UpdateOrderLineShippingStatus",
     "type": "object",
-    "required": [ "status" ],
     "additionalProperties": false,
+    "required": [ "dateFulfilled" ],
     "properties": {
-        "status": {
+        "dateFulfilled": {
             "type": "string",
-            "description": "order_status"
+            "format": "date",
+            "description": "Date of which the seller fulfilled this order line"
         }
     }
 }
