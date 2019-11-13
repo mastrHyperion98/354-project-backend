@@ -1,10 +1,10 @@
 from datetime import date
 
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
 from flaskr.db import Base
 from flaskr.models.Product import Product
 
@@ -20,6 +20,7 @@ class User(Base):
     email = Column(String)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
+    addresses = Column(JSONB)
     cart = relationship('Cart', uselist=False)
 
 
@@ -35,6 +36,7 @@ class User(Base):
             'lastName': self.last_name,
             'email': self.email,
             'dateJoined': self.date_joined,
-            'resetPassword': self.reset_password
+            'resetPassword': self.reset_password,
+            'addresses': self.addresses
         }
 
