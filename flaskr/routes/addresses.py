@@ -57,8 +57,6 @@ def addAddress():
 
     return g.user.to_json(), 200
 
-
-bp = Blueprint('addresses', __name__, url_prefix='/addresses')
 @bp.route('', methods=['DELETE', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['DELETE'])
