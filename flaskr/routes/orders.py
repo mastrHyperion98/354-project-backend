@@ -24,17 +24,29 @@ from datetime import date
 
 bp = Blueprint('orders', __name__, url_prefix='/orders')
 
-@bp.route("", methods=['GET', 'OPTIONS'])
+@bp.route("/<int:order_id>", methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
-def get_order():
+def get_order(order_id):
 
     try:
         with session_scope() as db_session:
 
-            queryOrder = db_session.query(Order)
+            order = db_session.query(Order).filter(Order.id == order_id).first()
 
-            return queryOrder.all()
+            if order is None:
+                return {
+                    'code': 404,
+                    'message': 'Order does not exist'
+                }, 404
+
+            if order.user_id != g.user.id:
+                return {
+                    'code': 403,
+                    'message': 'Order does not belong to user.'
+                }, 403
+
+            return order.to_json(), 200
 
         return {
             'code': 200,
