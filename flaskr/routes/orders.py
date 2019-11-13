@@ -24,6 +24,36 @@ from datetime import date
 
 bp = Blueprint('orders', __name__, url_prefix='/orders')
 
+@bp.route("/mine", methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+def get_my_orders():
+
+    try:
+        with session_scope() as db_session:
+
+            orders = db_session.query(Order).filter(Order.user_id == g.user.id)
+
+            if orders.count() < 1:
+                return {
+                    'code': 404,
+                    'message': 'User has no orders'
+                }, 404
+
+            return {'orders': [order.to_json() for order in orders.all()]}, 200
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
 @bp.route("/<int:order_id>", methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
