@@ -61,7 +61,11 @@ class OrderLine(Base):
     cost = Column(Numeric)
     product = relationship('Product')
 
+    order = relationship('Order')
 
+    @hybrid_property
+    def buyer(self):
+        return self.order.user
 
 
     def to_json(self):

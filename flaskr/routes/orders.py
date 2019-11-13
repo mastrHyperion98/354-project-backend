@@ -55,7 +55,7 @@ def get_my_orders():
         }, 400
 
 @bp.route("/<int:order_id>", methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
+@cross_origin(methods=['GET', 'PATCH'])
 @login_required
 def get_order(order_id):
 
@@ -89,6 +89,44 @@ def get_order(order_id):
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+@bp.route("/<int:order_id>/products/<int:product_id>", methods=[ 'PATCH', 'OPTIONS' ])
+@cross_origin(methods=['GET', 'PATCH'])
+@login_required
+def update_order_line(order_id, product_id):
+    # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
+    schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_directory, 'update_order_line_shipping_status.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
+
+    with session_scope() as db_session:
+        order_line = db_session.query(OrderLine).filter(OrderLine.order_id == order_id).filter(OrderLine.product_id == product_id).first()
+
+        if order_line is None:
+            return {
+                'code': 404,
+                'message': 'Order does not exist'
+            }, 404
+
+        if order_line.product.user_id != g.user.id:
+             return {
+                'code': 404,
+                'message': 'Not products seller'
+            }, 404
+
+        order_line.date_fulfilled = request.json['dateFulfilled']
+
+        send(current_app.config['SMTP_USERNAME'], order_line.buyer.email, "Shipping Notification", "<html><body><p>%s x %d has been shipped on %s</p></body></html>"%(order_line.product.name, order_line.quantity, str(order_line.date_fulfilled)) ,"%s x %d has been shipped on %s" % (order_line.product.name, order_line.quantity, str(order_line.date_fulfilled)))
+
+        return '', 200
 
 
 @bp.route("", methods=[ 'POST', 'OPTIONS' ])
