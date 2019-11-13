@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Boolean
+from sqlalchemy.dialects.postgresql import JSONB
 from flaskr.db import Base
 from flaskr.models.Product import Product
 
