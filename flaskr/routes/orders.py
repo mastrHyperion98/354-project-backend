@@ -13,62 +13,28 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
-from flaskr.models.Order_Status import order_status
-from flaskr.models.Order import Order
-from flaskr.models.OrderLine import OrderLine
+from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
+from flaskr.models.Product import Product
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
 
 bp = Blueprint('orders', __name__, url_prefix='/orders')
-@bp.route("/viewOrder", methods=['GET'])
-def viewOrder():
+
+@bp.route("", methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+def get_order():
 
     try:
         with session_scope() as db_session:
 
             queryOrder = db_session.query(Order)
-            queryOrderLine = db_session.query(OrderLine)
-            totalitem =[]
 
-            for item in queryOrder:
-                queryOrderLine.filter(OrderLine.order_id == item.id)
-                myitem = {
-                    "id": item.id,
-                    "user_id": item.user_id,
-                    "full_name": item.full_name,
-                    "line1": item.line1,
-                    "line2": item.line2,
-                    "city": item.city,
-                    "is_express_shipping": item.is_express_shipping,
-                    "country": item.country,
-                    "total_cost": item.total_cost
-                }
-
-                line=[]
-                for itemline in queryOrderLine:
-                    if itemline.order_id == item.id:
-                        myline = {
-                            "id": itemline.order_id,
-                            "product_id": itemline.product_id,
-                            "quantity": itemline.quantity,
-                            "fulfilled": itemline.date_fulfilled,
-                            "price": float(itemline.cost)
-                        }
-                        line.append(myline)
-                
-                itemelement={
-                    "order": myitem,
-                    "order_line": line
-                }
-                totalitem.append(itemelement)
-            totalitem = {
-                "allitems": totalitem
-            }
-            return totalitem
+            return queryOrder.all()
 
         return {
             'code': 200,
@@ -82,40 +48,81 @@ def viewOrder():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
-@bp.route("/getStatus", methods=['POST'])
-def getStatus():
 
-    # Load json data from json schema to variable request.json 'SCHEMA_FOLDER'
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'getstatus.schema.json')
+@bp.route("", methods=[ 'POST', 'OPTIONS' ])
+@cross_origin(methods=['OPTIONS'])
+@login_required
+def create_order():
+    # Validate that only the valid CartLine properties from the JSON schema cart_line.schema.json
+    schemas_directory = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_directory, 'new_order.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
             validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
-
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
             'message': validation_error.message
-        }
-
+        }, 400
+    # Create the order for the current cart
     try:
         with session_scope() as db_session:
+            user = db_session.merge(g.user)
+            cart = user.cart
+            
+            if cart is None:
+                return {
+                    'code': 400,
+                    'message': 'User has no cart'
+                }, 400
 
-            status = request.json.get('status')
+            if len(cart.cart_lines) == 0:
+                return {
+                    'code': 400,
+                    'message': 'User cannot checkout an empty cart'
+                }, 400             
 
-            # Create order status object
-            od = order_status(
-                status = status
-            )
-            # Add to database
-            db_session.add(od)
+            order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], line2=request.json['line2'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'], phone=request.json['phone'])
 
-        return {
-            'code': 200,
-            'message': 'success'
-        }, 200
+            total_cost = 0
 
+            dict_sellers_items_sold = {}
+
+            db_session.begin_nested()
+            #Lock TABLE
+            db_session.execute('LOCK TABLE product IN ROW EXCLUSIVE MODE')
+
+            for line in cart.cart_lines:
+                product = db_session.query(Product).filter(Product.id == line.product_id).with_for_update().one()
+                
+                order.order_lines.append(OrderLine(product_id=product.id, quantity=min(product.quantity, line.quantity), cost=product.price.first().amount * line.quantity * (product.tax.rate+1)))
+                total_cost += order.order_lines[-1].cost
+
+                dict_seller_items_sold = dict_sellers_items_sold.setdefault(product.user_id, {})
+                dict_seller_items_sold['seller'] = line.product.user
+                dict_seller_items_sold.setdefault('items', []).append((product, min(product.quantity, line.quantity)))
+
+            order.total_cost = total_cost
+
+            db_session.add(order)
+            db_session.commit()
+
+            db_session.query(CartLine).filter(CartLine.cart_id == cart.id).delete()
+
+            items_bought = []
+            for v in dict_sellers_items_sold.values():
+                items_sold= []
+                for item_sold in v['items']:
+                    email_line = '%d x %s %.2f' % (item_sold[1], item_sold[0].name, item_sold[0].price.first().amount)
+                    items_sold.append(email_line)
+                    items_bought.append(email_line)
+                    item_sold[0].quantity -= item_sold[1]
+                send(current_app.config['SMTP_USERNAME'], v['seller'].email, "Sale Notification", "<html><body><p>Here is an overview of your sale:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_sold) ,'Here is an overview of your sale:\n%s'% '\n'.join(items_sold))
+
+            send(current_app.config['SMTP_USERNAME'], g.user.email, "Purchase Notification", "<html><body><p>Here is an overview of your purchase:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_bought) ,'Here is an overview of your purchase:\n%s'% '\n'.join(items_bought))
+            return order.to_json(), 200
+             
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {

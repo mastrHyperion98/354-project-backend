@@ -29,9 +29,6 @@ def create_app(test_config=None):
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
 
-    from flaskr.routes.checkout import bp as checkout
-    app.register_blueprint(checkout)
-
     from flaskr.routes.orders import bp as orders
     app.register_blueprint(orders)
 
@@ -49,11 +46,5 @@ def create_app(test_config=None):
 
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
-    
-    from flaskr.routes.change_shipping_status import bp as change_shipping_status
-    app.register_blueprint(change_shipping_status)
-    
-    from flaskr.routes.set_express_shipping import bp as set_express_shipping
-    app.register_blueprint(set_express_shipping)
     
     return app
