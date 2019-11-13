@@ -110,7 +110,8 @@ def add_item_to_mine():
             'code': 400,
             'message': validation_error.message
         }, 400
-
+      
+    #if 'cart_id' in session:
     if 'cart_id' in session:
         try:
             with session_scope() as db_session:

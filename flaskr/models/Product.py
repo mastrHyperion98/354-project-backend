@@ -43,6 +43,7 @@ class Product(Base):
         """
         return {
             'id': self.id,
+            'section_id': self.section_id,
             'name': self.name,
             'description': self.description,
             'quantity': self.quantity,

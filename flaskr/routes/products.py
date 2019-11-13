@@ -4,8 +4,6 @@ import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
-import hashlib
-import time
 
 from flask import (
     Blueprint, g, request, session, current_app, session
@@ -35,6 +33,7 @@ def createProduct():
     # Validate that only the valid Product properties from the JSON schema new_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'new_product.schema.json')
+    
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())

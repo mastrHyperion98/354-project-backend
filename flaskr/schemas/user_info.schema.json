@@ -1,0 +1,46 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "user_info",
+    "type": "object",
+    "required": [ "cart_id", "status_id", "full_name", "line1", "city", "country", "phone" ],
+    "additionalProperties": false,
+    "properties": {
+        "cart_id": {
+            "type": "number",
+            "description": "cartid"
+        },
+        "status_id": {
+            "type": "number",
+            "description": "statusID"
+        },
+        "full_name": {
+            "type": "string",
+            "description": "fullname"
+        },
+        "line1": {
+            "type": "string",
+            "description": "address line 1"
+        },
+        "line2": {
+            "type": "string",
+            "description": "address line 2"
+        },
+        "city": {
+            "type": "string",
+            "description": "city"
+        },
+        "country": {
+            "type": "string",
+            "description": "country"
+        },
+        "phone": {
+            "type": "string",
+            "description": "phone"
+        },
+        "promotion_code_id": {
+            "type": "number",
+            "description": "promotion_code_id"
+        }
+    }
+}

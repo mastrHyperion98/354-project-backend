@@ -29,6 +29,9 @@ def create_app(test_config=None):
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
 
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
+
     from flaskr.routes.products import bp as products
     app.register_blueprint(products) 
 
