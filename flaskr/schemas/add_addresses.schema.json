@@ -6,7 +6,7 @@
   "items": {
     "type": "object",
     "required": ["line1","country","state","city","postalCode"],
-    "additionalProperties": true,
+    "additionalProperties":false,
     "properties": {
       "line1": {
           "type": "string",
