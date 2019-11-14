@@ -32,6 +32,6 @@ class User(Base):
             'firstName': self.first_name,
             'lastName': self.last_name,
             'email': self.email,
-            'dateJoined': self.date_joined
+            'dateJoined': str(self.date_joined)
         }
 

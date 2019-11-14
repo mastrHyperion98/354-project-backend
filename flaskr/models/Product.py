@@ -54,7 +54,7 @@ class Product(Base):
                 'email': self.user.email
             },
             'tax': self.tax.to_json(),
-            'dateAdded': self.date_added,
+            'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
