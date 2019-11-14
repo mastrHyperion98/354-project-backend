@@ -90,6 +90,46 @@ def updateAddresses():
                    'code': 400,
                    'message': validation_error.message
                }, 400
+    try:
+        with session_scope() as db_session:
+            user = db_session.merge(g.user)
+            addresses = request.json
+            user_address = user.addresses
+
+            for x in range(len(addresses)):
+                for k in addresses[x][1]:
+                    index = addresses[x][0]
+                    new_value = addresses[x][1][k]
+                    user_address[index][k] = new_value
+
+            #Check for conflict
+            #validate new object according to schema
+            # MAX 3 Addresses
+            # NO duplicates
+            schema_filepath = os.path.join(schemas_direcotry, 'add_addresses.schema.json')
+            try:
+                with open(schema_filepath) as schema_file:
+                    schema = json.loads(schema_file.read())
+                    validate(instance=user_address, schema=schema, format_checker=draft7_format_checker)
+            except jsonschema.exceptions.ValidationError as validation_error:
+                return {
+                           'code': 400,
+                           'message': validation_error.message
+                       }, 400
+
+            user.addresses = user_address
+            db_session.add(user)
+            g.user = user
+            db_session.expunge(g.user)
+            db_session.merge(g.user)
+
+    except DBAPIError as db_error:
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+    return g.user.to_json(), 200
 
 @bp.route('', methods=['DELETE', 'OPTIONS'])
 @login_required
@@ -101,5 +141,5 @@ def delAddress():
          (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
      """
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
+    #schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    #schema_filepath = os.path.join(schemas_direcotry, 'del_addresses.schema.json')
