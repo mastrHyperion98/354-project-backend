@@ -58,6 +58,5 @@ class Product(Base):
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
-            'brand': self.brand.to_json(),
-            'condition': self.condition
+            'brand': self.brand.to_json()
         }
