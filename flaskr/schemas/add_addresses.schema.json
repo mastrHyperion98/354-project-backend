@@ -5,7 +5,8 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["line1","line2","country","state","city","postalCode"],
+    "required": ["line1","country","state","city","postalCode"],
+    "additionalProperties":false,
     "properties": {
       "line1": {
           "type": "string",
