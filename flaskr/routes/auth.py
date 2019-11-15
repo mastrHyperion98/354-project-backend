@@ -101,11 +101,8 @@ def logout():
     if 'user_id' in session:
         session.pop('user_id')
 
-    # If the session is empty
-    # make sure to remove any
-    # data.
-    if len(session) <= 0:
-        session.clear()
+    if 'cart_id' in session:
+        session.pop('cart_id')
 
     # If a user is in the global
     # variable remove it
