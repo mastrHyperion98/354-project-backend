@@ -63,7 +63,8 @@ def login():
                                 ephemeral_cart.user_id = user.id
                             else:
                                 for ephemeral_cart_line in ephemeral_cart.cart_lines:
-                                    cart_line = user.cart.cart_lines.filter(CartLine.product_id == ephemeral_cart_line).first()
+                                    cart_line = db_session.query(CartLine).filter(CartLine.cart_id == user.cart.id).filter(CartLine.product_id == ephemeral_cart_line.product_id).first()
+                                    
                                     if cart_line is None:
                                         user.cart.cart_lines.append(CartLine(product_id=ephemeral_cart_line, quantity=ephemeral_cart_line.quantity))
                                     elif cart_line.product.quantity+ephemeral_cart_line <= cart_line.product.quantity:
