@@ -38,7 +38,7 @@ class Order(Base):
         return {
             'id': self.id,
             'date': self.date,
-            'dateFulfilled': self.date_fulfilled,
+            'dateFulfilled': str(self.date_fulfilled),
             'status': self.order_status.to_json(),
             'fullName': self.full_name,
             'line1': self.line1,
