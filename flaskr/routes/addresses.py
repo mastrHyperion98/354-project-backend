@@ -131,6 +131,34 @@ def updateAddresses():
 
     return g.user.to_json(), 200
 
+@bp.route('/mine', methods=['GET', 'OPTIONS'])
+@login_required
+@cross_origin(methods=['GET'])
+def getMine():
+    """Endpoint used to return the addresses of the user. Sends a welcoming
+
+       Returns:
+           (str, int) -- Returns an array of JSON objects containing the addresses (Min 1 - Max 3 no duplicates) and a HTTP return code
+       """
+    try:
+        with session_scope() as db_session:
+            user = db_session.merge(g.user)
+            user_address = user.addresses
+
+            addresses = []
+            for x in user_address:
+                addresses.append(x)
+
+    except DBAPIError as db_error:
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+    return {
+        "addresses": addresses
+           }, 200
+
 @bp.route('', methods=['DELETE', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['DELETE'])
