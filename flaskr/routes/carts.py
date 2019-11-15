@@ -80,7 +80,6 @@ def get_mine():
                     user = db_session.merge(g.user)
 
                     if user.cart is not None:
-                        #TODO merge carts
                         session['cart_id'] = user.cart.id
                         return user.cart.to_json(), 200
 

@@ -6,6 +6,7 @@ from flask import (
 from flaskr.routes.utils import login_required, not_login, cross_origin
 from flaskr.db import session_scope
 from flaskr.models.User import User
+from flaskr.models.Cart import Cart, CartLine
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from jsonschema import validate, draft7_format_checker
@@ -51,7 +52,22 @@ def login():
             if query.count() == 1:
                 user = query.one()
                 if argon2.verify(request.json['password'], user.password):
+                    
                     session['user_id'] = user.id
+                    
+                    if 'cart_id' in session:
+                        ephemeral_cart = db_session.query(Cart).filter(Cart.id == session['cart_id'])
+
+                        if user.cart is None:
+                            ephemeral_cart.user_id = user.id
+                        else:
+                            for ephemeral_cart_line in ephemeral_cart.cart_lines:
+                                cart_line = user.cart.cart_lines.filter(CartLine.product_id == ephemeral_cart_line).first()
+                                if cart_line is None:
+                                    user.cart.cart_lines.append(CartLine(product_id=ephemeral_cart_line, quantity=ephemeral_cart_line.quantity))
+                                elif cart_line.product.quantity+ephemeral_cart_line <= cart_line.product.quantity:
+                                    cart_line.quantity += ephemeral_cart.quantity
+                            
                     return user.to_json(), 200
                 else:
                     return {
