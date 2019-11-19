@@ -135,7 +135,7 @@ def updateAddresses():
 @login_required
 @cross_origin(methods=['DELETE'])
 def delAddress():
-        """Endpoint use to add a address to the user. Sends a welcoming
+    """Endpoint use to add a address to the user. Sends a welcoming
 
      Returns:
          (str, int) -- Returns a tuple of the JSON object of the newly add shipping addresses user and a http status code.
@@ -152,18 +152,7 @@ def delAddress():
                    'code': 400,
                    'message': validation_error.message
                }, 400
-    try:
-        with session_scope() as db_session:
-            user = db_session.merge(g.user)
-            addresses_index = request.json
 
-
-            counter = 0
-            for x in len(addresses_index):
-                del user.addresses[index]
-            
-
-            addresses_index = user.addresses['index']
 
 
 
