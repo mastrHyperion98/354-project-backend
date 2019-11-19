@@ -155,7 +155,27 @@ def delAddress():
                    'code': 400,
                    'message': validation_error.message
                }, 400
+    try:
+        with session_scope() as db_session:
+            user = db_session.merge(g.user)
+            indices = request.json
 
+            counter = 0
 
+            for i in indices:
+              if i is not 0:
+                  del user.addresses[i - counter]
+                  counter = counter + 1
 
+              else:
+                  del indices[i]
+                  counter = counter + 1
+
+    except DBAPIError as db_error:
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+    return g.user.to_json(), 200
 
