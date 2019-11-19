@@ -43,7 +43,10 @@ def addAddress():
             user = db_session.merge(g.user)
             addresses = request.json
             #Check for conflict
-            new_address = user.addresses + addresses
+            if user.addresses is not None:
+                new_address = user.addresses + addresses
+            else:
+                new_address = addresses
             #validate new object according to schema
             # MAX 3 Addresses
             # NO duplicates
