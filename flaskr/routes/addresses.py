@@ -75,7 +75,7 @@ def add_address():
 @bp.route('', methods=['PATCH', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['PATCH'])
-def updateAddresses():
+def update_addresses():
     """Endpoint use to update one or more address
 
       Returns:
