@@ -15,6 +15,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.email import send
 from flaskr.models.User import User
+from flaskr.models.Cart import Cart
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -98,7 +99,7 @@ def registerUser():
 
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-
+            new_user.cart = Cart(user_id=new_user.id)
             return new_user.to_json(), 200
     except DBAPIError as db_error:
 

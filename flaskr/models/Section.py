@@ -4,7 +4,6 @@ from flaskr.db import Base
 from flaskr.models.Category import Category
 
 class Section(Base):
-
     __tablename__ = 'section'
 
     id = Column(Integer, Sequence('seq_section_id'), primary_key=True)
@@ -23,4 +22,3 @@ class Section(Base):
             'imageUrl': self.icon,
             'subCategories': [ category.to_json() for category in self.categories ]
         }
-
