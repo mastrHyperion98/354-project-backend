@@ -6,6 +6,7 @@ from flask import (
 from flaskr.routes.utils import login_required, not_login, cross_origin
 from flaskr.db import session_scope
 from flaskr.models.User import User
+from flaskr.models.Cart import Cart, CartLine
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from jsonschema import validate, draft7_format_checker
@@ -51,7 +52,26 @@ def login():
             if query.count() == 1:
                 user = query.one()
                 if argon2.verify(request.json['password'], user.password):
+
                     session['user_id'] = user.id
+
+                    if 'cart_id' in session:
+                        ephemeral_cart = db_session.query(Cart).filter(Cart.id == session['cart_id']).first()
+
+                        if ephemeral_cart is not None:
+                            if user.cart is None:
+                                ephemeral_cart.user_id = user.id
+                            else:
+                                for ephemeral_cart_line in ephemeral_cart.cart_lines:
+                                    cart_line = db_session.query(CartLine).filter(CartLine.cart_id == user.cart.id).filter(CartLine.product_id == ephemeral_cart_line.product_id).first()
+
+                                    if cart_line is None:
+                                        user.cart.cart_lines.append(CartLine(product_id=ephemeral_cart_line.product_id, quantity=ephemeral_cart_line.quantity))
+                                    elif cart_line.product.quantity+ephemeral_cart_line <= cart_line.product.quantity:
+                                        cart_line.quantity += ephemeral_cart.quantity
+
+                        session.pop('cart_id')
+
                     return user.to_json(), 200
                 else:
                     return {
@@ -85,11 +105,8 @@ def logout():
     if 'user_id' in session:
         session.pop('user_id')
 
-    # If the session is empty
-    # make sure to remove any
-    # data.
-    if len(session) <= 0:
-        session.clear()
+    if 'cart_id' in session:
+        session.pop('cart_id')
 
     # If a user is in the global
     # variable remove it
