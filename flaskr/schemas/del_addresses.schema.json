@@ -6,7 +6,7 @@
   "items": {
     "type": "number",
     "minimum":0,
-    "maximum": 3
+    "maximum": 2
   },
   "minItems": 1,
   "maxItems": 3,

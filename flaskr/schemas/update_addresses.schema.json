@@ -13,7 +13,7 @@
       {
         "type": "number",
         "minimum": 0,
-        "maximum": 3
+        "maximum": 2
       },
        {
           "type": "object",
