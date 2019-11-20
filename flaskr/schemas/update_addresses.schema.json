@@ -11,7 +11,9 @@
     "uniqueItems": true,
     "items": [
       {
-        "type": "number"
+        "type": "number",
+        "minimum": 0,
+        "maximum": 3
       },
        {
           "type": "object",
