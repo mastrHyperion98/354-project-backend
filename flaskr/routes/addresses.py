@@ -174,7 +174,6 @@ def delAddress():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
-            db_session.merge(g.user)
             
     except DBAPIError as db_error:
         return {
