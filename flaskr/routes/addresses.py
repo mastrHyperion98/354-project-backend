@@ -159,23 +159,32 @@ def delAddress():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             indices = request.json
-
+            addresses = user.addresses
+            #shift counter -- denotes the number of elements removed from the list
             counter = 0
-
             for i in indices:
-              if i is not 0:
-                  del user.addresses[i - counter]
-                  counter = counter + 1
+                if i is not 0:
+                    del addresses[max(0, (i - counter))]
+                    counter = counter + 1
+                else:
+                    del addresses[i]
+                    counter = counter + 1
 
-              else:
-                  del indices[i]
-                  counter = counter + 1
-
+            user.addresses = addresses
+            db_session.add(user)
+            g.user = user
+            db_session.expunge(g.user)
+            db_session.merge(g.user)
+            
     except DBAPIError as db_error:
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
-
+    except IndexError as index_error:
+        return {
+                   'code': 400,
+                   'message': "No addresses available to be deleted"
+               }, 400
     return g.user.to_json(), 200
 
