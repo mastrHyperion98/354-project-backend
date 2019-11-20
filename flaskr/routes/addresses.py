@@ -20,7 +20,7 @@ bp = Blueprint('addresses', __name__, url_prefix='/addresses')
 @bp.route('', methods=['PUT', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['PUT'])
-def addAddress():
+def add_address():
     """Endpoint use to add a address to the user. Sends a welcoming
 
      Returns:
