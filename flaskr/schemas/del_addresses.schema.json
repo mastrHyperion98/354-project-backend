@@ -4,7 +4,9 @@
   "title": "delAddresses",
   "type": "array",
   "items": {
-    "type": "number"    
+    "type": "number",
+    "minimum":0,
+    "maximum": 3
   },
   "minItems": 1,
   "maxItems": 3,
