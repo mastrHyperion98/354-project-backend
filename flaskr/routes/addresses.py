@@ -72,7 +72,7 @@ def addAddress():
 
     return g.user.to_json(), 200
 
-@bp.route('/update', methods=['PATCH', 'OPTIONS'])
+@bp.route('', methods=['PATCH', 'OPTIONS'])
 @login_required
 @cross_origin(methods=['PATCH'])
 def updateAddresses():
