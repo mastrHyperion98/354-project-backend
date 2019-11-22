@@ -135,3 +135,119 @@ def createProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+
+@bp.route('/delete/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
+@cross_origin(methods=[ 'DELETE' ])
+@login_required
+def delete_product(product_id):
+    """Endpoints to handle updating an existing product.
+    Returns:
+        str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
+    """
+    # Validate that only the valid Product properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
+    
+    try:
+        with session_scope() as db_session:
+            # Retrieve product from database
+            query = db_session.Query(Product).filter(Product.id == product_id)
+            
+            if query.count() != 1:
+                return {
+                    'code': 400,
+                    'message': 'Error - there should be only one product per id'
+                }, 400
+            
+            old_product = query.one()
+
+            # Check that user id == product creator id
+            # TODO: Allow admins to delete any product
+            if (g.user.id != old_product.user_id):
+                return {
+                    'code': 400,
+                    'message': 'User does not have permission to delete this product'
+                }, 400
+            
+            #TODO: Remove photos
+            db_session.delete(old_product)
+            
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+    return '', 200
+
+
+@bp.route('/edit/<int:product_id>', methods=['PATCH', 'OPTIONS'])
+@cross_origin(methods=['GET', 'PATCH'])
+@login_required
+def edit_product(product_id):
+    """Endpoints to handle updating an existing product.
+    Returns:
+        str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
+    """
+    # Validate that only the valid Product properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
+    
+    try:
+        with session_scope() as db_session:
+            # Retrieve product from database
+            query = db_session.Query(Product).filter(Product.id == product_id)
+            
+            if query.count() != 1:
+                return {
+                    'code': 400,
+                    'message': 'Error - there should be only one product per id'
+                }, 400
+            
+            old_product = query.one()
+
+            # Check that user id == product creator id
+            if (g.user.id != old_product.user_id):
+                return {
+                    'code': 400,
+                    'message': 'User does not have permission to edit this product'
+                }, 400
+            
+            # Update info
+            for k, v in request.json.items():
+                old_product.__dict__[k] = v
+            
+            # Commit changes
+            db_session.commit()
+
+            #TODO: Update photos
+            
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+            
