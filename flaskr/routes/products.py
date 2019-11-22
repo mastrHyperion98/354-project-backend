@@ -45,20 +45,14 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-            #Give photo unique name and save to UPLOAD_FOLDER
-            #Source https://www.bogotobogo.com/python/Flask/Python_Flask_Blog_App_Tutorial_5.php
-            photo = request.files['photo']
-            _ , extension = os.path.splitext(photo.filename)
-            p_name = str(uuid.uuid4()) + extension
-            photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], p_name))
-
+                
             new_product = Product(product_name = request.json['productName'],
                                   description = request.json['productDescription'],
                                   stock_quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
                                   user_id = request.json['userId'],
                                   tax_id = request.json['taxId'],
-                                  photo_url = p_name,
+                                  photo_url = request.json['fileName'],
                                   brand_id = request.json['brandId'])
             db_session.add(new_product)
 
@@ -77,3 +71,16 @@ def createProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+
+@bp.route('/upload_photo', methods=['GET', 'POST'])
+@login_required
+def upload():
+    # Give photo unique name and save to UPLOAD_FOLDER
+    # Source https://www.bogotobogo.com/python/Flask/Python_Flask_Blog_App_Tutorial_5.php
+    if request.method == 'POST':
+        file = request.files['file']
+        extension = os.path.splitext(file.filename)[1]
+        f_name = str(uuid.uuid4()) + extension
+        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], f_name))
+    return json.dumps({'filename':f_name})
