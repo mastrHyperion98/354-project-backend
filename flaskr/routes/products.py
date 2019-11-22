@@ -228,6 +228,7 @@ def edit_product(product_id):
             old_product = query.one()
 
             # Check that user id == product creator id
+            # TODO: allow admins to edit any product
             if (g.user.id != old_product.user_id):
                 return {
                     'code': 400,
