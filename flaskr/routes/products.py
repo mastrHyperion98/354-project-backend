@@ -4,11 +4,8 @@ import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
-<<<<<<< HEAD
 import hashlib
 import time
-=======
->>>>>>> 70568f3964655b7f1bab3867229cd1c8d417711c
 import uuid 
 
 from flask import (

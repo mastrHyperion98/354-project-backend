@@ -57,12 +57,6 @@ class Product(Base):
             'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
-<<<<<<< HEAD
             'photos': self.photos,
             'brand': self.brand.to_json()
         }
-=======
-            'photoUrl': self.photo_url,
-            'brandId': self.brand_id
-        }
->>>>>>> 70568f3964655b7f1bab3867229cd1c8d417711c
