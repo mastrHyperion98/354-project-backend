@@ -157,11 +157,11 @@ def delete_product(product_id):
                     'message': 'Error - there should be only one product per id'
                 }, 400
             
-            old_product = query.one()
+            product = query.one()
 
             # Check that user id == product creator id
             # TODO: Allow admins to delete any product
-            if (g.user.id != old_product.user_id):
+            if (g.user.id != product.user_id):
                 return {
                     'code': 400,
                     'message': 'User does not have permission to delete this product'
@@ -169,7 +169,7 @@ def delete_product(product_id):
             
             # TODO: Remove photos
 
-            db_session.delete(old_product)
+            db_session.delete(product)
             db_session.commit()
 
     except DBAPIError as db_error:
@@ -190,7 +190,7 @@ def edit_product(product_id):
     Returns:
         str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
     """
-    # Validate that only the valid Product properties from the JSON schema update_self.schema.json
+    # Validate that only the valid Product properties from the JSON schema update_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
     try:
@@ -214,11 +214,11 @@ def edit_product(product_id):
                     'message': 'Error - there should be only one product per id'
                 }, 400
             
-            old_product = query.one()
+            product = query.one()
 
             # Check that user id == product creator id
             # TODO: allow admins to edit any product
-            if (g.user.id != old_product.user_id):
+            if (g.user.id != product.user_id):
                 return {
                     'code': 400,
                     'message': 'User does not have permission to edit this product'
@@ -226,10 +226,10 @@ def edit_product(product_id):
             
             # Update info
             for k, v in request.json.items():
-                old_product.__dict__[k] = v
+                product.__dict__[k] = v
             
             # Commit changes
-            db_session.merge(old_product)
+            db_session.merge(product)
             db_session.commit()
 
             # TODO: Update photos
