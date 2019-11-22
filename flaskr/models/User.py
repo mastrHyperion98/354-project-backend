@@ -19,6 +19,7 @@ class User(Base):
     last_name = Column(String)
     reset_password = Column(Boolean, default=False)
     email = Column(String)
+    reset_password = Column(Boolean, default=False)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
     addresses = Column(JSONB)
