@@ -9,7 +9,7 @@ import time
 import uuid 
 
 from flask import (
-    Blueprint, g, request, session, current_app, session
+    Blueprint, g, request, session, current_app, session, send_from_directory
 )
 
 from passlib.hash import argon2
@@ -138,15 +138,13 @@ def createProduct():
         }, 400
 
 
-@bp.route('/upload_photo', methods=['GET', 'POST'])
-@login_required
-def upload():
-    # Give photo unique name and save to UPLOAD_FOLDER
-    # Source https://www.bogotobogo.com/python/Flask/Python_Flask_Blog_App_Tutorial_5.php
-    if request.method == 'POST':
-        file = request.files['file']
-        extension = os.path.splitext(file.filename)[1]
-        f_name = str(uuid.uuid4()) + extension
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], f_name)
-        file.save(filepath)
-    return json.dumps({'filePath':filepath})
+
+@bp.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Endpoint for accessing uploaded files
+    
+    Returns:
+    (str) -- Returns the requested file
+    """
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+                               filename)
