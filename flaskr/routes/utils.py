@@ -4,6 +4,8 @@ from flaskr.models.User import User
 from flaskr.db import session_scope
 import os
 
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
 def not_login(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -53,3 +55,7 @@ def is_logged_in():
         return True
     else:
         return False
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

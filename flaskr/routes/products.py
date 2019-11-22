@@ -18,8 +18,10 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file
 from flaskr.models.Category import Category
+
+from werkzeug.utils import secure_filename
 
 bp = Blueprint('products', __name__, url_prefix='/products')
 
@@ -106,6 +108,17 @@ def createProduct():
             'message': validation_error.message
         }, 400
 
+
+    file = request.files['file']
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == '':
+        filename = None
+    # Add photo to our uploads folder
+    elif file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+   
     try:
         with session_scope() as db_session:
             # Create a md5 of the time of insertion to be appended to the permalink
@@ -119,7 +132,9 @@ def createProduct():
                                   tax_id = request.json['taxId'],
                                   brand_id = request.json['brandId'],
                                   condition = request.json['condition'],
-                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+                                  photos = {'photo1': filename},
+                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5]
+                                  )
 
             # Adds the price to the product
             new_product.price.append(Price(amount=request.json['price']))
@@ -142,7 +157,7 @@ def createProduct():
 @bp.route('/uploads/<filename>')
 def uploaded_file(filename):
     """Endpoint for accessing uploaded files
-    
+
     Returns:
     (str) -- Returns the requested file
     """
