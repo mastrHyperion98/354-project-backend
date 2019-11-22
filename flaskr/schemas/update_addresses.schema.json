@@ -1,0 +1,54 @@
+{
+  "$id": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "updateAddresses",
+  "type": "array",
+  "items": {
+    "type": "array",
+    "minItems": 2,
+    "maxItems": 2,
+    "additionalProperties": false,
+    "uniqueItems": true,
+    "items": [
+      {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 2
+      },
+       {
+          "type": "object",
+          "description": "address object",
+          "additionalProperties": false,
+          "properties": {
+            "line1": {
+              "type": "string",
+              "description": "line1 of address"
+            },
+            "line2": {
+              "type": "string",
+              "description": "line2 of address"
+            },
+            "country": {
+              "type": "string",
+              "description": "country of address"
+            },
+            "state": {
+              "type": "string",
+              "description": "state or province of address"
+            },
+            "city": {
+              "type": "string",
+              "description": "city of address"
+            },
+            "postalCode": {
+              "type": "string",
+              "description": "postalCode of address"
+            }
+          }
+       }
+    ]
+  },
+  "minItems": 1,
+  "maxItems": 3,
+  "uniqueItems": true
+}
