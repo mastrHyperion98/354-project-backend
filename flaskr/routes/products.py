@@ -145,18 +145,6 @@ def delete_product(product_id):
     Returns:
         str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
     """
-    # Validate that only the valid Product properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
-    try:
-        with open(schema_filepath) as schema_file:
-            schema = json.loads(schema_file.read())
-            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
-    except jsonschema.exceptions.ValidationError as validation_error:
-        return {
-            'code': 400,
-            'message': validation_error.message
-        }, 400
     
     try:
         with session_scope() as db_session:
@@ -179,9 +167,10 @@ def delete_product(product_id):
                     'message': 'User does not have permission to delete this product'
                 }, 400
             
-            #TODO: Remove photos
+            # TODO: Remove photos
+
             db_session.delete(old_product)
-            
+            db_session.commit()
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
@@ -240,9 +229,10 @@ def edit_product(product_id):
                 old_product.__dict__[k] = v
             
             # Commit changes
+            db_session.merge(old_product)
             db_session.commit()
 
-            #TODO: Update photos
+            # TODO: Update photos
             
 
     except DBAPIError as db_error:
