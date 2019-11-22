@@ -94,6 +94,10 @@ def createProduct():
                       code.
     """
 
+    #Retrieve the photo and the json data from the request form
+    product_photo = request.files['photo'].read()
+    product_json = json.load(request.files['data'])
+
     # Validate that only the valid Product properties from the JSON schema new_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'new_product.schema.json')
@@ -101,7 +105,7 @@ def createProduct():
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
-            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+            validate(instance=product_json, schema=schema, format_checker=draft7_format_checker)
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
@@ -109,35 +113,34 @@ def createProduct():
         }, 400
 
 
-    file = request.files['file']
     # if user does not select file, browser also
     # submit an empty part without filename
-    if file.filename == '':
+    if product_photo.filename == '':
         filename = None
     # Add photo to our uploads folder
-    elif file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+    elif product_photo and allowed_file(product_photo.filename):
+        filename = secure_filename(product_photo.filename)
+        product_photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
    
     try:
         with session_scope() as db_session:
             # Create a md5 of the time of insertion to be appended to the permalink
             md5 = hashlib.md5()
             md5.update(str(time.time()).encode('utf-8'))
-            new_product = Product(name = request.json['name'],
-                                  description = request.json['description'],
-                                  quantity = request.json['stockQuantity'],
-                                  category_id = request.json['categoryId'],
+            new_product = Product(name = product_json['name'],
+                                  description = product_json['description'],
+                                  quantity = product_json['stockQuantity'],
+                                  category_id = product_json['categoryId'],
                                   user_id = session.get('user_id'),
-                                  tax_id = request.json['taxId'],
-                                  brand_id = request.json['brandId'],
-                                  condition = request.json['condition'],
+                                  tax_id = product_json['taxId'],
+                                  brand_id = product_json['brandId'],
+                                  condition = product_json['condition'],
                                   photos = {'photo1': filename},
-                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5]
+                                  permalink = product_json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5]
                                   )
 
             # Adds the price to the product
-            new_product.price.append(Price(amount=request.json['price']))
+            new_product.price.append(Price(amount=product_json['price']))
 
             db_session.add(new_product)
 
@@ -151,7 +154,6 @@ def createProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
-
 
 
 @bp.route('/uploads/<filename>')
