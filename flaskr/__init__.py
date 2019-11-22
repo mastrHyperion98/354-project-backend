@@ -50,4 +50,7 @@ def create_app(test_config=None):
     from flaskr.routes.account_recover import bp as recovery
     app.register_blueprint(recovery)
     
+    from flaskr.routes.addresses import bp as addresses
+    app.register_blueprint(addresses)
+
     return app

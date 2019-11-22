@@ -1,5 +1,6 @@
 from datetime import date
 
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
 from sqlalchemy.orm import relationship
@@ -16,11 +17,14 @@ class User(Base):
     username = Column(String)
     first_name = Column(String)
     last_name = Column(String)
+    reset_password = Column(Boolean, default=False)
     email = Column(String)
     reset_password = Column(Boolean, default=False)
     date_joined = Column(Date, default=date.today())
     password = Column(String)
+    addresses = Column(JSONB)
     cart = relationship('Cart', uselist=False)
+
 
     def to_json(self):
         """Returns the instance of user as a JSON
@@ -34,6 +38,7 @@ class User(Base):
             'lastName': self.last_name,
             'email': self.email,
             'dateJoined': self.date_joined,
-            'resetPassword':self.reset_password
+            'resetPassword': self.reset_password,
+            'addresses': self.addresses
         }
 
