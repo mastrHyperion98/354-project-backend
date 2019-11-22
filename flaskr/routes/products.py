@@ -45,14 +45,14 @@ def createProduct():
 
     try:
         with session_scope() as db_session:
-                
+
             new_product = Product(product_name = request.json['productName'],
                                   description = request.json['productDescription'],
                                   stock_quantity = request.json['stockQuantity'],
                                   category_id = request.json['categoryId'],
                                   user_id = request.json['userId'],
                                   tax_id = request.json['taxId'],
-                                  photo_url = request.json['fileName'],
+                                  photo_url = request.json['filePath'],
                                   brand_id = request.json['brandId'])
             db_session.add(new_product)
 
@@ -82,5 +82,6 @@ def upload():
         file = request.files['file']
         extension = os.path.splitext(file.filename)[1]
         f_name = str(uuid.uuid4()) + extension
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], f_name))
-    return json.dumps({'filename':f_name})
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], f_name)
+        file.save(filepath)
+    return json.dumps({'filePath':filepath})
