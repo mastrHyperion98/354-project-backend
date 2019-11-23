@@ -53,3 +53,15 @@ def is_logged_in():
         return True
     else:
         return False
+
+def admin_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in g:
+            if not g.user.is_admin:
+                return {
+                    'code': 400,
+                    'message': 'Unauthorized Access'
+                }
+            return func(*args, **kwargs)
+    return decorated_function
