@@ -66,8 +66,6 @@ def add_address():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
-            #Needed, otherwise changes do not apply to DB
-            db_session.merge(g.user)
 
     except DBAPIError as db_error:
         return {
@@ -108,10 +106,8 @@ def update_addresses():
                 for k in addresses[x][1]:
                     index = addresses[x][0]
                     new_value = addresses[x][1][k]
-                    if k == "line2" and new_value == "":
-                        del user_address[index][k]
-                    else:
-                        user_address[index][k] = new_value
+                    user_address[index][k] = new_value
+
             #Check for conflict
             #validate new object according to schema
             # MAX 3 Addresses
@@ -131,8 +127,6 @@ def update_addresses():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
-            # Needed, otherwise changes do not apply to DB
-            db_session.merge(g.user)
 
     except DBAPIError as db_error:
         return {
@@ -182,9 +176,7 @@ def delAddress():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
-            # Needed, otherwise changes do not apply to DB
-            db_session.merge(g.user)
-
+            
     except DBAPIError as db_error:
         return {
             'code': 400,
