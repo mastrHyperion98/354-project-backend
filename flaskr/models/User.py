@@ -41,6 +41,6 @@ class User(Base):
             'dateJoined': self.date_joined,
             'resetPassword': self.reset_password,
             'addresses': self.addresses,
-            'isAdmin' : self.isAdmin
+            'isAdmin' : self.is_admin
         }
 
