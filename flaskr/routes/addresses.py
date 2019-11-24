@@ -18,8 +18,8 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('addresses', __name__, url_prefix='/addresses')
 @bp.route('', methods=['PUT', 'OPTIONS'])
-@cross_origin(methods=['PUT'])
 @login_required
+@cross_origin(methods=['PUT'])
 def add_address():
     """Endpoint use to add a address to the user. Sends a welcoming
 
@@ -72,8 +72,8 @@ def add_address():
     return g.user.to_json(), 200
 
 @bp.route('', methods=['PATCH', 'OPTIONS'])
-@cross_origin(methods=['PATCH'])
 @login_required
+@cross_origin(methods=['PATCH'])
 def update_addresses():
     """Endpoint use to update one or more address
 
@@ -133,8 +133,8 @@ def update_addresses():
     return g.user.to_json(), 200
 
 @bp.route('', methods=['DELETE', 'OPTIONS'])
-@cross_origin(methods=['DELETE'])
 @login_required
+@cross_origin(methods=['DELETE'])
 def delAddress():
     """Endpoint use to add a address to the user. Sends a welcoming
 
