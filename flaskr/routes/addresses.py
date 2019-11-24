@@ -42,6 +42,10 @@ def add_address():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             addresses = request.json
+            # if line2 is empty than remove it
+            for i in range(len(addresses)):
+                if addresses[i]["line2"] == "":
+                    del addresses[i]["line2"]
             #Check for conflict
             if user.addresses is not None:
                 new_address = user.addresses + addresses
