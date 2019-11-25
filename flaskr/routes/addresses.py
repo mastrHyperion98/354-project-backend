@@ -108,10 +108,14 @@ def update_addresses():
                 for k in addresses[x][1]:
                     index = addresses[x][0]
                     new_value = addresses[x][1][k]
-                    if k == "line2" and new_value == "":
+                    if k == "line2" and new_value == "" and "line2" in user_address[index]:
                         del user_address[index][k]
+                    elif "line2" not in user_address[index]:
+                        if k != "line2" or new_value != "":
+                            user_address[index][k] = new_value
                     else:
                         user_address[index][k] = new_value
+
             #Check for conflict
             #validate new object according to schema
             # MAX 3 Addresses
