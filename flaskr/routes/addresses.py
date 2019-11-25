@@ -18,8 +18,8 @@ from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('addresses', __name__, url_prefix='/addresses')
 @bp.route('', methods=['PUT', 'OPTIONS'])
+@cross_origin(methods=['PUT', 'PATCH', 'DELETE'])
 @login_required
-@cross_origin(methods=['PUT'])
 def add_address():
     """Endpoint use to add a address to the user. Sends a welcoming
 
@@ -42,6 +42,10 @@ def add_address():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             addresses = request.json
+            # if line2 is empty than remove it
+            for i in range(len(addresses)):
+                if addresses[i]["line2"] == "":
+                    del addresses[i]["line2"]
             #Check for conflict
             if user.addresses is not None:
                 new_address = user.addresses + addresses
@@ -62,6 +66,8 @@ def add_address():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
+            #Needed, otherwise changes do not apply to DB
+            db_session.merge(g.user)
 
     except DBAPIError as db_error:
         return {
@@ -72,8 +78,8 @@ def add_address():
     return g.user.to_json(), 200
 
 @bp.route('', methods=['PATCH', 'OPTIONS'])
+@cross_origin(methods=['PUT', 'PATCH', 'DELETE'])
 @login_required
-@cross_origin(methods=['PATCH'])
 def update_addresses():
     """Endpoint use to update one or more address
 
@@ -102,7 +108,13 @@ def update_addresses():
                 for k in addresses[x][1]:
                     index = addresses[x][0]
                     new_value = addresses[x][1][k]
-                    user_address[index][k] = new_value
+                    if k == "line2" and new_value == "" and "line2" in user_address[index]:
+                        del user_address[index][k]
+                    elif "line2" not in user_address[index]:
+                        if k != "line2" or new_value != "":
+                            user_address[index][k] = new_value
+                    else:
+                        user_address[index][k] = new_value
 
             #Check for conflict
             #validate new object according to schema
@@ -123,6 +135,8 @@ def update_addresses():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
+            # Needed, otherwise changes do not apply to DB
+            db_session.merge(g.user)
 
     except DBAPIError as db_error:
         return {
@@ -133,8 +147,8 @@ def update_addresses():
     return g.user.to_json(), 200
 
 @bp.route('', methods=['DELETE', 'OPTIONS'])
+@cross_origin(methods=['PUT', 'PATCH', 'DELETE'])
 @login_required
-@cross_origin(methods=['DELETE'])
 def delAddress():
     """Endpoint use to add a address to the user. Sends a welcoming
 
@@ -172,7 +186,9 @@ def delAddress():
             db_session.add(user)
             g.user = user
             db_session.expunge(g.user)
-            
+            # Needed, otherwise changes do not apply to DB
+            db_session.merge(g.user)
+
     except DBAPIError as db_error:
         return {
             'code': 400,
