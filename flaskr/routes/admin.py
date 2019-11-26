@@ -64,13 +64,13 @@ def view_total_sales(category):
                     'code': 404,
                     'message': 'There are no sales'
                 }, 404
-            "if empty string than fetch all sales data"
-            if category == "":
+            "if all string than fetch all sales data"
+            if category == "all":
                 sum = 0
                 for i in orders:
                     sum = sum + i.total_cost
             #iterate through orderlines and filter by categories
-            
+
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
