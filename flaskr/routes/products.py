@@ -8,8 +8,10 @@ import hashlib
 import time
 
 from flask import (
-    Blueprint, g, request, session, current_app, session
+    Blueprint, g, request, session, current_app, session, send_from_directory
 )
+
+from werkzeug.utils import secure_filename
 
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
@@ -17,7 +19,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -91,14 +93,30 @@ def createProduct():
                       code.
     """
 
+    #Retrieve the photo and the json data from the request form
+    product_photo = request.files['photo'].read()
+    product_json = json.load(request.files['data'])
+
     # Validate that only the valid Product properties from the JSON schema new_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'new_product.schema.json')
 
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if product_photo.filename == '':
+        filename = None
+        photos = None
+    # Add photo to our uploads folder
+    elif product_photo and allowed_file(product_photo.filename):
+        filename = secure_filename(product_photo.filename)
+        product_photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+        photos = {'photo1': filename}
+
+    # Validate the data 
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
-            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+            validate(instance=product_json, schema=schema, format_checker=draft7_format_checker)
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
             'code': 400,
@@ -110,18 +128,20 @@ def createProduct():
             # Create a md5 of the time of insertion to be appended to the permalink
             md5 = hashlib.md5()
             md5.update(str(time.time()).encode('utf-8'))
-            new_product = Product(name = request.json['name'],
-                                  description = request.json['description'],
-                                  quantity = request.json['stockQuantity'],
-                                  category_id = request.json['categoryId'],
+            new_product = Product(name = product_json['name'],
+                                  description = product_json['description'],
+                                  quantity = product_json['stockQuantity'],
+                                  category_id = product_json['categoryId'],
                                   user_id = session.get('user_id'),
-                                  tax_id = request.json['taxId'],
-                                  brand_id = request.json['brandId'],
-                                  condition = request.json['condition'],
-                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+                                  tax_id = product_json['taxId'],
+                                  brand_id = product_json['brandId'],
+                                  condition = product_json['condition'],
+                                  permalink = product_json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5],
+                                  photos = photos
+                                  )
 
             # Adds the price to the product
-            new_product.price.append(Price(amount=request.json['price']))
+            new_product.price.append(Price(amount=product_json['price']))
 
             db_session.add(new_product)
 
