@@ -155,3 +155,13 @@ def createProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+
+@bp.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Endpoint for accessing uploaded files
+    Returns:
+    (str) -- Returns the requested file
+    """
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+                               filename)
