@@ -26,14 +26,14 @@ from datetime import date
 bp = Blueprint('orders', __name__, url_prefix='/orders')
 
 @bp.route("/view/<string:type>", methods=['GET'])
-#@login_required
+@login_required
 def view(type):
 
     try:
         with session_scope() as db_session:
 
-            #queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
-            queryOrder = db_session.query(Order).filter(Order.user_id == 1)
+            queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
+            #queryOrder = db_session.query(Order).filter(Order.user_id == 1)
             queryOrderLine = db_session.query(OrderLine)
             totalitem =[]
 
