@@ -42,10 +42,7 @@ def add_address():
         with session_scope() as db_session:
             user = db_session.merge(g.user)
             addresses = request.json
-            # if line2 is empty than remove it
-            for i in range(len(addresses)):
-                if addresses[i]["line2"] == "":
-                    del addresses[i]["line2"]
+
             #Check for conflict
             if user.addresses is not None:
                 new_address = user.addresses + addresses
@@ -108,13 +105,7 @@ def update_addresses():
                 for k in addresses[x][1]:
                     index = addresses[x][0]
                     new_value = addresses[x][1][k]
-                    if k == "line2" and new_value == "" and "line2" in user_address[index]:
-                        del user_address[index][k]
-                    elif "line2" not in user_address[index]:
-                        if k != "line2" or new_value != "":
-                            user_address[index][k] = new_value
-                    else:
-                        user_address[index][k] = new_value
+                    user_address[index][k] = new_value
 
             #Check for conflict
             #validate new object according to schema
