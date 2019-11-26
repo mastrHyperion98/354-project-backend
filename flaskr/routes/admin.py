@@ -63,3 +63,48 @@ def view_total_sales():
         'totalSales': sum,
            }, 200
 
+
+@bp.route("", methods=['PATCH', 'OPTIONS'])
+@cross_origin(methods=['PATCH'])
+@login_required
+@admin_required
+def admin_update_user():
+    """"Endpoints to handle updating an authenticate user.
+    Returns:
+        str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
+    """
+
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'admin_update_user.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
+
+    try:
+        with session_scope() as db_session:
+            query = db_session.query(User).filter(User.username == request.json['username']).one()
+
+            prev_user = query
+
+        for k, v in request.json.items():
+            prev_user.__dict__[k] = v
+
+        # Commit changes
+        db_session.commit()
+
+            
+
+        return '', 200
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
