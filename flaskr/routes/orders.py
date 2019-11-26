@@ -41,8 +41,8 @@ def view(type):
                 queryLine = queryOrderLine.filter(OrderLine.order_id == item.id)
                 myitem = {
                     "id": item.id,
-                    #"user_id": session['user_id'],
-                    "user_id": item.user_id,
+                    "user_id": session['user_id'],
+                    #"user_id": item.user_id,
                     "full_name": item.full_name,
                     "line1": item.line1,
                     "line2": item.line2,
