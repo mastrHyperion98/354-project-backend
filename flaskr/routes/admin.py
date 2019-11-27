@@ -2,7 +2,6 @@ import functools
 import re
 import os
 from jsonschema import validate, draft7_format_checker
-import strict_rfc3339
 import jsonschema.exceptions
 import json
 
@@ -45,7 +44,8 @@ def view_total_sales():
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
-            validate(instance=request.json, schema=schema, format_checker=strict_rfc3339)
+            #format_cheker needed for time-date format in schema
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
     except jsonschema.exceptions.ValidationError as validation_error:
         return {
                    'code': 400,
@@ -63,7 +63,7 @@ def view_total_sales():
                     'code': 404,
                     'message': 'There are no sales'
                 }, 404
-            
+
             nmbr_itm = 0
             for order in orders:
                 for items in order.order_lines:
