@@ -80,7 +80,6 @@ def get_mine():
                     user = db_session.merge(g.user)
 
                     if user.cart is not None:
-                        #TODO merge carts
                         session['cart_id'] = user.cart.id
                         return user.cart.to_json(), 200
 
@@ -110,7 +109,8 @@ def add_item_to_mine():
             'code': 400,
             'message': validation_error.message
         }, 400
-
+      
+    #if 'cart_id' in session:
     if 'cart_id' in session:
         try:
             with session_scope() as db_session:

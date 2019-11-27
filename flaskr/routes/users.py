@@ -15,6 +15,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.email import send
 from flaskr.models.User import User
+from flaskr.models.Cart import Cart
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -87,6 +88,7 @@ def registerUser():
     try:
         with session_scope() as db_session:
             new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
+            new_user.reset_password = False
             db_session.add(new_user)
 
             # Commit new user to database making sure of the integrity of the relations.
@@ -97,7 +99,7 @@ def registerUser():
 
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-
+            new_user.cart = Cart(user_id=new_user.id)
             return new_user.to_json(), 200
     except DBAPIError as db_error:
 
@@ -164,6 +166,7 @@ def updateSelf():
                 # if k == password hash password
                 if k == "password":
                     user.__dict__[k] = argon2.hash(v)
+                    user.reset_password = False
                 else:
                     user.__dict__[k] = v
 
