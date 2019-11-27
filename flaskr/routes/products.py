@@ -23,7 +23,7 @@ from flaskr.models.Category import Category
 bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
 def getProducts():
     # Validate that only the valid Query properties from the JSON schema filter_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
