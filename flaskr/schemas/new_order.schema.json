@@ -1,0 +1,46 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "order",
+    "type": "object",
+    "required": [ "fullName", "line1", "city", "province", "country", "postalCode", "phone", "isExpressShipping" ],
+    "additionalProperties": false,
+    "properties": {
+        "fullName": {
+            "type": "string",
+            "description": "Full name of recipient"
+        },
+        "phone": {
+            "type": "string",
+            "description": "Phone number of the recipient"
+        },
+        "line1": {
+            "type": "string",
+            "description": "Civic address with street name"
+        },
+        "line2": {
+            "type": "string",
+            "description": "Apt/Suite number"
+        },
+        "city": {
+            "type": "string",
+            "description": "City of destination"
+        },
+        "province": {
+            "type": "string",
+            "description": "Province/state of destination"
+        },
+        "country": {
+            "type": "string",
+            "description": "Country of destination"
+        },
+        "postalCode": {
+            "type": "string",
+            "description": "Postal code of destination"
+        },
+        "isExpressShipping": {
+            "type": "boolean",
+            "description": "Shipping method for order"
+        }
+    }
+}
