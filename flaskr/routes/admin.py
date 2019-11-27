@@ -33,10 +33,10 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_required
 def view_total_sales():
     # Later will add the ability to sort by date and Category
-    """Endpoint use to add a address to the user. Sends a welcoming
+    """Endpoint use to compute the total number of items sold between two dates.
 
          Returns:
-             (str, int) -- Returns a tuple of the JSON object of the newly added addresses and a http status code.
+             (str, int) -- Returns a string with the number of sales.
          """
 
     # Validate that only the valid User properties from the JSON schema update_self.schema.json
@@ -58,19 +58,16 @@ def view_total_sales():
             #Added filters by date
             orders = db_session.query(Order).filter(Order.date >= fromDate, Order.date < endDate).all()
 
-
             if orders.count() < 1:
                 return {
                     'code': 404,
                     'message': 'There are no sales'
                 }, 404
-            "if all string than fetch all sales data"
-
-            sum = 0
-            for i in orders:
-                sum = sum + i.total_cost
-            #iterate through orderlines and filter by categories
-
+            
+            nmbr_itm = 0
+            for order in orders:
+                for items in order.order_lines:
+                    nmbr_itm = nmbr_itm + items.quantity
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
@@ -84,9 +81,7 @@ def view_total_sales():
                    'code': 400,
                    'message': "No sales have been registered"
                }, 400
-    return {
-        'totalSales': sum,
-           }, 200
+    return str(nmbr_itm), 200
 
 @bp.route("/update/<string:username>", methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['PATCH', 'GET'])
