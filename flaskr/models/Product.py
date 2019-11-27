@@ -34,7 +34,7 @@ class Product(Base):
     condition = Column(String)
 
     permalink_translation_tab = str.maketrans(' ()/_.~', '-------')
-    
+
     def to_json(self):
         """Returns the instance of product as a JSON
 
@@ -54,10 +54,9 @@ class Product(Base):
                 'email': self.user.email
             },
             'tax': self.tax.to_json(),
-            'dateAdded': self.date_added,
+            'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
             'photos': self.photos,
-            'brand': self.brand.to_json(),
-            'condition': self.condition
+            'brand': self.brand.to_json()
         }
