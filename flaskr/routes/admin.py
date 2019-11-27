@@ -116,9 +116,6 @@ def admin_update_user(username):
             user = db_session.query(User).filter(User.username == username).one()
             db_session.expunge(user)
             email = request.json['email']
-            if "password" in request.json:
-                password = request.json['password']
-
             for k, v in request.json.items():
                 # if k == password hash password
                 if k == "password":
