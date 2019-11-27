@@ -1,0 +1,14 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "accountRecover",
+    "type": "object",
+    "required": [ "email"],
+    "additionalProperties": false,
+    "properties": {
+        "email": {
+            "type": "string",
+            "format": "email"
+        }
+    }
+}
