@@ -4,12 +4,7 @@
     "title": "adminUpdateUser",
     "type": "object",
     "additionalProperties": false,
-    "required": ["username"],
     "properties": {
-        "username": {
-            "type": "string",
-            "description": "The username of User"
-        },
         "password": {
             "type": "string",
             "description": "User's password"
