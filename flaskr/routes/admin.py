@@ -13,7 +13,6 @@ from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
-from datetime import datetime, timedelta
 from flaskr.db import session_scope
 from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
@@ -53,12 +52,12 @@ def view_total_sales():
                }, 400
     try:
         with session_scope() as db_session:
-            fromDate = datetime.strptime(request.json.get("start_date"), '%Y-%m-%d')
-            endDate = datetime.strptime(request.json.get("end_Date"), '%Y-%m-%d') + timedelta(days=1)
+            fromDate = date.fromisoformat(request.json.get("start_date"))
+            endDate = date.fromisoformat(request.json.get("end_date"))
             #Added filters by date
             orders = db_session.query(Order).filter(Order.date >= fromDate, Order.date < endDate).all()
 
-            if orders.count() < 1:
+            if len(orders) < 1:
                 return {
                     'code': 404,
                     'message': 'There are no sales'
