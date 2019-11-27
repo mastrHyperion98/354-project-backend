@@ -8,11 +8,11 @@
     "properties": {
         "start_date": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
         },
       "end_date": {
         "type": "string",
-        "format": "date-time"
+        "format": "date"
       }
     }
 }
