@@ -50,7 +50,7 @@ def save():
         with session_scope() as db_session:
 
             # get user_id from json
-            user_id = request.json.get("user_id")
+            # user_id = request.json.get("user_id")
             product_id = request.json.get("product_id")
 
             savedProduct = save_product(
