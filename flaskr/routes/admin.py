@@ -27,11 +27,11 @@ from datetime import date
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@bp.route("/sales/<string:category>", methods=['GET', 'OPTIONS'])
+@bp.route("/sales", methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
-def view_total_sales(category):
+def view_total_sales():
     # Later will add the ability to sort by date and Category
     """Endpoint use to add a address to the user. Sends a welcoming
 
@@ -65,10 +65,10 @@ def view_total_sales(category):
                     'message': 'There are no sales'
                 }, 404
             "if all string than fetch all sales data"
-            if category == "all":
-                sum = 0
-                for i in orders:
-                    sum = sum + i.total_cost
+
+            sum = 0
+            for i in orders:
+                sum = sum + i.total_cost
             #iterate through orderlines and filter by categories
 
 
@@ -87,3 +87,52 @@ def view_total_sales(category):
     return {
         'totalSales': sum,
            }, 200
+
+@bp.route("/update/<string:username>", methods=['PATCH', 'OPTIONS'])
+@cross_origin(methods=['PATCH', 'GET'])
+@login_required
+@admin_required
+def admin_update_user(username):
+    """"Endpoints to handle updating an authenticate user.
+    Returns:
+        str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
+    """
+
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'admin_update_user.schema.json')
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
+
+    try:
+        with session_scope() as db_session:
+            user = db_session.query(User).filter(User.username == username).one()
+            db_session.expunge(user)
+            email = request.json['email']
+            if "password" in request.json:
+                password = request.json['password']
+
+            for k, v in request.json.items():
+                # if k == password hash password
+                if k == "password":
+                    user.__dict__[k] = argon2.hash(v)
+                    user.reset_password = False
+                else:
+                    user.__dict__[k] = v
+            db_session.merge(user)
+
+        return user.to_json(), 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
