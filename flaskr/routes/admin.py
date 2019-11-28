@@ -22,6 +22,7 @@ from flaskr.models.Product import Product
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in, admin_required
 from datetime import date
+from flaskr.models.SellerRecord import SellerRecord
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -127,3 +128,67 @@ def admin_update_user(username):
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+@bp.route("/sales/leaderboard", methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+@admin_required
+def view_sales_leaderboard():
+        # Later will add the ability to sort by date and Category
+        """Endpoint use to compute the total number of items sold between two dates.
+
+             Returns:
+                 (str, int) -- Returns a string with the number of sales.
+             """
+
+        # Validate that only the valid User properties from the JSON schema update_self.schema.json
+        schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+        schema_filepath = os.path.join(schemas_direcotry, 'get_total_sales.schema.json')
+        try:
+            with open(schema_filepath) as schema_file:
+                schema = json.loads(schema_file.read())
+                # format_cheker needed for time-date format in schema
+                validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+        except jsonschema.exceptions.ValidationError as validation_error:
+            return {
+                       'code': 400,
+                       'message': validation_error.message
+                   }, 400
+        try:
+            with session_scope() as db_session:
+                fromDate = date.fromisoformat(request.json.get("start_date"))
+                endDate = date.fromisoformat(request.json.get("end_date"))
+                # Added filters by date
+                users = db_session.query(User).all()
+                leaderboard = []
+                for user in users:
+                    username = user.username
+                    sales = 0
+                    products = db_session.query(Product).filter(Product.user_id == user.id).all()
+                    for product in products:
+                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, OrderLine.date_fulfilled >= fromDate, OrderLine.date_fulfilled < endDate)
+                        for order_line in order_lines:
+                            sales = sales + order_line.quantity
+                    seller = SellerRecord(username, sales)
+                    leaderboard.append(seller)
+                #Sort the entries
+                leaderboard.sort()
+                first_ten = []
+                for i in range(min(10,len(leaderboard))):
+                    first_ten.append(leaderboard[i].to_json())
+
+        except DBAPIError as db_error:
+            # Returns an error in case of a integrity constraint not being followed.
+            return {
+                       'code': 400,
+                       'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+                   }, 400
+        except NoResultFound:
+            # Returns an error in case of a integrity constraint not being followed.
+            return {
+                       'code': 400,
+                       'message': "No sales have been registered"
+                   }, 400
+        return{
+            "top_sellers": first_ten
+              }, 200
