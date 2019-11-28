@@ -149,7 +149,7 @@ def delete_product(product_id):
     try:
         with session_scope() as db_session:
             # Retrieve product from database
-            query = db_session.Query(Product).filter(Product.id == product_id)
+            query = db_session.query(Product).filter(Product.id == product_id)
             
             if query.count() != 1:
                 return {
@@ -206,7 +206,7 @@ def edit_product(product_id):
     try:
         with session_scope() as db_session:
             # Retrieve product from database
-            query = db_session.Query(Product).filter(Product.id == product_id)
+            query = db_session.query(Product).filter(Product.id == product_id)
             
             if query.count() != 1:
                 return {
@@ -233,6 +233,8 @@ def edit_product(product_id):
             db_session.commit()
 
             # TODO: Update photos
+
+            return product.to_json(), 200
             
 
     except DBAPIError as db_error:
