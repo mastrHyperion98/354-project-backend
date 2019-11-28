@@ -276,11 +276,10 @@ def replyreview(rev_id):
     try:
         with session_scope as db_session:
                 myreview = db_session.query(review).filter(review.id == rev_id).one()
-                myproduct = db_session.query(Product).filter(Product.id = myreview.product_id).one()
-                if myproduct.user_id != session['user_id']:
+                if myreview.user_id != session['user_id']:
                     return {
                         'code': 400,
-                        'message': 'This review is not based on your product'
+                        'message': 'This review is not about you'
                     }
                 else:
                     if myreview.review != "":
