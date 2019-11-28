@@ -23,7 +23,7 @@ from flaskr.models.Category import Category
 bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
 def getProducts():
     # Validate that only the valid Query properties from the JSON schema filter_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -135,3 +135,27 @@ def createProduct():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+@bp.route('/mine', methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
+@login_required
+def myProduct():
+    try:
+        with session_scope() as db_session:
+            # Create a md5 of the time of insertion to be appended to the permalink
+            product = db_session.query(Product).filter(Product.user_id == g.user.id).all()
+
+            list = []
+            for i in product:
+                list.append(i.to_json())
+
+            return{
+                "Products": list
+                  }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
