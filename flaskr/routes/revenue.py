@@ -27,6 +27,7 @@ def get_revenue():
                 'revenue': calc_revenue(revenue_enteries)
             }, 200
 
+@bp.route('<string:start_date>', methods=[ 'GET', 'OPTIONS' ])
 @bp.route('<string:start_date>/<string:end_date>', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
 def get_revenue_by_date(start_date, end_date= None):
