@@ -280,19 +280,19 @@ def replyreview(rev_id):
                     return {
                         'code': 400,
                         'message': 'This review is not about you'
-                    }
+                    }, 400
                 else:
                     if myreview.review != "":
                         return {
                             'code': 400,
                             'message': 'You have already replied to this review'
-                        }
+                        }, 400
                     else:
                         myreview.review = request.json.get("reply")
                         return {
                             'code': 200,
                             'message': myreview.to_json()
-                        }
+                        }, 200
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
