@@ -190,6 +190,7 @@ def edit_product(product_id):
     Returns:
         str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
     """
+
     # Validate that only the valid Product properties from the JSON schema update_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
@@ -229,7 +230,8 @@ def edit_product(product_id):
                 product.__dict__[k] = v
             
             # Commit changes
-            db_session.merge(product)
+            db_session.add(product)
+            #db_session.merge(product)
             db_session.commit()
 
             # TODO: Update photos
