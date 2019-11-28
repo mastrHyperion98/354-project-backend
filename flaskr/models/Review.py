@@ -16,6 +16,7 @@ class review(Base):
     product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
     comment = Column(String)
     score = Column(Float)
+    review = Column(String)
     user = relationship('User')
     product = relationship('Product')
 
