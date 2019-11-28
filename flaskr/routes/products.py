@@ -6,6 +6,7 @@ import jsonschema.exceptions
 import json
 import hashlib
 import time
+import base64
 
 from flask import (
     Blueprint, g, request, session, current_app, session, send_from_directory
@@ -138,7 +139,7 @@ def createProduct():
             db_session.commit()
 
             return new_product.to_json(), 200
-            
+
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
@@ -153,5 +154,11 @@ def uploaded_file(filename):
     Returns:
     (str) -- Returns the requested file
     """
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
-                               filename)
+
+    with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
+        data = file.read()
+        encoded_data = base64.encodestring(data)
+    
+
+    return encoded_data
+    
