@@ -7,12 +7,14 @@ from flask import (
 from sqlalchemy.exc import DBAPIError
 from flaskr.db import session_scope
 from flaskr.models.Revenue import Revenue
-from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
+from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in, admin_required
 
 bp = Blueprint('revenue', __name__, url_prefix="/revenue")
 
 @bp.route('', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
+@login_required
+@admin_required
 def get_revenue():
     with session_scope() as db_session:
         # TODO check if website owner
@@ -30,6 +32,8 @@ def get_revenue():
 @bp.route('<string:start_date>', methods=[ 'GET', 'OPTIONS' ])
 @bp.route('<string:start_date>/<string:end_date>', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
+@login_required
+@admin_required
 def get_revenue_by_date(start_date, end_date= None):
     with session_scope() as db_session:
         # TODO check if website owner
