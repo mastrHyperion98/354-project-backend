@@ -14,10 +14,10 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
-from flaskr.models.OrderLine import OrderLine
+from flaskr.models.Order import OrderLine
 from flaskr.models.Price import Price
 from flaskr.models.Order import Order
-from flaskr.models.Order_Status import order_status
+from flaskr.models.Order import OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
 from flaskr.models.Save_For_Later import save_product
@@ -29,6 +29,7 @@ from datetime import date
 bp = Blueprint('save_for_later', __name__, url_prefix='/save_for_later')
 
 @bp.route("/add", methods =["POST"])
+@cross_origin(methods=['POST'])
 @login_required
 def save():
 
@@ -54,14 +55,11 @@ def save():
             product_id = request.json.get("product_id")
 
             savedProduct = save_product(
-                                        #user_id = user_id,
                                         user_id = session['user_id'],
                                         product_id = product_id,
                                         date_saved = date.today()
                                         )
             db_session.add(savedProduct)
-            #db_session.flush()
-
             return {
                 "code": 200,
                 "message": savedProduct.to_json()
@@ -77,6 +75,7 @@ def save():
 
 
 @bp.route("/view", methods =["GET"])
+@cross_origin(methods=['GET'])
 @login_required
 def view():
 
