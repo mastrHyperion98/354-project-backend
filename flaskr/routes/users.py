@@ -12,10 +12,12 @@ from flask import (
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
+from sqlalchemy.sql.functions import user
+
 from flaskr.db import session_scope
 from flaskr.email import send
 from flaskr.models.User import User
-from flaskr.models.Cart import Cart
+from flaskr.models.Cart import Cart, CartLine
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -61,8 +63,6 @@ def listUsers():
                 "users": users
             }, 200
 
-
-
 @bp.route('', methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['GET', 'POST', 'HEAD'])
 def registerUser():
@@ -99,8 +99,30 @@ def registerUser():
 
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-            new_user.cart = Cart(user_id=new_user.id)
+            if 'cart_id' in session:
+                ephemeral_cart = db_session.query(Cart).filter(Cart.id == session['cart_id']).first()
+
+                if ephemeral_cart is not None:
+                    if new_user.cart is None:
+                        ephemeral_cart.user_id = new_user.id
+                    else:
+                        for ephemeral_cart_line in ephemeral_cart.cart_lines:
+                            cart_line = db_session.query(CartLine).filter(CartLine.cart_id == user.cart.id).filter(
+                                CartLine.product_id == ephemeral_cart_line.product_id).first()
+
+                            if cart_line is None:
+                                user.cart.cart_lines.append(CartLine(product_id=ephemeral_cart_line.product_id,
+                                                                     quantity=ephemeral_cart_line.quantity))
+                            elif cart_line.product.quantity + ephemeral_cart_line <= cart_line.product.quantity:
+                                cart_line.quantity += ephemeral_cart.quantity
+
+                session.pop('cart_id')
+
             return new_user.to_json(), 200
+    # else:
+    #     new_user.cart = Cart(user_id=new_user.id)
+    #     return new_user.to_json(), 200
+
     except DBAPIError as db_error:
 
         # In case that the unvalid user was login remove it from session
