@@ -63,8 +63,6 @@ def listUsers():
                 "users": users
             }, 200
 
-
-
 @bp.route('', methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['GET', 'POST', 'HEAD'])
 def registerUser():
