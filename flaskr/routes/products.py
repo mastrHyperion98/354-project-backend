@@ -17,7 +17,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, admin_required
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -157,5 +157,35 @@ def myProduct():
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+
+@bp.route('/remove/<int:product_id>', methods = ['DELETE', 'OPTIONS'])
+@cross_origin(methods=['DELETE'])
+@login_required
+@admin_required
+def admin_remove(product_id):
+    try:
+        with session_scope() as db_session:
+            product = db_session.query(Product).filter(Product.id == product_id)
+
+            if product.count() > 0:
+                db_session.delete(product.one())
+                db_session.commit()
+
+                return {
+                    'code': 200,
+                    'message': 'success! the product with id: ' + product_id + ' has been removed'
+                }, 200
+            else:
+                return {
+                    'code': 400,
+                    'message': 'Their are no product in the database with the specified id'
+                }, 400
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
