@@ -28,7 +28,7 @@ from datetime import date
 
 bp = Blueprint('save_for_later', __name__, url_prefix='/save_for_later')
 
-@bp.route("/add", methods =["POST"])
+@bp.route("/add", methods =["POST",'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def save():
@@ -74,7 +74,7 @@ def save():
 
 
 
-@bp.route("/view", methods =["GET"])
+@bp.route("/view", methods =["GET",'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def view():
