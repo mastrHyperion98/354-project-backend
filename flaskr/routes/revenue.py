@@ -22,11 +22,12 @@ def get_revenue():
         if len(revenue_enteries) > 0:
             return {
                 'revenue_enteries': [ revenue.to_json() for revenue in revenue_enteries ]
+                'revenue': calc_revenue(revenue_enteries).__float__()
             }, 200
         else:
             return {
                 'revenue_enteries': [],
-                'revenue': calc_revenue(revenue_enteries)
+                'revenue': calc_revenue(revenue_enteries).__float__()
             }, 200
 
 @bp.route('<string:start_date>', methods=[ 'GET', 'OPTIONS' ])
