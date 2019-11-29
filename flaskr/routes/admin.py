@@ -21,7 +21,7 @@ from flaskr.models.Product import Product
 
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in, admin_required
-from datetime import date
+import datetime
 from flaskr.models.SellerRecord import SellerRecord
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -37,26 +37,9 @@ def view_total_sales():
          Returns:
              (str, int) -- Returns a string with the number of sales.
          """
-
-    # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'get_total_sales.schema.json')
-    try:
-        with open(schema_filepath) as schema_file:
-            schema = json.loads(schema_file.read())
-            #format_cheker needed for time-date format in schema
-            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
-    except jsonschema.exceptions.ValidationError as validation_error:
-        return {
-                   'code': 400,
-                   'message': validation_error.message
-               }, 400
     try:
         with session_scope() as db_session:
-            fromDate = date.fromisoformat(request.json.get("start_date"))
-            endDate = date.fromisoformat(request.json.get("end_date"))
-            #Added filters by date
-            orders = db_session.query(Order).filter(Order.date >= fromDate, Order.date < endDate).all()
+            orders = db_session.query(Order).all()
 
             if len(orders) < 1:
                 return {
@@ -81,7 +64,62 @@ def view_total_sales():
                    'code': 400,
                    'message': "No sales have been registered"
                }, 400
-    return str(nmbr_itm), 200
+    return {
+        'numberItems': nmbr_itm
+           }, 200
+
+@bp.route("/sales/<string:start_date>", methods=['GET', 'OPTIONS'])
+@bp.route("/sales/<string:start_date>/<string:end_date>", methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+@admin_required
+def view_total_sales_by_date(start_date, end_date= None):
+    # Later will add the ability to sort by date and Category
+    """Endpoint use to compute the total number of items sold between two dates.
+
+         Returns:
+             (str, int) -- Returns a string with the number of sales.
+         """
+    try:
+        with session_scope() as db_session:
+            if end_date is not None:
+                if validate(start_date) and validate(end_date):
+                    pass
+                else:
+                    return '', 404
+                orders = db_session.query(Order).filter(Order.date.between(start_date, end_date)).all()
+            else:
+                if validate(start_date):
+                    pass
+                else:
+                    return '', 404
+                orders = db_session.query(Order).filter(Order.date == start_date).all()
+            if len(orders) < 1:
+                return {
+                    'code': 404,
+                    'message': 'There are no sales'
+                }, 404
+
+            nmbr_itm = 0
+            for order in orders:
+                for items in order.order_lines:
+                    nmbr_itm = nmbr_itm + items.quantity
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+    except NoResultFound:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': "No sales have been registered"
+               }, 400
+    return {
+        'numberItems': nmbr_itm
+           }, 200
 
 @bp.route("/update/<string:username>", methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['PATCH', 'GET'])
@@ -140,24 +178,8 @@ def view_sales_leaderboard():
              Returns:
                  (str, int) -- Returns a string with the number of sales.
              """
-
-        # Validate that only the valid User properties from the JSON schema update_self.schema.json
-        schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-        schema_filepath = os.path.join(schemas_direcotry, 'get_total_sales.schema.json')
-        try:
-            with open(schema_filepath) as schema_file:
-                schema = json.loads(schema_file.read())
-                # format_cheker needed for time-date format in schema
-                validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
-        except jsonschema.exceptions.ValidationError as validation_error:
-            return {
-                       'code': 400,
-                       'message': validation_error.message
-                   }, 400
         try:
             with session_scope() as db_session:
-                fromDate = date.fromisoformat(request.json.get("start_date"))
-                endDate = date.fromisoformat(request.json.get("end_date"))
                 # Added filters by date
                 users = db_session.query(User).all()
                 leaderboard = []
@@ -166,7 +188,7 @@ def view_sales_leaderboard():
                     sales = 0
                     products = db_session.query(Product).filter(Product.user_id == user.id).all()
                     for product in products:
-                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, OrderLine.date_fulfilled >= fromDate, OrderLine.date_fulfilled < endDate)
+                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id)
                         for order_line in order_lines:
                             sales = sales + order_line.quantity
                     seller = SellerRecord(username, sales)
@@ -192,3 +214,10 @@ def view_sales_leaderboard():
         return{
             "top_sellers": first_ten
               }, 200
+
+def validate(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%Y-%m-%d')
+    except ValueError:
+        return 0
+    return 1
