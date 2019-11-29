@@ -17,7 +17,6 @@ class Revenue(Base):
 
     def to_json(self):
         return {
-            'id': self.id,
             'seller_id': self.seller_id,
             'product_id': self.product_id,
             'order_id': self.order_id,
