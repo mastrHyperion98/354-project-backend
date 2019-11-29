@@ -302,7 +302,7 @@ def replyreview(rev_id):
     
 @bp.route("/viewreview/<int:rev_user_id>", methods =["GET"])
 @login_required
-def viewreview(red_user_id):
+def viewreview(rev_user_id):
 
     try:
         # Check if cart id exists with cart items
