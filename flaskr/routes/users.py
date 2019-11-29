@@ -17,7 +17,7 @@ from flaskr.email import send
 from flaskr.models.User import User
 from flaskr.models.Cart import Cart
 from flaskr.models.Review import review
-
+from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -185,9 +185,9 @@ def updateSelf():
 
     return g.user.to_json(), 200
 
-@bp.route("review/<int:rev_user_id>", methods =["POST"])
+@bp.route("review/<string:username>", methods =["POST"])
 @login_required
-def review(rev_user_id):
+def review(username):
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -209,7 +209,8 @@ def review(rev_user_id):
             # get user_id from json
             # user_id = request.json.get("user_id")
             # user_id = session['user_id']
-            user_id = rev_user_id
+            username = username
+            seller_id = db_session.query(User).filter(User.username == username).one().id
             product_id = request.json.get("product_id")
             comment = request.json.get("comment")
             score = request.json.get("score")
@@ -226,7 +227,7 @@ def review(rev_user_id):
             if count > 0:
                 if score <= 5 and score >= 0:
                     myreview = review(
-                            user_id = user_id,
+                            user_id = seller_id,
                             #user_id = session['user_id'],
                             product_id = product_id,
                             comment = comment,
