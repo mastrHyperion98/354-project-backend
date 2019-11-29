@@ -53,7 +53,7 @@ def get_revenue_by_date(start_date, end_date= None):
         if len(revenue_enteries) > 0:
             return {
                 'revenue_enteries': [ revenue.to_json() for revenue in revenue_enteries ],
-                'revenue': calc_revenue(revenue_enteries)
+                'revenue': calc_revenue(revenue_enteries).__float__()
             }, 200
         else:
             return {
