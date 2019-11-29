@@ -24,9 +24,9 @@ from flaskr.routes.utils import login_required, not_login, cross_origin, is_logg
 import datetime
 from flaskr.models.SellerRecord import SellerRecord
 
-bp = Blueprint('admin', __name__, url_prefix='/admin')
+bp = Blueprint('sales', __name__, url_prefix='/sales')
 
-@bp.route('/sales', methods=['GET', 'OPTIONS'])
+@bp.route('', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
@@ -68,8 +68,8 @@ def view_total_sales():
         'numberItems': nmbr_itm
            }, 200
 
-@bp.route('/sales/<string:start_date>', methods=['GET', 'OPTIONS'])
-@bp.route('/sales/<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
+@bp.route('<string:start_date>', methods=['GET', 'OPTIONS'])
+@bp.route('<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
@@ -121,53 +121,7 @@ def view_total_sales_by_date(start_date, end_date= None):
         'numberItems': nmbr_itm
            }, 200
 
-@bp.route('/update/<string:username>', methods=['PATCH', 'OPTIONS'])
-@cross_origin(methods=['PATCH', 'GET'])
-@login_required
-@admin_required
-def admin_update_user(username):
-    """"Endpoints to handle updating an authenticate user.
-    Returns:
-        str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
-    """
-
-    # Validate that only the valid User properties from the JSON schema update_self.schema.json
-    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'admin_update_user.schema.json')
-    try:
-        with open(schema_filepath) as schema_file:
-            schema = json.loads(schema_file.read())
-            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
-    except jsonschema.exceptions.ValidationError as validation_error:
-        return {
-            'code': 400,
-            'message': validation_error.message
-        }, 400
-
-    try:
-        with session_scope() as db_session:
-            user = db_session.query(User).filter(User.username == username).one()
-            db_session.expunge(user)
-            email = request.json['email']
-            for k, v in request.json.items():
-                # if k == password hash password
-                if k == "password":
-                    user.__dict__[k] = argon2.hash(v)
-                    user.reset_password = False
-                else:
-                    user.__dict__[k] = v
-            db_session.merge(user)
-
-        return user.to_json(), 200
-
-    except DBAPIError as db_error:
-        # Returns an error in case of a integrity constraint not being followed.
-        return {
-            'code': 400,
-            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400
-
-@bp.route('/sales/leaderboard', methods=['GET', 'OPTIONS'])
+@bp.route('leaderboard', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
@@ -200,7 +154,7 @@ def view_sales_leaderboard():
                     first_ten.append(leaderboard[i].to_json())
 
         except DBAPIError as db_error:
-            # Returns an error in case of a integrity constraint not being followed.
+            # Returns an error in case of a i/sales/ntegrity constraint not being followed.
             return {
                        'code': 400,
                        'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
@@ -215,8 +169,8 @@ def view_sales_leaderboard():
             "top_sellers": first_ten
               }, 200
 
-@bp.route('/sales/leaderboard/<string:start_date>', methods=['GET', 'OPTIONS'])
-@bp.route('/sales/leaderboard/<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
+@bp.route('leaderboard/<string:start_date>', methods=['GET', 'OPTIONS'])
+@bp.route('leaderboard/<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
