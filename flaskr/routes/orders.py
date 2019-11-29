@@ -227,9 +227,9 @@ def computeProfit(price, seller_id):
             fee_normal = 0.08
 
             if len(revenue_list) <= 10:
-                return price * fee_new
+                return "%.2f" % (float(price) * float(fee_new))
             else:
-                return price * fee_normal
+                return "%.2f" % (float(price) * float(fee_normal))
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
