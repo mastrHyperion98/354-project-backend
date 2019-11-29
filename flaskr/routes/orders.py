@@ -237,7 +237,7 @@ def view(type):
                     "city": item.city,
                     "is_express_shipping": item.is_express_shipping,
                     "country": item.country,
-                    "total_cost": item.total_cost
+                    "total_cost": item.total_cost.__float__()
                 }
 
                 line=[]

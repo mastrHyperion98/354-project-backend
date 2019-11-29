@@ -44,7 +44,7 @@ def create_app(test_config=None):
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
     
-    from flaskr.routes.save_for_later import bp as save_for_later
-    app.register_blueprint(save_for_later)
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
     
     return app
