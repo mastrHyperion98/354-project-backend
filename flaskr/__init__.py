@@ -21,13 +21,15 @@ def create_app(test_config=None):
                     user = query.one()
                     g.user = user
                     db_session.expunge(g.user)
-        
 
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
 
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
+
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
 
     from flaskr.routes.products import bp as products
     app.register_blueprint(products) 
@@ -43,8 +45,17 @@ def create_app(test_config=None):
 
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
+
+    from flaskr.routes.account_recover import bp as recovery
+    app.register_blueprint(recovery)
     
     from flaskr.routes.orders import bp as orders
     app.register_blueprint(orders)
+    
+    from flaskr.routes.addresses import bp as addresses
+    app.register_blueprint(addresses)
+
+    from flaskr.routes.revenue import bp as revenue
+    app.register_blueprint(revenue)
     
     return app
