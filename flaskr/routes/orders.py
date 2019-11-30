@@ -213,7 +213,8 @@ def create_order():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
     
-@bp.route("/view/<string:type>", methods=['GET'])
+@bp.route("/view/<string:type>", methods=['GET', 'OPTION'])
+@cross_origin(methods='GET')
 @login_required
 def view(type):
 
@@ -221,7 +222,6 @@ def view(type):
         with session_scope() as db_session:
 
             queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
-            #queryOrder = db_session.query(Order).filter(Order.user_id == 2)
             queryOrderLine = db_session.query(OrderLine)
             totalitem =[]
 
@@ -230,7 +230,6 @@ def view(type):
                 myitem = {
                     "id": item.id,
                     "user_id": session['user_id'],
-                    #"user_id": item.user_id,
                     "full_name": item.full_name,
                     "line1": item.line1,
                     "line2": item.line2,
@@ -285,7 +284,7 @@ def view(type):
             totalitem = {
                 "allitems": totalitem
             }
-            return totalitem
+            return totalitem, 200
 
         return {
             'code': 200,
