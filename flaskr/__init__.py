@@ -22,7 +22,6 @@ def create_app(test_config=None):
                     g.user = user
                     db_session.expunge(g.user)
         
-
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
 
@@ -43,8 +42,5 @@ def create_app(test_config=None):
 
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
-    
-    from flaskr.routes.review import bp as review
-    app.register_blueprint(review)
     
     return app
