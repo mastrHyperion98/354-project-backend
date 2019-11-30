@@ -18,6 +18,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     reset_password = Column(Boolean, default=False)
+    is_admin = Column(Boolean, default=False)
     email = Column(String)
     reset_password = Column(Boolean, default=False)
     date_joined = Column(Date, default=date.today())
@@ -39,6 +40,7 @@ class User(Base):
             'email': self.email,
             'dateJoined': self.date_joined,
             'resetPassword': self.reset_password,
-            'addresses': self.addresses
+            'addresses': self.addresses,
+            'isAdmin': self.is_admin
         }
 
