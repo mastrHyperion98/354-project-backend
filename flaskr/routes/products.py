@@ -204,9 +204,23 @@ def uploaded_file(filename):
     Returns:
     (str) -- Returns the requested file
     """
+    try:
+        with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
+            try:
+                data = file.read()
+                encoded_data = base64.encodebytes(data)
+                file.close()
+                return encoded_data
 
-    with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
-        data = file.read()
-        encoded_data = base64.encodestring(data)
-    
-    return encoded_data
+            except IOError as error:
+                file.close()
+                return {
+                    'code': 400,
+                    'message': "An unexpected IO error has occurred"
+                }
+    except FileNotFoundError as file_error:
+        #Returns an error message saying file does not exist
+        return{
+            'code': 400,
+            'message': filename + " does not exist"
+        }, 400
