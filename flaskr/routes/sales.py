@@ -28,7 +28,6 @@ bp = Blueprint('sales', __name__, url_prefix='/sales')
 
 @bp.route('', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
-@login_required
 @admin_required
 def view_total_sales():
     # Later will add the ability to sort by date and Category
@@ -71,7 +70,6 @@ def view_total_sales():
 @bp.route('<string:start_date>', methods=['GET', 'OPTIONS'])
 @bp.route('<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
-@login_required
 @admin_required
 def view_total_sales_by_date(start_date, end_date= None):
     # Later will add the ability to sort by date and Category
@@ -123,7 +121,6 @@ def view_total_sales_by_date(start_date, end_date= None):
 
 @bp.route('leaderboard', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
-@login_required
 @admin_required
 def view_sales_leaderboard():
         # Later will add the ability to sort by date and Category

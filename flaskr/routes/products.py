@@ -162,7 +162,6 @@ def myProduct():
 
 @bp.route('/remove/<string:permalink>', methods = ['DELETE', 'OPTIONS'])
 @cross_origin(methods=['DELETE'])
-@login_required
 @admin_required
 def admin_remove(permalink):
     try:

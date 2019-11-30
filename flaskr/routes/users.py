@@ -211,7 +211,6 @@ def updateSelf():
 
 @bp.route('/update/<string:username>', methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['PATCH', 'GET'])
-@login_required
 @admin_required
 def admin_update_user(username):
     """"Endpoints to handle updating an authenticate user.
