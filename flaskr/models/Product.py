@@ -7,7 +7,6 @@ from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 from sqlalchemy.dialects.postgresql import JSON, JSONB
 import flaskr.models.Brand
-import flaskr.models.Price
 import flaskr.models.Tax
 
 class Product(Base):
