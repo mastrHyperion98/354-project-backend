@@ -56,11 +56,26 @@ def is_logged_in():
     else:
         return False
 
+def admin_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in g:
+            return {
+                'code': 400,
+                'message': 'Unauthorized Access'
+            }, 400
+        if not g.user.is_admin:
+            return {
+                'code': 400,
+                'message': 'Unauthorized Access'
+            }
+
+        return func(*args, **kwargs)
+    return decorated_function
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-
 
 def convert_and_save(b64_string):
     imgdata = base64.decodebytes(b64_string.encode())
@@ -71,3 +86,4 @@ def convert_and_save(b64_string):
         fh.write(imgdata)
 
     return fileid
+
