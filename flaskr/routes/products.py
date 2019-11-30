@@ -19,9 +19,8 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
-from flaskr.models.Price import Price
 from flaskr.models.Brand import Brand
-from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save, admin_required
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
