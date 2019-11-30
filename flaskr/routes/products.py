@@ -20,6 +20,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
+from flaskr.models.Brand import Brand
 from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
 from flaskr.models.Category import Category
 
@@ -52,9 +53,28 @@ def getProducts():
                     'message': 'Category not found'
                 }, 404
 
-            count = category.products.count()
+            products = products.filter(Product.category_id == category.id)
 
-            products = category.products
+        if 'brand' in request.args:
+            brand = db_session.query(Brand).filter(Brand.permalink == request.args['brand']).first()
+            if brand is None:
+                return {
+                    'code': 404,
+                    'message': 'Category not found'
+                }, 404
+
+            products = products.filter(Product.brand_id == brand.id)
+
+        if 'order' in request.args:
+            if request.args['order'] == 'desc':
+                products = products.order_by(Product.price.desc())
+            else:
+                products = products.order_by(Product.price.asc())
+
+        if 'price-range' in request.args:
+            price_range = request.args['price-range'].split(':')
+            if len(price_range) == 2:
+                products = products.filter(Product.price.between(float(price_range[0]), float(price_range[1])))
 
         if 'q' in request.args:
             tokens = request.args['q'].strip().split()
@@ -67,14 +87,6 @@ def getProducts():
             products = db_session.query(Product).filter(or_(*or_instruction))
 
             count = products.count()
-
-        if 'priceOrderFilter' in request.args:
-            priceOrder = request.args['priceOrderFilter']
-
-            if priceOrder == 'lowToHigh':
-                products.order_by(Product.price.first().asc())
-            elif priceOrder == 'highToLow':
-                products.order_by(Product.price.first().desc())
 
         if count is None:
             count = products.count()
