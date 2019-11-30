@@ -19,7 +19,6 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
-from flaskr.models.Price import Price
 from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
 from flaskr.models.Category import Category
 
@@ -126,12 +125,10 @@ def createProduct():
                                   tax_id = request.json['taxId'],
                                   brand_id = request.json['brandId'],
                                   condition = request.json['condition'],
+                                  price = request.json['price'],
                                   permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5],
                                   photos = photos
                                   )
-
-            # Adds the price to the product
-            new_product.price.append(Price(amount=request.json['price']))
 
             db_session.add(new_product)
 
