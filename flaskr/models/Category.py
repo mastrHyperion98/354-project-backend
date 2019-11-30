@@ -9,6 +9,7 @@ class Category(Base):
     name = Column(String)
     description = Column(String)
     permalink = Column(String)
+    icon = Column(String)
     section_id = Column(Integer, ForeignKey('section.id'))
     products = relationship('Product', order_by='desc(Product.name)', lazy='dynamic')
 
@@ -16,6 +17,7 @@ class Category(Base):
         return {
             'id': self.id,
             'name': self.name,
+            'imageUrl': self.icon,
             'description': self.description,
             'permalink': self.permalink
         }

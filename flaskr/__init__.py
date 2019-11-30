@@ -28,6 +28,9 @@ def create_app(test_config=None):
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
 
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
+
     from flaskr.routes.products import bp as products
     app.register_blueprint(products) 
 
@@ -42,5 +45,14 @@ def create_app(test_config=None):
 
     from flaskr.routes.brands import bp as brands
     app.register_blueprint(brands)
+
+    from flaskr.routes.account_recover import bp as recovery
+    app.register_blueprint(recovery)
     
+    from flaskr.routes.save_for_later import bp as save_for_later
+    app.register_blueprint(save_for_later)
+    
+    from flaskr.routes.addresses import bp as addresses
+    app.register_blueprint(addresses)
+
     return app
