@@ -226,18 +226,8 @@ def view(type):
             totalitem =[]
 
             for item in queryOrder:
-                queryLine = queryOrderLine.filter(OrderLine.order_id == item.id)
-                myitem = {
-                    "id": item.id,
-                    "user_id": session['user_id'],
-                    "full_name": item.full_name,
-                    "line1": item.line1,
-                    "line2": item.line2,
-                    "city": item.city,
-                    "is_express_shipping": item.is_express_shipping,
-                    "country": item.country,
-                    "total_cost": item.total_cost.__float__()
-                }
+                queryLine = item.order_lines
+                myitem = item.to_json()
 
                 line=[]
                 if type=="complete":
