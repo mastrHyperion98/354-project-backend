@@ -17,7 +17,7 @@ from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
 from flaskr.models.Product import Product
-
+from flaskr.models.Revenue import Revenue
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
@@ -201,6 +201,12 @@ def create_order():
                     items_sold.append(email_line)
                     items_bought.append(email_line)
                     item_sold[0].quantity -= item_sold[1]
+                    # create a revenue entry for this product sold.
+                    profits = computeProfit(item_sold[0].price.first().amount, v['seller'].id)
+                    revenue_entry = Revenue(seller_id= v['seller'].id, product_id=item_sold[0].id, order_id=order.id, profit=profits, purchased_on=order.date)
+                    db_session.add(revenue_entry)
+                    db_session.commit()
+
                 send(current_app.config['SMTP_USERNAME'], v['seller'].email, "Sale Notification", "<html><body><p>Here is an overview of your sale:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_sold) ,'Here is an overview of your sale:\n%s'% '\n'.join(items_sold))
 
             send(current_app.config['SMTP_USERNAME'], g.user.email, "Purchase Notification", "<html><body><p>Here is an overview of your purchase:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_bought) ,'Here is an overview of your purchase:\n%s'% '\n'.join(items_bought))
@@ -212,3 +218,22 @@ def create_order():
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
+
+def computeProfit(price, seller_id):
+    try:
+        with session_scope() as db_session:
+            revenue_list = db_session.query(Revenue).filter(Revenue.seller_id == seller_id).all()
+            fee_new = 0.03
+            fee_normal = 0.08
+
+            if len(revenue_list) <= 10:
+                return "%.2f" % (float(price) * float(fee_new))
+            else:
+                return "%.2f" % (float(price) * float(fee_normal))
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400

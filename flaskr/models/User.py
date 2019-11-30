@@ -18,6 +18,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     reset_password = Column(Boolean, default=False)
+    is_admin = Column(Boolean, default=False)
     email = Column(String)
     is_admin = Column(Boolean, default=False)
     reset_password = Column(Boolean, default=False)
