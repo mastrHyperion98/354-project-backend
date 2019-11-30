@@ -21,7 +21,7 @@ def get_revenue():
         revenue_enteries = db_session.query(Revenue).all()
         if len(revenue_enteries) > 0:
             return {
-                'revenue_enteries': [ revenue.to_json() for revenue in revenue_enteries ]
+                'revenue_enteries': [ revenue.to_json() for revenue in revenue_enteries],
                 'revenue': calc_revenue(revenue_enteries).__float__()
             }, 200
         else:
