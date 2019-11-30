@@ -160,14 +160,14 @@ def myProduct():
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
 
-@bp.route('/remove/<int:product_id>', methods = ['DELETE', 'OPTIONS'])
+@bp.route('/remove/<string:permalink>', methods = ['DELETE', 'OPTIONS'])
 @cross_origin(methods=['DELETE'])
 @login_required
 @admin_required
-def admin_remove(product_id):
+def admin_remove(permalink):
     try:
         with session_scope() as db_session:
-            product = db_session.query(Product).filter(Product.id == product_id)
+            product = db_session.query(Product).filter(Product.permalink == permalink)
 
             if product.count() > 0:
                 db_session.delete(product.one())
@@ -175,7 +175,7 @@ def admin_remove(product_id):
 
                 return {
                     'code': 200,
-                    'message': 'success! the product with id: ' + product_id + ' has been removed'
+                    'message': 'success! the product with permalink: ' + permalink + ' has been removed'
                 }, 200
             else:
                 return {
