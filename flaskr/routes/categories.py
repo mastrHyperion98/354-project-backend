@@ -36,6 +36,18 @@ def get_category_by_permalink(permalink):
         else:
             return '', 404
 
+@bp.route('/exist/<string:permalink>', methods=[ 'GET', 'OPTIONS' ])
+@cross_origin(methods=[ 'GET' ])
+def does_category_exist(permalink):
+    with session_scope() as db_session:
+        category = db_session.query(Category).filter(Category.permalink == permalink.lower()).first()
+
+        status_code = 404
+        if category is not None:
+            status_code = 200
+
+        return '', status_code
+
 @bp.route('/<string:permalink>/products', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
 def get_products_category_by_permalink(permalink):

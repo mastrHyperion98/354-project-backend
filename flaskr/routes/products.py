@@ -78,7 +78,7 @@ def getProducts():
         if 'q' in request.args:
             tokens = request.args['q'].strip().split()
             or_instruction = []
-            
+
             for token in tokens:
                 or_instruction.append(Product.name.match(token))
                 or_instruction.append(Product.description.match(token))
@@ -86,7 +86,7 @@ def getProducts():
             products = db_session.query(Product).filter(or_(*or_instruction))
 
             count = products.count()
-        
+
         if count is None:
             count = products.count()
 
@@ -156,6 +156,25 @@ def createProduct():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
+@bp.route('/<string:permalink>', methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET', 'HEAD'])
+@login_required
+def get_product_by_permalink():
+    """Endpoint to get a product by permalink
+
+    Returns:
+        (str, int) -- Returns a tuple of the JSON object of the found product and a http status
+                      code.
+    """
+
+    with session_scope() as db_session:
+        product = db_session.query(Product).filter(Product.permalink == permalink.lower()).first()
+
+        if product is not None:
+            return product.to_json(), 200
+        else:
+            return '', 404
+
 
 @bp.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -167,7 +186,6 @@ def uploaded_file(filename):
     with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
         data = file.read()
         encoded_data = base64.encodestring(data)
-    
+
 
     return encoded_data
-    
