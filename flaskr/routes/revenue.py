@@ -13,7 +13,6 @@ bp = Blueprint('revenue', __name__, url_prefix="/revenue")
 
 @bp.route('', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
-@login_required
 @admin_required
 def get_revenue():
     with session_scope() as db_session:
@@ -33,7 +32,6 @@ def get_revenue():
 @bp.route('<string:start_date>', methods=[ 'GET', 'OPTIONS' ])
 @bp.route('<string:start_date>/<string:end_date>', methods=[ 'GET', 'OPTIONS' ])
 @cross_origin(methods=[ 'GET' ])
-@login_required
 @admin_required
 def get_revenue_by_date(start_date, end_date= None):
     with session_scope() as db_session:
