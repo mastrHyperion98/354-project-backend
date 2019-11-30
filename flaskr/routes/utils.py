@@ -72,6 +72,14 @@ def convert_and_save(b64_string):
 
     return fileid
 
+
+def encode_and_return(fileid):
+    file_name = os.path.join(current_app.config['UPLOAD_FOLDER'], fileid)
+    with open(file_name, "rb") as img_file:
+        encoded_img = base64.b64encode(img_file.read())
+    return encoded_img
+
+
 def delete_file(fileid):
     file_name = os.path.join(current_app.config['UPLOAD_FOLDER'], fileid)
     os.remove(file_name)

@@ -10,6 +10,8 @@ from sqlalchemy.dialects.postgresql import JSON, JSONB
 import flaskr.models.Brand
 import flaskr.models.Price
 import flaskr.models.Tax
+from flaskr.routes.utils import encode_and_return
+
 
 class Product(Base):
 
@@ -58,6 +60,14 @@ class Product(Base):
             'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
-            'photos': json.dumps(self.photos),
+            'photos': photos_to_json(self.photos),
             'brand': self.brand.to_json()
         }
+
+    def photos_to_json:
+        photo_json = {}
+        if self.photos is not None:
+            for key, photo in self.photos:
+                photo_json[key] = encode_and_return(photo)
+        
+        return photo_json
