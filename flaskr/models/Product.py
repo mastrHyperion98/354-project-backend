@@ -1,4 +1,5 @@
 from datetime import date
+import json
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import update
@@ -57,6 +58,6 @@ class Product(Base):
             'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
-            'photos': self.photos,
+            'photos': json.dumps(self.photos),
             'brand': self.brand.to_json()
         }
