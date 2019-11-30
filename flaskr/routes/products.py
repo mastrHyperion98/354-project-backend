@@ -19,6 +19,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
+from flaskr.models.Brand import Brand
 from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
 from flaskr.models.Category import Category
 
@@ -51,7 +52,17 @@ def getProducts():
                     'message': 'Category not found'
                 }, 404
 
-            products = category.products
+            products = products.filter(Product.category_id == category.id)
+
+        if 'brand' in request.args:
+            brand = db_session.query(Brand).filter(Brand.permalink == request.args['brand']).first()
+            if brand is None:
+                return {
+                    'code': 404,
+                    'message': 'Category not found'
+                }, 404
+
+            products = products.filter(Product.brand_id == brand.id)
 
         if 'order' in request.args:
             if request.args['order'] == 'desc':

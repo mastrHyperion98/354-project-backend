@@ -30,8 +30,8 @@
             "description": "Product ID of the cart line"
         },
         "brand": {
-            "type": "number",
-            "minProperties": 1
+            "type": "string",
+            "description": "Brand"
         }
     }
 }
