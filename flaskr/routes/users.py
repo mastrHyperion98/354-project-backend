@@ -16,7 +16,7 @@ from flaskr.db import session_scope
 from flaskr.email import send
 from flaskr.models.User import User
 from flaskr.models.Cart import Cart
-from flaskr.models.Review import review
+from flaskr.models.Review import Review
 from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.routes.utils import login_required, not_login, cross_origin
 
@@ -185,9 +185,9 @@ def updateSelf():
 
     return g.user.to_json(), 200
 
-@bp.route("review/<string:username>", methods =["POST"])
+@bp.route("review", methods =["POST"])
 @login_required
-def review(username):
+def review():
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -206,17 +206,13 @@ def review(username):
         # Check if cart id exists with cart items
         with session_scope() as db_session:
 
-            # get user_id from json
-            # user_id = request.json.get("user_id")
-            # user_id = session['user_id']
-            username = username
-            seller_id = db_session.query(User).filter(User.username == username).one().id
             product_id = request.json.get("product_id")
             comment = request.json.get("comment")
             score = request.json.get("score")
 
             # check if user has bought this product id
-            queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
+            queryOrder = db_session.query(Order).filter(Order.user_id == g.user.id)
+
             count = 0
             for item in queryOrder:
                 queryOrderLine = db_session.query(OrderLine).filter(OrderLine.order_id == item.id)
@@ -224,12 +220,11 @@ def review(username):
                     if lineitem.product_id == product_id:
                         count = count + 1
 
+
             if count > 0:
                 if score <= 5 and score >= 0:
-                    myreview = review(
-                            user_id = seller_id,
-                            #user_id = session['user_id'],
-                            product_id = product_id,
+                    myreview = Review(user_id=g.user.id,
+                            product_id=product_id,
                             comment = comment,
                             score = score
                             )
@@ -258,9 +253,9 @@ def review(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("replyreview/<int:rev_id>", methods =["POST"])
+@bp.route("replyreview/<string:username>", methods =["POST"])
 @login_required
-def replyreview(rev_id):
+def replyreview(username):
 
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -275,25 +270,29 @@ def replyreview(rev_id):
             'message': validation_error.message
         }
     try:
-        with session_scope as db_session:
-                myreview = db_session.query(review).filter(review.id == rev_id).one()
+        with session_scope() as db_session:
+                rev_id = db_session.query(User).filter(User.username == username).one().id
+                myreview = db_session.query(Review).filter(Review.user_id == rev_id, Review.product_id == request.json['product_id']).one()
+
+
                 if myreview.user_id != session['user_id']:
                     return {
                         'code': 400,
-                        'message': 'This review is not about you'
+                        'message': 'this user cant reply to this review'
                     }, 400
                 else:
-                    if myreview.review != "":
+                    if myreview.reply is not None or myreview.reply == "":
                         return {
                             'code': 400,
                             'message': 'You have already replied to this review'
                         }, 400
                     else:
-                        myreview.review = request.json.get("reply")
+                        myreview.reply = request.json.get("reply")
                         return {
                             'code': 200,
                             'message': myreview.to_json()
                         }, 200
+
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
@@ -301,15 +300,15 @@ def replyreview(rev_id):
             'message': 'error: ' + db_error.args[0]
         }, 400
     
-@bp.route("/viewreview/<int:rev_user_id>", methods =["GET"])
+@bp.route("/viewreview/<string:username>", methods =["GET"])
 @login_required
-def viewreview(rev_user_id):
+def viewreview(username):
 
     try:
         # Check if cart id exists with cart items
         with session_scope() as db_session:
-
-            myreview = db_session.query(review)
+            rev_user_id = db_session.query(User).filter(User.username == username).one().id
+            myreview = db_session.query(Review)
 
             array=[]
             for item in myreview:
