@@ -145,7 +145,7 @@ def view_sales_leaderboard():
                     seller = SellerRecord(username, sales)
                     leaderboard.append(seller)
                 #Sort the entries
-                leaderboard.sort()
+                leaderboard.sort(reverse=True)
                 first_ten = []
                 for i in range(min(10,len(leaderboard))):
                     first_ten.append(leaderboard[i].to_json())
