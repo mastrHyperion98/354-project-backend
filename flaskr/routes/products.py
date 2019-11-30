@@ -20,7 +20,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
-from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save, delete_file
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -109,7 +109,9 @@ def createProduct():
         }, 400
 
     try:
-        photos = convert_and_save(request.json['photos'])
+        photos = {}
+        for k, v in request.json['photos']:
+            photos[k] = convert_and_save(v)
     except:
         photos = None
 
@@ -178,7 +180,10 @@ def delete_product(product_id):
                     'message': 'User does not have permission to delete this product'
                 }, 400
             
-            # TODO: Remove photos
+            # Remove photo(s)
+            if product.photos is not None:
+                for photo in product.photos.values():
+                    delete_file(photo)
 
             db_session.delete(product)
             db_session.commit()
@@ -237,8 +242,8 @@ def edit_product(product_id):
                 }, 400
             
             # Update info
-            for k, v in request.json.items():
-                product.__dict__[k] = v
+            for key, value in request.json.items():
+                setattr(product, key, value)
             
             # Commit changes
             db_session.add(product)
