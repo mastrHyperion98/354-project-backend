@@ -180,7 +180,7 @@ def admin_remove(product_id):
             else:
                 return {
                     'code': 400,
-                    'message': 'Their are no product in the database with the specified id'
+                    'message': 'There are no products in the database with the specified id'
                 }, 400
 
     except DBAPIError as db_error:
