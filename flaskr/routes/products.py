@@ -61,6 +61,11 @@ def getProducts():
             else:
                 products = products.order_by(Product.price.asc())
 
+        if 'price-range' in request.args:
+            price_range = request.args['price-range'].split(':')
+            if len(price_range) == 2:
+                products = products.filter(Product.price.between(float(price_range[0]), float(price_range[1])))
+
         if 'q' in request.args:
             tokens = request.args['q'].strip().split()
             or_instruction = []

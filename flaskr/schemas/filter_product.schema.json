@@ -17,6 +17,10 @@
             "typde": "string",
             "description": "Order price descending or ascending"
         },
+        "price-range": {
+            "type": "string",
+            "description": "Price range"
+        },
         "page": {
             "type": "string",
             "description": "Offset"
