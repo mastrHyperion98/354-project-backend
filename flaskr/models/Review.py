@@ -9,14 +9,14 @@ from flaskr.db import Base
 from flaskr.models.User import User
 from flaskr.models.Product import Product
 
-class review(Base):
+class Review(Base):
     __tablename__ = 'review'
 
     user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
     comment = Column(String)
     score = Column(Float)
-    review = Column(String)
+    reply = Column(String)
     user = relationship('User')
     product = relationship('Product')
 
@@ -27,8 +27,8 @@ class review(Base):
             dict -- JSON representation of the order
         """
         return {
-            'user_id': self.user_id,
             'product_id': self.product_id,
             'comment': self.comment,
-            'score': self.score
+            'score': self.score,
+            'reply': self.reply
         }
