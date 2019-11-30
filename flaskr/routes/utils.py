@@ -71,3 +71,7 @@ def convert_and_save(b64_string):
         fh.write(imgdata)
 
     return fileid
+
+def delete_file(fileid):
+    file_name = os.path.join(current_app.config['UPLOAD_FOLDER'], fileid)
+    os.remove(file_name)
