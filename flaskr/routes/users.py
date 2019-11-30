@@ -20,7 +20,7 @@ from flaskr.models.User import User
 from flaskr.models.Review import Review
 from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, admin_required
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -209,13 +209,12 @@ def updateSelf():
 
     return g.user.to_json(), 200
 
-
 @bp.route('/update/<string:username>', methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['PATCH', 'GET'])
 @login_required
 @admin_required
 def admin_update_user(username):
-     """"Endpoints to handle updating an authenticate user.
+    """"Endpoints to handle updating an authenticate user.
     Returns:
         str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
     """
@@ -399,3 +398,5 @@ def viewreview(username):
         # Returns an error in case of a integrity constraint not being followed.
         return {
             'code': 400,
+            'message': 'error: ' + db_error.args[0]
+        }, 400
