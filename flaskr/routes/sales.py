@@ -26,6 +26,7 @@ from flaskr.models.SellerRecord import SellerRecord
 
 bp = Blueprint('sales', __name__, url_prefix='/sales')
 
+
 @bp.route('', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @admin_required
@@ -33,18 +34,18 @@ def view_total_sales():
     # Later will add the ability to sort by date and Category
     """Endpoint use to compute the total number of items sold between two dates.
 
-         Returns:
-             (str, int) -- Returns a string with the number of sales.
-         """
+    Returns:
+        (str, int) -- Returns a string with the number of sales.
+    """
     try:
         with session_scope() as db_session:
             orders = db_session.query(Order).all()
 
             if len(orders) < 1:
                 return {
-                    'code': 404,
-                    'message': 'There are no sales'
-                }, 404
+                           'code': 404,
+                           'message': 'There are no sales'
+                       }, 404
 
             nmbr_itm = 0
             for order in orders:
@@ -54,9 +55,9 @@ def view_total_sales():
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
-            'code': 400,
-            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
     except NoResultFound:
         # Returns an error in case of a integrity constraint not being followed.
         return {
@@ -64,20 +65,21 @@ def view_total_sales():
                    'message': "No sales have been registered"
                }, 400
     return {
-        'numberItems': nmbr_itm
+               'numberItems': nmbr_itm
            }, 200
+
 
 @bp.route('<string:start_date>', methods=['GET', 'OPTIONS'])
 @bp.route('<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @admin_required
-def view_total_sales_by_date(start_date, end_date= None):
+def view_total_sales_by_date(start_date, end_date=None):
     # Later will add the ability to sort by date and Category
     """Endpoint use to compute the total number of items sold between two dates.
 
-         Returns:
-             (str, int) -- Returns a string with the number of sales.
-         """
+    Returns:
+        str, int) -- Returns a string with the number of sales.
+    """
     try:
         with session_scope() as db_session:
             if end_date is not None:
@@ -94,9 +96,9 @@ def view_total_sales_by_date(start_date, end_date= None):
                 orders = db_session.query(Order).filter(Order.date == start_date).all()
             if len(orders) < 1:
                 return {
-                    'code': 404,
-                    'message': 'There are no sales'
-                }, 404
+                           'code': 404,
+                           'message': 'There are no sales'
+                       }, 404
 
             nmbr_itm = 0
             for order in orders:
@@ -106,9 +108,9 @@ def view_total_sales_by_date(start_date, end_date= None):
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
-            'code': 400,
-            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
     except NoResultFound:
         # Returns an error in case of a integrity constraint not being followed.
         return {
@@ -116,116 +118,123 @@ def view_total_sales_by_date(start_date, end_date= None):
                    'message': "No sales have been registered"
                }, 400
     return {
-        'numberItems': nmbr_itm
+               'numberItems': nmbr_itm
            }, 200
+
 
 @bp.route('leaderboard', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @admin_required
 def view_sales_leaderboard():
-        # Later will add the ability to sort by date and Category
-        """Endpoint use to compute the total number of items sold between two dates.
+    # Later will add the ability to sort by date and Category
+    """Endpoint use to compute the total number of items sold between two dates.
 
-             Returns:
-                 (str, int) -- Returns a string with the number of sales.
-             """
-        try:
-            with session_scope() as db_session:
-                # Added filters by date
-                users = db_session.query(User).all()
-                leaderboard = []
-                for user in users:
-                    username = user.username
-                    sales = 0
-                    products = db_session.query(Product).filter(Product.user_id == user.id).all()
-                    for product in products:
-                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id)
-                        for order_line in order_lines:
-                            sales = sales + order_line.quantity
-                    seller = SellerRecord(username, sales)
-                    leaderboard.append(seller)
-                #Sort the entries
-                leaderboard.sort(reverse=True)
-                first_ten = []
-                for i in range(min(10,len(leaderboard))):
-                    first_ten.append(leaderboard[i].to_json())
+     Returns:
+         (str, int) -- Returns a string with the number of sales.
+     """
+    try:
+        with session_scope() as db_session:
+            # Added filters by date
+            users = db_session.query(User).all()
+            leaderboard = []
 
-        except DBAPIError as db_error:
-            # Returns an error in case of a i/sales/ntegrity constraint not being followed.
-            return {
-                       'code': 400,
-                       'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-                   }, 400
-        except NoResultFound:
-            # Returns an error in case of a integrity constraint not being followed.
-            return {
-                       'code': 400,
-                       'message': "No sales have been registered"
-                   }, 400
-        return{
-            "top_sellers": first_ten
-              }, 200
+            for user in users:
+                username = user.username
+                sales = 0
+                products = db_session.query(Product).filter(Product.user_id == user.id).all()
+                for product in products:
+                    order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id)
+                    for order_line in order_lines:
+                        sales = sales + order_line.quantity
+                seller = SellerRecord(username, sales)
+                leaderboard.append(seller)
+                # Sort the entries
+            leaderboard.sort(reverse=True)
+            first_ten = []
+            for i in range(min(10, len(leaderboard))):
+                first_ten.append(leaderboard[i].to_json())
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a i/sales/ntegrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+
+    except NoResultFound:
+        return {
+                   'code': 400,
+                   'message': "No sales have been registered"
+               }, 400
+    return {
+               "top_sellers": first_ten
+           }, 200
+
 
 @bp.route('leaderboard/<string:start_date>', methods=['GET', 'OPTIONS'])
 @bp.route('leaderboard/<string:start_date>/<string:end_date>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 @admin_required
-def view_sales_leaderboard_by_date(start_date, end_date= None):
-        # Later will add the ability to sort by date and Category
-        """Endpoint use to compute the total number of items sold between two dates.
+def view_sales_leaderboard_by_date(start_date, end_date=None):
+    # Later will add the ability to sort by date and Category
+    """Endpoint use to compute the total number of items sold between two dates.
 
-             Returns:
-                 (str, int) -- Returns a string with the number of sales.
-             """
-        try:
-            with session_scope() as db_session:
-                # Added filters by date
-                users = db_session.query(User).all()
-                leaderboard = []
-                for user in users:
-                    username = user.username
-                    sales = 0
-                    products = db_session.query(Product).filter(Product.user_id == user.id).all()
-                    for product in products:
-                        if end_date is not None:
-                            if validate(start_date) and validate(end_date):
-                                pass
-                            else:
-                                return '', 404
-                            order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, OrderLine.date_fulfilled.between(start_date,end_date))
+    Returns:
+        (str, int) -- Returns a string with the number of sales.
+    """
+    try:
+        with session_scope() as db_session:
+            # Added filters by date
+            users = db_session.query(User).all()
+            leaderboard = []
+            for user in users:
+                username = user.username
+                sales = 0
+                products = db_session.query(Product).filter(Product.user_id == user.id).all()
+                for product in products:
+                    if end_date is not None:
+                        if validate(start_date) and validate(end_date):
+                            pass
                         else:
-                            if validate(start_date):
-                                pass
-                            else:
-                                return '', 404
-                            order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, OrderLine.date_fulfilled == start_date)
+                            return '', 404
+                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id,
+                                                                         Order.date.between(start_date,
+                                                                                                          end_date))
+                    else:
+                        if validate(start_date):
+                            pass
+                        else:
+                            return '', 404
+                        order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id,
+                                                                         Order.date == start_date)
 
-                        for order_line in order_lines:
-                            sales = sales + order_line.quantity
-                    seller = SellerRecord(username, sales)
-                    leaderboard.append(seller)
-                #Sort the entries
-                leaderboard.sort()
-                first_ten = []
-                for i in range(min(10,len(leaderboard))):
-                    first_ten.append(leaderboard[i].to_json())
+                    for order_line in order_lines:
+                        sales = sales + order_line.quantity
+                seller = SellerRecord(username, sales)
+                leaderboard.append(seller)
+            # Sort the entries
+            leaderboard.sort(reverse=True)
+            first_ten = []
+            for i in range(min(10, len(leaderboard))):
+                first_ten.append(leaderboard[i].to_json())
 
-        except DBAPIError as db_error:
-            # Returns an error in case of a integrity constraint not being followed.
-            return {
-                       'code': 400,
-                       'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-                   }, 400
-        except NoResultFound:
-            # Returns an error in case of a integrity constraint not being followed.
-            return {
-                       'code': 400,
-                       'message': "No sales have been registered"
-                   }, 400
-        return{
-            "top_sellers": first_ten
-              }, 200
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+    except NoResultFound:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': "No sales have been registered"
+               }, 400
+    return {
+               "top_sellers": first_ten
+           }, 200
+
 
 def validate(date_text):
     try:
