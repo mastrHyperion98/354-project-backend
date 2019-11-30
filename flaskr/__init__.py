@@ -21,7 +21,7 @@ def create_app(test_config=None):
                     user = query.one()
                     g.user = user
                     db_session.expunge(g.user)
-        
+
     from flaskr.routes.users import bp as users
     app.register_blueprint(users) 
 

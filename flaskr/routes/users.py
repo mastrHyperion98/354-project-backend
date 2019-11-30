@@ -185,7 +185,8 @@ def updateSelf():
 
     return g.user.to_json(), 200
 
-@bp.route("review", methods =["POST"])
+@bp.route("review", methods =["POST",'OPTION'])
+@cross_origin(methods=['POST'])
 @login_required
 def review():
 
@@ -253,7 +254,8 @@ def review():
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("replyreview/<string:username>", methods =["POST"])
+@bp.route("replyreview/<string:username>", methods =["POST",'OPTION'])
+@cross_origin(methods=['POST'])
 @login_required
 def replyreview(username):
 
@@ -300,7 +302,8 @@ def replyreview(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
     
-@bp.route("/viewreview/<string:username>", methods =["GET"])
+@bp.route("/viewreview/<string:username>", methods =["GET", 'OPTION'])
+@cross_origin(methods=['GET'])
 @login_required
 def viewreview(username):
 
