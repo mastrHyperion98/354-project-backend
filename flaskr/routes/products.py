@@ -51,8 +51,6 @@ def getProducts():
                     'message': 'Category not found'
                 }, 404
 
-            count = category.products.count()
-
             products = category.products
 
         if 'order' in request.args:
@@ -77,14 +75,6 @@ def getProducts():
             products = db_session.query(Product).filter(or_(*or_instruction))
 
             count = products.count()
-
-        if 'priceOrderFilter' in request.args:
-            priceOrder = request.args['priceOrderFilter']
-
-            if priceOrder == 'lowToHigh':
-                products.order_by(Product.price.first().asc())
-            elif priceOrder == 'highToLow':
-                products.order_by(Product.price.first().desc())
         
         if count is None:
             count = products.count()
