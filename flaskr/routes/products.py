@@ -6,10 +6,13 @@ import jsonschema.exceptions
 import json
 import hashlib
 import time
+import base64
 
 from flask import (
-    Blueprint, g, request, session, current_app, session
+    Blueprint, g, request, session, current_app, session, send_from_directory
 )
+
+from werkzeug.utils import secure_filename
 
 from passlib.hash import argon2
 from sqlalchemy.exc import DBAPIError
@@ -17,13 +20,13 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Price import Price
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
 
 @bp.route('', methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
 def getProducts():
     # Validate that only the valid Query properties from the JSON schema filter_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
@@ -91,10 +94,10 @@ def createProduct():
                       code.
     """
 
+
     # Validate that only the valid Product properties from the JSON schema new_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'new_product.schema.json')
-
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
@@ -104,6 +107,11 @@ def createProduct():
             'code': 400,
             'message': validation_error.message
         }, 400
+
+    try:
+        photos = convert_and_save(request.json['photos'])
+    except:
+        photos = None
 
     try:
         with session_scope() as db_session:
@@ -118,7 +126,9 @@ def createProduct():
                                   tax_id = request.json['taxId'],
                                   brand_id = request.json['brandId'],
                                   condition = request.json['condition'],
-                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5])
+                                  permalink = request.json['name'].lower().translate(Product.permalink_translation_tab) + '-' + md5.hexdigest()[:5],
+                                  photos = photos
+                                  )
 
             # Adds the price to the product
             new_product.price.append(Price(amount=request.json['price']))
@@ -129,6 +139,7 @@ def createProduct():
             db_session.commit()
 
             return new_product.to_json(), 200
+
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.
         return {
