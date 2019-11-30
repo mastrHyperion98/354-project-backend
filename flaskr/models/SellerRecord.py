@@ -5,7 +5,7 @@ class SellerRecord(object):
         self.sales = number_of_sales
         self.username = username
 
-    def __lt__(self, other):
+    def __gt__(self, other):
         return self.sales < other.sales
 
     def to_json(self):
