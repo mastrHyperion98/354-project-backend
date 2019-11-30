@@ -235,7 +235,6 @@ def admin_update_user(username):
         with session_scope() as db_session:
             user = db_session.query(User).filter(User.username == username).one()
             db_session.expunge(user)
-            email = request.json['email']
             for k, v in request.json.items():
                 # if k == password hash password
                 if k == "password":
