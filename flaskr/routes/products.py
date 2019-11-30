@@ -55,6 +55,12 @@ def getProducts():
 
             products = category.products
 
+        if 'order' in request.args:
+            if request.args['order'] == 'desc':
+                products = products.order_by(Product.price.desc())
+            else:
+                products = products.order_by(Product.price.asc())
+
         if 'q' in request.args:
             tokens = request.args['q'].strip().split()
             or_instruction = []
