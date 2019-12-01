@@ -238,7 +238,7 @@ def computeProfit(price, seller_id):
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
     
-@bp.route("/view/<string:type>", methods=['GET', 'OPTION'])
+@bp.route("/view/<string:type>", methods=['GET', 'OPTIONS'])
 @cross_origin(methods='GET')
 @login_required
 def view(type):
