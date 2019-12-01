@@ -212,7 +212,7 @@ def admin_remove(permalink):
 @bp.route('/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET', 'HEAD'])
 @login_required
-def get_product_by_permalink():
+def get_product_by_permalink(permalink):
     """Endpoint to get a product by permalink
 
     Returns:
@@ -228,7 +228,8 @@ def get_product_by_permalink():
         else:
             return '', 404
 
-@bp.route('/uploads/<filename>')
+@bp.route('/uploads/<filename>', methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
 def uploaded_file(filename):
     """Endpoint for accessing uploaded files
     Returns:
