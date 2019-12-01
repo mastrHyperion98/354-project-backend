@@ -6,7 +6,7 @@ import jsonschema.exceptions
 import json
 import hashlib
 import time
-import base64
+
 from flask import (
     Blueprint, g, request, session, current_app, session
 )
@@ -19,7 +19,6 @@ from flaskr.models.Product import Product
 from flaskr.models.Price import Price
 from flaskr.routes.utils import login_required, not_login, cross_origin
 from flaskr.models.Category import Category
-
 
 bp = Blueprint('products', __name__, url_prefix='/products')
 
@@ -135,51 +134,4 @@ def createProduct():
         return {
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
-        }, 400
-
-@bp.route('/<string:permalink>', methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET', 'HEAD'])
-@login_required
-def get_product_by_permalink(permalink):
-    """Endpoint to get a product by permalink
-
-    Returns:
-        (str, int) -- Returns a tuple of the JSON object of the found product and a http status
-                      code.
-    """
-
-    with session_scope() as db_session:
-        product = db_session.query(Product).filter(Product.permalink == permalink.lower()).first()
-
-        if product is not None:
-            return product.to_json(), 200
-        else:
-            return '', 404
-
-@bp.route('/uploads/<filename>', methods=['GET', 'OPTIONS'])
-@cross_origin(methods=['GET'])
-def uploaded_file(filename):
-    """Endpoint for accessing uploaded files
-    Returns:
-    (str) -- Returns the requested file
-    """
-    try:
-        with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
-            try:
-                data = file.read()
-                encoded_data = base64.encodebytes(data)
-                file.close()
-                return encoded_data
-
-            except IOError as error:
-                file.close()
-                return {
-                    'code': 400,
-                    'message': "An unexpected IO error has occurred"
-                }
-    except FileNotFoundError as file_error:
-        #Returns an error message saying file does not exist
-        return{
-            'code': 400,
-            'message': filename + " does not exist"
         }, 400
