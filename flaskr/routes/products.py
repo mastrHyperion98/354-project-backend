@@ -20,7 +20,7 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Brand import Brand
-from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save
+from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save, admin_required
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -156,6 +156,59 @@ def createProduct():
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
 
+@bp.route('/mine', methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET', 'POST', 'HEAD'])
+@login_required
+def myProduct():
+    try:
+        with session_scope() as db_session:
+            # Create a md5 of the time of insertion to be appended to the permalink
+            product = db_session.query(Product).filter(Product.user_id == g.user.id).all()
+
+            list = []
+            for i in product:
+                list.append(i.to_json())
+
+            return{
+                "Products": list
+                  }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+
+@bp.route('/remove/<string:permalink>', methods = ['DELETE', 'OPTIONS'])
+@cross_origin(methods=['DELETE'])
+@admin_required
+def admin_remove(permalink):
+    try:
+        with session_scope() as db_session:
+            product = db_session.query(Product).filter(Product.permalink == permalink)
+
+            if product.count() > 0:
+                db_session.delete(product.one())
+                db_session.commit()
+
+                return {
+                    'code': 200,
+                    'message': 'success! the product with permalink: ' + permalink + ' has been removed'
+                }, 200
+            else:
+                return {
+                    'code': 400,
+                    'message': 'There are no products in the database with the specified id'
+                }, 400
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+
 @bp.route('/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET', 'HEAD'])
 @login_required
@@ -175,17 +228,29 @@ def get_product_by_permalink():
         else:
             return '', 404
 
-
 @bp.route('/uploads/<filename>')
 def uploaded_file(filename):
     """Endpoint for accessing uploaded files
     Returns:
     (str) -- Returns the requested file
     """
+    try:
+        with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
+            try:
+                data = file.read()
+                encoded_data = base64.encodebytes(data)
+                file.close()
+                return encoded_data
 
-    with open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),'rb' ) as file:
-        data = file.read()
-        encoded_data = base64.encodestring(data)
-
-
-    return encoded_data
+            except IOError as error:
+                file.close()
+                return {
+                    'code': 400,
+                    'message': "An unexpected IO error has occurred"
+                }
+    except FileNotFoundError as file_error:
+        #Returns an error message saying file does not exist
+        return{
+            'code': 400,
+            'message': filename + " does not exist"
+        }, 400

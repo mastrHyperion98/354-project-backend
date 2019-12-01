@@ -86,4 +86,3 @@ def convert_and_save(b64_string):
         fh.write(imgdata)
 
     return fileid
-
