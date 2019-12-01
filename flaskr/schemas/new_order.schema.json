@@ -3,16 +3,12 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "order",
     "type": "object",
-    "required": [ "fullName", "line1", "city", "province", "country", "postalCode", "phone", "isExpressShipping" ],
+    "required": [ "fullName", "line1", "city", "province", "country", "postalCode", "isExpressShipping" ],
     "additionalProperties": false,
     "properties": {
         "fullName": {
             "type": "string",
             "description": "Full name of recipient"
-        },
-        "phone": {
-            "type": "string",
-            "description": "Phone number of the recipient"
         },
         "line1": {
             "type": "string",

@@ -163,7 +163,7 @@ def create_order():
                     'message': 'User cannot checkout an empty cart'
                 }, 400
 
-            order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'], phone=request.json['phone'])
+            order = Order(user_id=g.user.id, full_name=request.json['fullName'], line1=request.json['line1'], is_express_shipping=request.json['isExpressShipping'], city=request.json['city'], country=request.json['country'])
 
             if 'line2' in request.json:
                 order.line2 = request.json['line2']
@@ -237,7 +237,7 @@ def computeProfit(price, seller_id):
                    'code': 400,
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
-    
+
 @bp.route("/view/<string:type>", methods=['GET', 'OPTIONS'])
 @cross_origin(methods='GET')
 @login_required
@@ -289,7 +289,7 @@ def view(type):
                             }
                             line.append(myline)
 
-                
+
                 itemelement={
                     "order": myitem,
                     "order_line": line
