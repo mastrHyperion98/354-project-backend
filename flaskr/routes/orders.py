@@ -197,12 +197,12 @@ def create_order():
             for v in dict_sellers_items_sold.values():
                 items_sold= []
                 for item_sold in v['items']:
-                    email_line = '%d x %s %.2f' % (item_sold[1], item_sold[0].name, item_sold[0].price.first().amount)
+                    email_line = '%d x %s %.2f' % (item_sold[1], item_sold[0].name, item_sold[0].price)
                     items_sold.append(email_line)
                     items_bought.append(email_line)
                     item_sold[0].quantity -= item_sold[1]
                     # create a revenue entry for this product sold.
-                    profits = computeProfit(item_sold[0].price.first().amount, v['seller'].id)
+                    profits = computeProfit(item_sold[0].price, v['seller'].id)
                     revenue_entry = Revenue(seller_id= v['seller'].id, product_id=item_sold[0].id, order_id=order.id, profit=profits, purchased_on=order.date)
                     db_session.add(revenue_entry)
                     db_session.commit()
