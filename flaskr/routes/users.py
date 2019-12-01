@@ -18,6 +18,7 @@ from flaskr.db import session_scope
 from flaskr.email import send
 from flaskr.models.User import User
 from flaskr.models.Review import Review
+from flaskr.models.Product import Product
 from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.routes.utils import login_required, not_login, cross_origin
@@ -334,15 +335,55 @@ def viewreview(username):
         # Check if cart id exists with cart items
         with session_scope() as db_session:
             rev_user_id = db_session.query(User).filter(User.username == username).one().id
-            myreview = db_session.query(Review)
+            myreview = db_session.query(Review).filter(User.id == rev_user_id)
 
             array=[]
+            score = 0;
+            num_reviews = len(myreview.all());
             for item in myreview:
-                if item.user_id == rev_user_id:
-                    array.append(item.to_json())
+                score = score + item.score
+                array.append(item.to_json())
+
+            if num_reviews != 0:
+                score = "%.2f" % (score / num_reviews)
 
             return {
                 "code": 200,
+                "score": score,
+                "message": array
+            }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': 'error: ' + db_error.args[0]
+        }, 400
+
+@bp.route("/viewreview/product/<string:permalink>", methods =["GET", 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+def viewreview_product(permalink):
+
+    try:
+        # Check if cart id exists with cart items
+        with session_scope() as db_session:
+            product = db_session.query(Product).filter(Product.permalink == permalink).one().id
+            myreview = db_session.query(Review).filter(Review.product_id == product)
+
+            array=[]
+            score = 0;
+            num_reviews = len(myreview.all());
+            for item in myreview:
+                score = score + item.score
+                array.append(item.to_json())
+
+            if num_reviews != 0:
+                score = "%.2f" % (score / num_reviews)
+
+            return {
+                "code": 200,
+                "score": score,
                 "message": array
             }, 200
 

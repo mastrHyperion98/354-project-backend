@@ -6,10 +6,6 @@
     "required": [ "comment", "score" ],
     "additionalProperties": false,
     "properties": {
-        "user_id": {
-            "type": "number",
-            "description": "user_id to be saved"
-        }, 
         "product_id": {
             "type": "number",
             "description": "product_id to be saved"
