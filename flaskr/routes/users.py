@@ -102,7 +102,7 @@ def registerUser():
 
             # TODO Send confirmation email, for now only sending welcoming email.
             send(current_app.config['SMTP_USERNAME'], new_user.email, "Welcome to 354TheStars!", "<html><body><p>Welcome to 354TheStars!</p></body></html>" ,"Welcome to 354TheStars!")
-            
+
             if 'cart_id' in session:
                 ephemeral_cart = db_session.query(Cart).filter(Cart.id == session['cart_id']).first()
 
@@ -121,7 +121,7 @@ def registerUser():
                                 cart_line.quantity += ephemeral_cart.quantity
 
                 session.pop('cart_id')
-                
+
             return new_user.to_json(), 200
     # else:
     #     new_user.cart = Cart(user_id=new_user.id)
@@ -252,8 +252,8 @@ def admin_update_user(username):
             'code': 400,
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
-    
-@bp.route("review", methods =["POST",'OPTIONS'])
+
+@bp.route('review', methods =['POST', 'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def review():
@@ -261,7 +261,7 @@ def review():
     # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'review.schema.json')
-    
+
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
@@ -275,45 +275,34 @@ def review():
     try:
         # Check if cart id exists with cart items
         with session_scope() as db_session:
-
-            product_id = request.json.get("product_id")
-            comment = request.json.get("comment")
-            score = request.json.get("score")
-
             # check if user has bought this product id
             queryOrder = db_session.query(Order).filter(Order.user_id == g.user.id)
 
-            count = 0
+            product = None
             for item in queryOrder:
                 queryOrderLine = db_session.query(OrderLine).filter(OrderLine.order_id == item.id)
                 for lineitem in queryOrderLine:
-                    if lineitem.product_id == product_id:
-                        count = count + 1
+                    if lineitem.product.permalink == request.json.get("productPermalink").lower():
+                        product = lineitem.product
 
 
-            if count > 0:
-                if score <= 5 and score >= 0:
-                    myreview = Review(user_id=g.user.id,
-                            product_id=product_id,
-                            comment = comment,
-                            score = score
-                            )
-                    db_session.add(myreview)
-                    #db_session.flush()
+            if product is not None
+                myreview = Review(user_id = g.user.id,
+                        product_id = product.id,
+                        comment = request.json.get("comment"),
+                        score = request.json.get("score")
+                        )
+                db_session.add(myreview)
+                #db_session.flush()
 
-                    return {
-                        "code": 200,
-                        "message": myreview.to_json()
-                    }, 200
-                else:
-                    return {
-                        "code": 400,
-                        "message": "Score has to be in range 0 to 5"
-                    }, 400
+                return {
+                    "code": 200,
+                    "message": myreview.to_json()
+                }, 200
             else:
                 return {
                     "code": 400,
-                    "message": "This user can't post review because he hasn't bought any of these products"
+                    "message": "User hasn't bought this product"
                 }, 400
 
     except DBAPIError as db_error:
@@ -370,7 +359,7 @@ def replyreview(username):
             'code': 400,
             'message': 'error: ' + db_error.args[0]
         }, 400
-    
+
 @bp.route("/viewreview/<string:username>", methods =["GET", 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
