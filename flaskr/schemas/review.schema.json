@@ -6,17 +6,24 @@
     "required": [ "comment", "score" ],
     "additionalProperties": false,
     "properties": {
-        "product_id": {
-            "type": "number",
-            "description": "product_id to be saved"
+        "userEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Email of the user"
+        },
+        "productPermalink": {
+            "type": "string",
+            "description": "Permalink of the product being commented on"
         },
         "comment": {
             "type": "string",
-            "description": "comment"
+            "description": "Comment text"
         },
         "score": {
             "type": "number",
-            "description": "rating"
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Rating"
         }
     }
 }
