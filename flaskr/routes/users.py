@@ -253,7 +253,7 @@ def admin_update_user(username):
             'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
         }, 400
     
-@bp.route("review", methods =["POST",'OPTION'])
+@bp.route("review", methods =["POST",'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def review():
@@ -323,7 +323,7 @@ def review():
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("replyreview/<string:username>", methods =["POST",'OPTION'])
+@bp.route("replyreview/<string:username>", methods =["POST",'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def replyreview(username):
@@ -371,7 +371,7 @@ def replyreview(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
     
-@bp.route("/viewreview/<string:username>", methods =["GET", 'OPTION'])
+@bp.route("/viewreview/<string:username>", methods =["GET", 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def viewreview(username):
