@@ -7,9 +7,11 @@ class Brand(Base):
 
     id = Column(Integer, Sequence('seq_brand_id'), primary_key=True)
     name = Column(String)
+    permalink = Column(String)
 
     def to_json(self):
         return {
             'id': self.id,
-            'name': self.name
+            'name': self.name,
+            'permalink': self.permalink
         }

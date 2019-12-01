@@ -15,7 +15,6 @@ from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.models.Order import OrderLine
-from flaskr.models.Price import Price
 from flaskr.models.Order import Order
 from flaskr.models.Order import OrderStatus
 from flaskr.models.Cart import Cart, CartLine

@@ -32,7 +32,18 @@ On Windows:
 #### Install the dependencies
 
 
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
+
+If you're on macOS you may run into an issue with the above command when it attempts to install psycopg2. For virtual environments psycopg2's installation needs to link against a non-native version of openssl.
+
+To do this run:
+
+    # This command assumes you have homebrew installed.
+    brew install openssl
+
+Then run:
+
+    sudo env LDFLAGS="-I/usr/local/opt/openssl include -L/usr/local/opt/openssl/lib" pip3 install -r requirements.txt
 
 ### Running the application (Development environment only)
 

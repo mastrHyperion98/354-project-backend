@@ -17,7 +17,7 @@ from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.models.User import User
 from flaskr.models.Product import Product
-
+from flaskr.models.Revenue import Revenue
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in
 from datetime import date
@@ -197,14 +197,114 @@ def create_order():
             for v in dict_sellers_items_sold.values():
                 items_sold= []
                 for item_sold in v['items']:
-                    email_line = '%d x %s %.2f' % (item_sold[1], item_sold[0].name, item_sold[0].price.first().amount)
+                    email_line = '%d x %s %.2f' % (item_sold[1], item_sold[0].name, item_sold[0].price)
                     items_sold.append(email_line)
                     items_bought.append(email_line)
                     item_sold[0].quantity -= item_sold[1]
+                    # create a revenue entry for this product sold.
+                    profits = computeProfit(item_sold[0].price, v['seller'].id)
+                    revenue_entry = Revenue(seller_id= v['seller'].id, product_id=item_sold[0].id, order_id=order.id, profit=profits, purchased_on=order.date)
+                    db_session.add(revenue_entry)
+                    db_session.commit()
+
                 send(current_app.config['SMTP_USERNAME'], v['seller'].email, "Sale Notification", "<html><body><p>Here is an overview of your sale:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_sold) ,'Here is an overview of your sale:\n%s'% '\n'.join(items_sold))
 
             send(current_app.config['SMTP_USERNAME'], g.user.email, "Purchase Notification", "<html><body><p>Here is an overview of your purchase:<ul><li>%s</li></ul></p></body></html>"%'</li><li>'.join(items_bought) ,'Here is an overview of your purchase:\n%s'% '\n'.join(items_bought))
             return order.to_json(), 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+
+def computeProfit(price, seller_id):
+    try:
+        with session_scope() as db_session:
+            revenue_list = db_session.query(Revenue).filter(Revenue.seller_id == seller_id).all()
+            fee_new = 0.03
+            fee_normal = 0.08
+
+            if len(revenue_list) <= 10:
+                return "%.2f" % (float(price) * float(fee_new))
+            else:
+                return "%.2f" % (float(price) * float(fee_normal))
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+               }, 400
+    
+@bp.route("/view/<string:type>", methods=['GET', 'OPTIONS'])
+@cross_origin(methods='GET')
+@login_required
+def view(type):
+
+    try:
+        with session_scope() as db_session:
+
+            queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
+            queryOrderLine = db_session.query(OrderLine)
+            totalitem =[]
+
+            for item in queryOrder:
+                queryLine = item.order_lines
+                myitem = item.to_json()
+
+                line=[]
+                if type=="complete":
+                    for itemline in queryLine:
+                        if itemline.order_id == item.id and itemline.date_fulfilled != None:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+                elif type=="pending":
+                    for itemline in queryOrderLine:
+                        if itemline.order_id == item.id and itemline.date_fulfilled is None:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+                elif type=="all":
+                    for itemline in queryOrderLine:
+                        if itemline.order_id == item.id:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+
+                
+                itemelement={
+                    "order": myitem,
+                    "order_line": line
+                }
+                if len(line) > 0:
+                    totalitem.append(itemelement)
+            totalitem = {
+                "allitems": totalitem
+            }
+            return totalitem, 200
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
 
     except DBAPIError as db_error:
         # Returns an error in case of a integrity constraint not being followed.

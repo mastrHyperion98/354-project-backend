@@ -49,10 +49,16 @@ def create_app(test_config=None):
     from flaskr.routes.account_recover import bp as recovery
     app.register_blueprint(recovery)
     
-    from flaskr.routes.save_for_later import bp as save_for_later
-    app.register_blueprint(save_for_later)
+    from flaskr.routes.orders import bp as orders
+    app.register_blueprint(orders)
     
     from flaskr.routes.addresses import bp as addresses
     app.register_blueprint(addresses)
 
+    from flaskr.routes.sales import bp as sales
+    app.register_blueprint(sales)
+
+    from flaskr.routes.revenue import bp as revenue
+    app.register_blueprint(revenue)
+    
     return app

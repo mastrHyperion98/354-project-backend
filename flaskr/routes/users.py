@@ -21,7 +21,7 @@ from flaskr.models.Review import Review
 from flaskr.models.Product import Product
 from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
-from flaskr.routes.utils import login_required, not_login, cross_origin
+from flaskr.routes.utils import login_required, not_login, cross_origin, admin_required
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -92,6 +92,7 @@ def registerUser():
         with session_scope() as db_session:
             new_user = User(first_name=request.json['firstName'], last_name=request.json['lastName'], username=request.json['username'], email=request.json['email'], password=argon2.hash(request.json['password']))
             new_user.reset_password = False
+            new_user.is_admin = False
             db_session.add(new_user)
 
             # Commit new user to database making sure of the integrity of the relations.
@@ -209,14 +210,18 @@ def updateSelf():
 
     return g.user.to_json(), 200
 
-@bp.route("review", methods =["POST",'OPTIONS'])
-@cross_origin(methods=['POST'])
-@login_required
-def review():
+@bp.route('/update/<string:username>', methods=['PATCH', 'OPTIONS'])
+@cross_origin(methods=['PATCH', 'GET'])
+@admin_required
+def admin_update_user(username):
+    """"Endpoints to handle updating an authenticate user.
+    Returns:
+        str -- Returns a refreshed instance of user as a JSON or an JSON containing any error encountered.
+    """
 
-    # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
+    # Validate that only the valid User properties from the JSON schema update_self.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
-    schema_filepath = os.path.join(schemas_direcotry, 'review.schema.json')
+    schema_filepath = os.path.join(schemas_direcotry, 'admin_update_user.schema.json')
     try:
         with open(schema_filepath) as schema_file:
             schema = json.loads(schema_file.read())
@@ -225,7 +230,48 @@ def review():
         return {
             'code': 400,
             'message': validation_error.message
-        }
+        }, 400
+
+    try:
+        with session_scope() as db_session:
+            user = db_session.query(User).filter(User.username == username).one()
+            db_session.expunge(user)
+            for k, v in request.json.items():
+                # if k == password hash password
+                if k == "password":
+                    user.__dict__[k] = argon2.hash(v)
+                    user.reset_password = False
+                else:
+                    user.__dict__[k] = v
+            db_session.merge(user)
+
+        return user.to_json(), 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
+    
+@bp.route("review", methods =["POST",'OPTIONS'])
+@cross_origin(methods=['POST'])
+@login_required
+def review():
+
+    # Load json data from json schema to variable user_info.json 'SCHEMA_FOLDER'
+    schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
+    schema_filepath = os.path.join(schemas_direcotry, 'review.schema.json')
+    
+    try:
+        with open(schema_filepath) as schema_file:
+            schema = json.loads(schema_file.read())
+            validate(instance=request.json, schema=schema, format_checker=draft7_format_checker)
+    except jsonschema.exceptions.ValidationError as validation_error:
+        return {
+            'code': 400,
+            'message': validation_error.message
+        }, 400
 
     try:
         # Check if cart id exists with cart items
