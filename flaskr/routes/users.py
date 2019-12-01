@@ -287,7 +287,7 @@ def review():
                         product = lineitem.product
 
 
-            if product is not None
+            if product is not None:
                 myreview = Review(user_id = g.user.id,
                         product_id = product.id,
                         comment = request.json.get("comment"),
