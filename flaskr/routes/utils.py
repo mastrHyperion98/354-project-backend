@@ -1,3 +1,5 @@
+import uuid
+import base64
 from functools import wraps, update_wrapper
 from flask import g, session, make_response, request, current_app
 from flaskr.models.User import User
@@ -53,3 +55,17 @@ def is_logged_in():
         return True
     else:
         return False
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
+
+def convert_and_save(b64_string):
+    imgdata = base64.decodebytes(b64_string.encode())
+    fileid = str(uuid.uuid4())
+    file_name = os.path.join(current_app.config['UPLOAD_FOLDER'], fileid)
+
+    with open(file_name, "wb") as fh:
+        fh.write(imgdata)
+
+    return fileid
