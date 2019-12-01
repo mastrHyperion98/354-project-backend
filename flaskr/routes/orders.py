@@ -237,3 +237,78 @@ def computeProfit(price, seller_id):
                    'code': 400,
                    'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                }, 400
+    
+@bp.route("/view/<string:type>", methods=['GET', 'OPTIONS'])
+@cross_origin(methods='GET')
+@login_required
+def view(type):
+
+    try:
+        with session_scope() as db_session:
+
+            queryOrder = db_session.query(Order).filter(Order.user_id == session['user_id'])
+            queryOrderLine = db_session.query(OrderLine)
+            totalitem =[]
+
+            for item in queryOrder:
+                queryLine = item.order_lines
+                myitem = item.to_json()
+
+                line=[]
+                if type=="complete":
+                    for itemline in queryLine:
+                        if itemline.order_id == item.id and itemline.date_fulfilled != None:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+                elif type=="pending":
+                    for itemline in queryOrderLine:
+                        if itemline.order_id == item.id and itemline.date_fulfilled is None:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+                elif type=="all":
+                    for itemline in queryOrderLine:
+                        if itemline.order_id == item.id:
+                            myline = {
+                                "id": itemline.order_id,
+                                "product_id": itemline.product_id,
+                                "quantity": itemline.quantity,
+                                "fulfilled": itemline.date_fulfilled,
+                                "price": float(itemline.cost)
+                            }
+                            line.append(myline)
+
+                
+                itemelement={
+                    "order": myitem,
+                    "order_line": line
+                }
+                if len(line) > 0:
+                    totalitem.append(itemelement)
+            totalitem = {
+                "allitems": totalitem
+            }
+            return totalitem, 200
+
+        return {
+            'code': 200,
+            'message': 'success'
+        }, 200
+
+    except DBAPIError as db_error:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+            'code': 400,
+            'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
+        }, 400
