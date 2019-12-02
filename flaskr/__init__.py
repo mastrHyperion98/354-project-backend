@@ -6,7 +6,7 @@ from flaskr.models.User import User
 def create_app(test_config=None):
     #create and configure app
     app = Flask(__name__, instance_relative_config=True)
-    
+
     if test_config is None:
         app.config.from_object(Config)
     else:
@@ -23,7 +23,10 @@ def create_app(test_config=None):
                     db_session.expunge(g.user)
 
     from flaskr.routes.users import bp as users
-    app.register_blueprint(users) 
+    app.register_blueprint(users)
+
+    from flaskr.routes.reviews import bp as reviews
+    app.register_blueprint(reviews)
 
     from flaskr.routes.carts import bp as carts
     app.register_blueprint(carts)
@@ -32,7 +35,7 @@ def create_app(test_config=None):
     app.register_blueprint(orders)
 
     from flaskr.routes.products import bp as products
-    app.register_blueprint(products) 
+    app.register_blueprint(products)
 
     from flaskr.routes.auth import bp as auth
     app.register_blueprint(auth)
@@ -48,10 +51,10 @@ def create_app(test_config=None):
 
     from flaskr.routes.account_recover import bp as recovery
     app.register_blueprint(recovery)
-    
+
     from flaskr.routes.orders import bp as orders
     app.register_blueprint(orders)
-    
+
     from flaskr.routes.addresses import bp as addresses
     app.register_blueprint(addresses)
 
@@ -60,5 +63,5 @@ def create_app(test_config=None):
 
     from flaskr.routes.revenue import bp as revenue
     app.register_blueprint(revenue)
-    
+
     return app
