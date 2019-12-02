@@ -84,29 +84,24 @@ def review():
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route('/reviewable/<string:permalink>', methods=['GET', 'OPTIONS'])
+@bp.route('/able/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
-def can_review_product():
+def can_review_product(permalink):
     # Check if cart id exists with cart items
     with session_scope() as db_session:
         # check if user has bought this product id
         queryOrder = db_session.query(Order).filter(Order.user_id == g.user.id)
 
-        product = None
         for item in queryOrder:
             queryOrderLine = db_session.query(OrderLine).filter(OrderLine.order_id == item.id)
             for lineitem in queryOrderLine:
-                if lineitem.product.permalink == request.json.get("productPermalink").lower():
-                    product = lineitem.product
+                if lineitem.product.permalink == permalink.lower():
+                    return '', 200
 
+        return '', 400
 
-        if product is not None:
-            return '', 200
-        else:
-            return '', 400
-
-@bp.route("/reply/<string:username>", methods=['POST', 'OPTIONS'])
+@bp.route('/reply/<string:username>', methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def replyreview(username):
@@ -154,7 +149,7 @@ def replyreview(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("/view/<string:username>", methods=['GET', 'OPTIONS'])
+@bp.route('/view/<string:username>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def viewreview(username):
@@ -188,7 +183,7 @@ def viewreview(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("/view/product/<string:permalink>", methods=['GET', 'OPTIONS'])
+@bp.route('/view/product/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def viewreview_product(permalink):
