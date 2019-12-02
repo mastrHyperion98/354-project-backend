@@ -23,7 +23,7 @@ from flaskr.models.Review import Review
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in, admin_required
 from datetime import datetime, timedelta
-from flaskr.routes.reviews import viewreview
+from flaskr.routes.users import viewreview
 from flaskr.models.ProductRecord import ProductRecord
 
 bp = Blueprint('trending', __name__, url_prefix='/trending')
@@ -41,31 +41,23 @@ def view_trending_by_week():
         try:
             with session_scope() as db_session:
                 # Added filters by date
-                end_date = datetime.now
+                end_date = datetime.today()
                 n = 7
-                week = datetime.now() - timedelta(days=n)
+                week = (end_date - timedelta(days=n)).date()
                 users = db_session.query(User).all()
                 trending = []
                 for user in users:
-                    # username = user.username
-                    # score = viewreview(username).json['score']
-                    # myRev = db_session.query(Review).filter(Review.user_id == user_id)
-                    user_id = user.id
-                    my_rev = db_session.query(Review).filter(Review.user_id == user_id).first()
-                    score = float(my_rev.score)
-                    # score = rate.score
-                    # my_score = rev_user_id.viewreview(rev_user_id)
-                    if score is None:
-                        return{
-                            'code': 404,
-                            'message': "None is found"
-                        }
-                    if score > 0.5:
+                    username = user.username
+                    my_rev = viewreview(username)
+                    score = float(my_rev.json['score'])
+
+                    #score 0 means unreviewed seller
+                    if score >= 3.5 or score == 0:
                         products = db_session.query(Product).filter(Product.user_id == user.id).all()
                         for product in products:
                             product_permalink = product.permalink
                             sales = 0
-                            order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, OrderLine.date_fulfilled.between(end_date,week))
+                            order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, Order.date.between(week, end_date))
                             for order_line in order_lines:
                                 sales = sales + order_line.quantity
                             product = ProductRecord(product_permalink, sales)

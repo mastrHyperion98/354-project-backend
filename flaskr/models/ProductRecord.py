@@ -1,5 +1,5 @@
 
-class SellerRecord(object):
+class ProductRecord(object):
 
     def __init__(self, product_permalink, number_of_sales):
         self.sales = number_of_sales
