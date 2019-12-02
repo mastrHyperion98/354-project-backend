@@ -151,7 +151,6 @@ def replyreview(username):
 
 @bp.route('/view/<string:username>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
-@login_required
 def viewreview(username):
 
     try:
@@ -185,7 +184,6 @@ def viewreview(username):
 
 @bp.route('/view/product/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
-@login_required
 def viewreview_product(permalink):
     try:
         # Check if cart id exists with cart items
