@@ -22,7 +22,6 @@ class Order(Base):
     is_express_shipping = Column(Boolean, default=False)
     city = Column(String)
     country = Column(String)
-    phone = Column(String)
     total_cost = Column(Numeric)
     user = relationship('User')
 
@@ -45,7 +44,6 @@ class Order(Base):
             'line2': self.line2,
             'city': self.city,
             'country': self.country,
-            'phone': self.phone,
             'total_cost': str(self.total_cost),
             'orderLines': [ line.to_json() for line in self.order_lines]
         }
