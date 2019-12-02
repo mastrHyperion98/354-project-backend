@@ -23,9 +23,9 @@ from flaskr.models.Order import Order, OrderLine, OrderStatus
 from flaskr.models.Cart import Cart, CartLine
 from flaskr.routes.utils import login_required, not_login, cross_origin, admin_required
 
-bp = Blueprint('users', __name__, url_prefix='/reviews')
+bp = Blueprint('reviews', __name__, url_prefix='/reviews')
 
-@bp.route('', methods =['POST', 'OPTIONS'])
+@bp.route('', methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def review():
@@ -84,7 +84,29 @@ def review():
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("/reply/<string:username>", methods =["POST",'OPTIONS'])
+@bp.route('/reviewable/<string:permalink>', methods=['GET', 'OPTIONS'])
+@cross_origin(methods=['GET'])
+@login_required
+def can_review_product():
+    # Check if cart id exists with cart items
+    with session_scope() as db_session:
+        # check if user has bought this product id
+        queryOrder = db_session.query(Order).filter(Order.user_id == g.user.id)
+
+        product = None
+        for item in queryOrder:
+            queryOrderLine = db_session.query(OrderLine).filter(OrderLine.order_id == item.id)
+            for lineitem in queryOrderLine:
+                if lineitem.product.permalink == request.json.get("productPermalink").lower():
+                    product = lineitem.product
+
+
+        if product is not None:
+            return '', 200
+        else:
+            return '', 400
+
+@bp.route("/reply/<string:username>", methods=['POST', 'OPTIONS'])
 @cross_origin(methods=['POST'])
 @login_required
 def replyreview(username):
@@ -132,7 +154,7 @@ def replyreview(username):
             'message': 'error: ' + db_error.args[0]
         }, 400
 
-@bp.route("/view/<string:username>", methods =["GET", 'OPTIONS'])
+@bp.route("/view/<string:username>", methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
 @login_required
 def viewreview(username):
@@ -144,8 +166,8 @@ def viewreview(username):
             myreview = db_session.query(Review).filter(User.id == rev_user_id)
 
             array=[]
-            score = 0;
-            num_reviews = len(myreview.all());
+            score = 0
+            num_reviews = len(myreview.all())
             for item in myreview:
                 score = score + item.score
                 array.append(item.to_json())
@@ -170,7 +192,6 @@ def viewreview(username):
 @cross_origin(methods=['GET'])
 @login_required
 def viewreview_product(permalink):
-
     try:
         # Check if cart id exists with cart items
         with session_scope() as db_session:
