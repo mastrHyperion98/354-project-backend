@@ -194,8 +194,8 @@ def viewreview_product(permalink):
             myreview = db_session.query(Review).filter(Review.product_id == product)
 
             array=[]
-            score = 0;
-            num_reviews = len(myreview.all());
+            score = 0
+            num_reviews = len(myreview.all())
             for item in myreview:
                 score = score + item.score
                 array.append(item.to_json())
