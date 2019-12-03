@@ -23,7 +23,7 @@ from flaskr.models.Review import Review
 from flaskr.email import send
 from flaskr.routes.utils import login_required, not_login, cross_origin, is_logged_in, admin_required
 from datetime import datetime, timedelta
-from flaskr.routes.users import viewreview
+from flaskr.routes.reviews import viewreview
 from flaskr.models.ProductRecord import ProductRecord
 
 bp = Blueprint('trending', __name__, url_prefix='/trending')
