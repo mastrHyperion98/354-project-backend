@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "user_info",
     "type": "object",
-    "required": [ "cart_id", "status_id", "full_name", "line1", "city", "country", "phone" ],
+    "required": [ "cart_id", "status_id", "full_name", "line1", "city", "country" ],
     "additionalProperties": false,
     "properties": {
         "cart_id": {
@@ -33,10 +33,6 @@
         "country": {
             "type": "string",
             "description": "country"
-        },
-        "phone": {
-            "type": "string",
-            "description": "phone"
         },
         "promotion_code_id": {
             "type": "number",

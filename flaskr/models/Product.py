@@ -8,7 +8,6 @@ from flaskr.db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Sequence, Numeric
 from sqlalchemy.dialects.postgresql import JSON, JSONB
 import flaskr.models.Brand
-import flaskr.models.Price
 import flaskr.models.Tax
 from flaskr.routes.utils import encode_and_return
 
@@ -32,9 +31,9 @@ class Product(Base):
     category = relationship('Category')
     brand_id = Column(Integer, ForeignKey('brand.id'))
     user = relationship('User')
-    price = relationship('Price', order_by='desc(Price.id)', lazy='dynamic')
     tax = relationship('Tax')
     condition = Column(String)
+    price = Column(Numeric)
 
     permalink_translation_tab = str.maketrans(' ()/_.~', '-------')
 
@@ -58,7 +57,7 @@ class Product(Base):
             'description': self.description,
             'quantity': self.quantity,
             'category': self.category.to_json(),
-            'price': self.price.first().to_json(),
+            'price': str(self.price),
             'condition': self.condition,
             'sellerInfo': {
                 'username': self.user.username,

@@ -1,0 +1,21 @@
+{
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "adminUpdateUser",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "password": {
+            "type": "string",
+            "description": "User's password"
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        },
+        "isAdmin": {
+            "type": "boolean",
+            "description": "Make user Admin"
+        }
+    }
+}
