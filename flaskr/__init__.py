@@ -63,5 +63,8 @@ def create_app(test_config=None):
 
     from flaskr.routes.revenue import bp as revenue
     app.register_blueprint(revenue)
+    
+    from flaskr.routes.trending import bp as trending
+    app.register_blueprint(trending)
 
     return app
