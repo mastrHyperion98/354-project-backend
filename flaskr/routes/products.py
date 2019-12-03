@@ -231,10 +231,10 @@ def get_product_by_permalink(permalink):
         else:
             return '', 404
 
-@bp.route('/delete/<int:product_id>', methods=[ 'DELETE', 'OPTIONS' ])
+@bp.route('/delete/<string:permalink>', methods=[ 'DELETE', 'OPTIONS' ])
 @cross_origin(methods=[ 'DELETE' ])
 @login_required
-def delete_product(product_id):
+def delete_product(permalink):
     """Endpoints to handle updating an existing product.
     Returns:
         str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
@@ -243,24 +243,16 @@ def delete_product(product_id):
     try:
         with session_scope() as db_session:
             # Retrieve product from database
-            query = db_session.query(Product).filter(Product.id == product_id)
+            query = db_session.query(Product).filter(Product.permalink == permalink, Product.user_id == g.user.id)
             
             if query.count() != 1:
                 return {
                     'code': 400,
-                    'message': 'Error - there should be only one product per id'
+                    'message': 'Error - this product does not exist'
                 }, 400
             
             product = query.one()
 
-            # Check that user id == product creator id
-            # TODO: Allow admins to delete any product
-            if (g.user.id != product.user_id):
-                return {
-                    'code': 400,
-                    'message': 'User does not have permission to delete this product'
-                }, 400
-            
             # Remove photo(s)
             if product.photos is not None:
                 for photo in product.photos.values():
@@ -309,7 +301,7 @@ def edit_product(permalink):
             if query.count() != 1:
                 return {
                     'code': 400,
-                    'message': 'Error - there should be only one product per id'
+                    'message': 'Error - this product does not exist'
                 }, 400
             
             product = query.one()
