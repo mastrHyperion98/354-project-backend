@@ -13,7 +13,7 @@ def send(sender_email, receiver_email, subject, html_message, plain_text_message
         html_message {string} -- Message formatted in a HTML format
         plain_text_message {string} -- Message formatter in plain text
     """
-    return
+
     context = ssl.create_default_context()
     with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as server:
 
