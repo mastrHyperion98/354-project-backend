@@ -55,13 +55,12 @@ def view_trending_by_week():
                     if score >= 3.5 or score == 0:
                         products = db_session.query(Product).filter(Product.user_id == user.id).all()
                         for product in products:
-                            product_permalink = product.permalink
                             sales = 0
                             order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, Order.date.between(week, end_date))
                             for order_line in order_lines:
                                 sales = sales + order_line.quantity
-                            product = ProductRecord(product_permalink, sales)
-                            trending.append(product)
+                            product_to_add = ProductRecord(product.to_json(), sales)
+                            trending.append(product_to_add)
                     #Sort the entries
                     trending.sort(reverse=True)
                     first_ten = []

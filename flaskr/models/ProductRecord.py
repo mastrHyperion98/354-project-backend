@@ -1,9 +1,9 @@
 
 class ProductRecord(object):
 
-    def __init__(self, product_permalink, number_of_sales):
+    def __init__(self, product, number_of_sales):
         self.sales = number_of_sales
-        self.product_permalink = product_permalink
+        self.product = product
 
     def __gt__(self, other):
         return self.sales > other.sales
@@ -15,6 +15,6 @@ class ProductRecord(object):
               dict -- JSON representation of the product
           """
         return {
-            'product_permalink': self.product_permalink,
+            'product': self.product,
             'sales': self.sales
         }
