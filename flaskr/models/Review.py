@@ -27,7 +27,7 @@ class Review(Base):
             dict -- JSON representation of the order
         """
         return {
-            'product_id': self.product_id,
+            'username': self.user.username,
             'comment': self.comment,
             'score': self.score,
             'reply': self.reply
