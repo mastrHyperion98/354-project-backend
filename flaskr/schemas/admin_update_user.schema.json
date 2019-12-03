@@ -13,7 +13,7 @@
             "type": "string",
             "format": "email"
         },
-        "isAdmin": {
+        "is_admin": {
             "type": "boolean",
             "description": "Make user Admin"
         }
