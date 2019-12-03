@@ -65,6 +65,7 @@ def review():
                         score = request.json.get("score")
                         )
                 db_session.add(myreview)
+                db_session.commit()
                 #db_session.flush()
 
                 return {
