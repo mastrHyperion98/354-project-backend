@@ -19,7 +19,6 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy import or_
 from flaskr.db import session_scope
 from flaskr.models.Product import Product
-from flaskr.models.Price import Price
 from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save, delete_file, admin_required
 from flaskr.models.Brand import Brand
 
@@ -285,6 +284,10 @@ def delete_product(product_id):
 @login_required
 def edit_product(product_id):
     """Endpoints to handle updating an existing product.
+    Returns:
+        str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
+    """
+    
     # Validate that only the valid Product properties from the JSON schema update_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
