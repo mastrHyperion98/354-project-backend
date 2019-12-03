@@ -21,7 +21,7 @@ from flaskr.db import session_scope
 from flaskr.models.Product import Product
 from flaskr.routes.utils import login_required, not_login, cross_origin, allowed_file, convert_and_save, delete_file, admin_required
 from flaskr.models.Brand import Brand
-
+from flaskr.models.User import User
 from flaskr.models.Category import Category
 
 bp = Blueprint('products', __name__, url_prefix='/products')
@@ -279,15 +279,15 @@ def delete_product(product_id):
     return '', 200
 
 
-@bp.route('/edit/<int:product_id>', methods=['PATCH', 'OPTIONS'])
+@bp.route('/edit/<string:permalink>', methods=['PATCH', 'OPTIONS'])
 @cross_origin(methods=['GET', 'PATCH'])
 @login_required
-def edit_product(product_id):
+def edit_product(permalink):
     """Endpoints to handle updating an existing product.
     Returns:
         str -- Returns a refreshed instance of the product as a JSON or an JSON containing any error encountered.
     """
-    
+
     # Validate that only the valid Product properties from the JSON schema update_product.schema.json
     schemas_direcotry = os.path.join(current_app.root_path, current_app.config['SCHEMA_FOLDER'])
     schema_filepath = os.path.join(schemas_direcotry, 'update_product.schema.json')
@@ -304,7 +304,7 @@ def edit_product(product_id):
     try:
         with session_scope() as db_session:
             # Retrieve product from database
-            query = db_session.query(Product).filter(Product.id == product_id)
+            query = db_session.query(Product).filter(Product.permalink == permalink, Product.user_id == g.user.id )
             
             if query.count() != 1:
                 return {
@@ -314,20 +314,12 @@ def edit_product(product_id):
             
             product = query.one()
 
-            # Check that user id == product creator id
-            # TODO: allow admins to edit any product
-            if (g.user.id != product.user_id):
-                return {
-                    'code': 400,
-                    'message': 'User does not have permission to edit this product'
-                }, 400
-            
             # Update info
             for key, value in request.json.items():
                 setattr(product, key, value)
             
             # Commit changes
-            db_session.add(product)
+            # db_session.add(product)
             #db_session.merge(product)
             db_session.commit()
 

@@ -1,6 +1,5 @@
 from functools import wraps, update_wrapper
 from flask import g, session, make_response, request, current_app
-from flaskr.models.User import User
 from flaskr.db import session_scope
 import os
 import base64

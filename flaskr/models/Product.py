@@ -37,13 +37,7 @@ class Product(Base):
 
     permalink_translation_tab = str.maketrans(' ()/_.~', '-------')
 
-    def photo_to_json(self):
-        photo_json = {}
-        if self.photos is not None:
-            for key, photo in self.photos:
-                photo_json[key] = encode_and_return(photo)
 
-        return photo_json
 
     def to_json(self):
         """Returns the instance of product as a JSON
@@ -67,6 +61,14 @@ class Product(Base):
             'dateAdded': str(self.date_added),
             'permalink': self.permalink,
             'specifications': self.specifications,
-            'photos': self.photos_to_json(self.photos),
+            'photos': self.photos_to_json(),
             'brand': self.brand.to_json()
         }
+
+    def photos_to_json(self):
+        photo_json = {}
+        if self.photos is not None:
+            for key, photo in self.photos:
+                photo_json[key] = encode_and_return(photo)
+
+        return photo_json
