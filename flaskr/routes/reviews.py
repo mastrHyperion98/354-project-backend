@@ -4,6 +4,7 @@ import os
 from jsonschema import validate, draft7_format_checker
 import jsonschema.exceptions
 import json
+from sqlalchemy.orm.exc import NoResultFound
 
 from flask import (
     Blueprint, g, request, session, current_app, session
@@ -158,14 +159,16 @@ def viewreview(username):
         # Check if cart id exists with cart items
         with session_scope() as db_session:
             rev_user_id = db_session.query(User).filter(User.username == username).one().id
-            myreview = db_session.query(Review).filter(User.id == rev_user_id)
+            myreview = db_session.query(Review)
 
             array=[]
             score = 0
-            num_reviews = len(myreview.all())
+            num_reviews = 0
             for item in myreview:
-                score = score + item.score
-                array.append(item.to_json())
+                if(item.product.user_id == rev_user_id):
+                    score = score + item.score
+                    array.append(item.to_json())
+                    num_reviews = num_reviews + 1
 
             if num_reviews != 0:
                 score = "%.2f" % (score / num_reviews)
@@ -182,6 +185,13 @@ def viewreview(username):
             'code': 400,
             'message': 'error: ' + db_error.args[0]
         }, 400
+
+    except NoResultFound:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': "No reviews have been registered"
+               }, 400
 
 @bp.route('/view/product/<string:permalink>', methods=['GET', 'OPTIONS'])
 @cross_origin(methods=['GET'])
@@ -214,3 +224,12 @@ def viewreview_product(permalink):
             'code': 400,
             'message': 'error: ' + db_error.args[0]
         }, 400
+
+    except NoResultFound:
+        # Returns an error in case of a integrity constraint not being followed.
+        return {
+                   'code': 400,
+                   'message': "No reviews have been registered"
+               }, 400
+
+
