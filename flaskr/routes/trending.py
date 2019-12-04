@@ -41,44 +41,15 @@ def view_trending_by_week():
         try:
             with session_scope() as db_session:
                 # Added filters by date
-                end_date = datetime.today()
-                n = 7
-                week = (end_date - timedelta(days=n)).date()
-                users = db_session.query(User).all()
-                trending = []
-                for user in users:
-                    username = user.username
-                    my_rev = viewreview(username)
-                    score = float(my_rev.json['score'])
+                result = db_session.execute('SELECT product.id, SUM(order_line.quantity) AS sales, AVG(review.score) AS avg_score FROM product JOIN "user" ON "user".id = product.user_id LEFT JOIN review ON review.product_id = product.id JOIN order_line ON order_line.product_id = product.id GROUP BY product.id HAVING AVG(review.score) >= 3.5 OR AVG(review.score) IS NULL ORDER BY avg_score, sales DESC LIMIT 10;')
 
-                    #score 0 means unreviewed seller
-                    if score >= 3.5 or score == 0:
-                        products = db_session.query(Product).filter(Product.user_id == user.id).all()
-                        for product in products:
-                            sales = 0
-                            order_lines = db_session.query(OrderLine).filter(OrderLine.product_id == product.id, Order.date.between(week, end_date))
-                            for order_line in order_lines:
-                                sales = sales + order_line.quantity
-                            product_to_add = ProductRecord(product.to_json(), sales)
-                            trending.append(product_to_add)
-                    #Sort the entries
-                    trending.sort(reverse=True)
-                    first_ten = []
-                    for i in range(min(10,len(trending))):
-                        first_ten.append(trending[i].to_json())
 
+                products = db_session.query(Product).filter(Product.id.in_((r['id'] for r in result))).all()
+
+                return {'products': [product.to_json() for product in products]}, 200
         except DBAPIError as db_error:
             # Returns an error in case of a integrity constraint not being followed.
             return {
                        'code': 400,
                        'message': re.search('DETAIL: (.*)', db_error.args[0]).group(1)
                    }, 400
-        except NoResultFound:
-            # Returns an error in case of a integrity constraint not being followed.
-            return {
-                       'code': 400,
-                       'message': "No sales have been registered"
-                   }, 400
-        return{
-            "top_products": first_ten
-              }, 200
