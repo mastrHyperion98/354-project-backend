@@ -1,4 +1,14 @@
-# 354TheStars - Marketplace
+# Archive Readme
+This is the backend portion of a term-long COMP354 project with the goal of being an E-Commerce website.
+
+Written using Python with a bunch of libraries. Acts as little more than a wrapper for the database.
+
+## Project Collaborators
+
+## License
+Unless otherwise stated, the project's licensed under the zlib license. Please refer to the [LICENSE.md](LICENSE.md) file for more details.
+
+# Original Readme Below
 
 ## Installation
 
