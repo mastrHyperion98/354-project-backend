@@ -1,7 +1,7 @@
 # Archive Readme
 This is the backend portion of a term-long COMP354 project with the goal of being an E-Commerce website.
 
-Written using Python with a bunch of libraries. Acts as little more than a wrapper for the database.
+Written using Python.
 
 [See frontend portion here](https://github.com/QuaternionMark/354-project-frontend).
 
