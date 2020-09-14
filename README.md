@@ -5,6 +5,11 @@ Written using Python.
 
 [See frontend portion here](https://github.com/QuaternionMark/354-project-frontend).
 
+# Design Documents
+
+* Click <a href="SRS.pdf">Here</a> to access the System Requirement Specification document.
+* Click <a href="Software_Design_Document.pdf">Here</a> to access the Software Design Document. 
+
 ## Project Members
 - Amrou Abdelhadi
 - Gheith Abi-Nader
