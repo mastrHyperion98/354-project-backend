@@ -10,6 +10,9 @@ Written using Python.
 * Click <a href="SRS.pdf">Here</a> to access the System Requirement Specification document.
 * Click <a href="Software_Design_Document.pdf">Here</a> to access the Software Design Document. 
 
+For cost reasons, the backend and frontend are no longer being hosted. You can view a detailed report of the app and images in our final report.
+You can access the final report <a href="Final_Report.pdf">here!</a>
+
 ## Project Members
 - Amrou Abdelhadi
 - Gheith Abi-Nader
